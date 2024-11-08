@@ -70,10 +70,10 @@ def login():
         RETURN p
         '''
 
-        patient = conn.query(query_string, {"email": request.form['email'], "password": request.form['password']})[0]
-        patient_data = patient.data()["p"]
+        patient = conn.query(query_string, {"email": request.form['email'], "password": request.form['password']})
 
         if patient: 
+            patient_data = patient[0].data()["p"]
             session["loggedin"] = True
             session["email"] = patient_data["email"]
             session["full_name"] = patient_data["full_name"]
