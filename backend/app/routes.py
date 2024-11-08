@@ -84,3 +84,10 @@ def login():
 
     return msg 
 
+@app.route('/logout', methods=['Post'])
+def logout():
+    session.pop('loggedin', None)
+    session.pop('email', None)
+    session.pop('full_name', None)
+    
+    return 'Success'
