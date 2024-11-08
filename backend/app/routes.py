@@ -11,29 +11,6 @@ conn = Neo4jConnection(uri="bolt://localhost:7687", user="neo4j", password="pass
 def index():
     return "Start page!"
 
-@app.route('/create')
-def create():
-    try:
-        conn.query('CREATE (n:test {name:"HELLO"})-[r:SUIT]->(m:test {name:"WORLD!"})')
-        
-    except Exception as e:
-        return str(e)
-
-    return "created!"
-
-@app.route('/read')
-def read():
-    try:
-        query_string = '''
-        MATCH (t:test)
-        RETURN t.name
-        '''
-        Data = [dict(data) for data in conn.query(query_string)]
-        return(str(Data))
-        
-    except Exception as e:
-        return str(e)
-
 @app.route('/register', methods=['POST'])
 def register():
     msg = ''
@@ -58,7 +35,7 @@ def register():
         RETURN p
         '''
 
-        patient = [dict(data) for data in conn.query(query_string, {"email": email})]
+        patient = conn.query(query_string, {"email": email})
 
         if patient: 
             msg = "Данная почта уже занята!"
@@ -84,3 +61,26 @@ def register():
 
     return msg
         
+@app.route('/login', methods=['POST'])
+def login():
+    msg = ''
+    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+        query_string = '''
+        MATCH(p:Patient {email: $email, password: $password})
+        RETURN p
+        '''
+
+        patient = conn.query(query_string, {"email": request.form['email'], "password": request.form['password']})[0]
+        patient_data = patient.data()["p"]
+
+        if patient: 
+            session["loggedin"] = True
+            session["email"] = patient_data["email"]
+            session["full_name"] = patient_data["full_name"]
+            
+            msg = 'Success'
+        else:
+            msg = 'Неправильный логин или пароль'
+
+    return msg 
+
