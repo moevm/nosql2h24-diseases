@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response 
 
+
 conn = Neo4jConnection(uri="bolt://localhost:7687", user="neo4j", password="password")
 
 @app.route('/')
