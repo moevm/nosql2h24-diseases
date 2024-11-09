@@ -3,14 +3,25 @@ from app.models.neo4jConnection import Neo4jConnection
 import re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response 
+import requests
+import os
 
-conn = Neo4jConnection(uri="bolt://localhost:7687", user="neo4j", password="password")
+uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+user = os.getenv("NEO4J_USER", "neo4j")
+password = os.getenv("NEO4J_PASSWORD", "password")
+
+conn = Neo4jConnection(uri, user, password)
 
 @app.route('/')
 @app.route('/index')
 def index():
     return "Start page!"
 
+@app.route('/test')
+def test():
+    dictToSend = {"full_name": "Шушков Егор", "password": "3214", "email": "lol@gmail.com",
+                                    "sex": "male", "birthday": "2004-08-04", "rd": datetime.now().isoformat(), "height": 95, "weight": 180}
+    res = requests.post('http://localhost:5000/register', json=dictToSend)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register() -> str:
