@@ -52,3 +52,13 @@ MarkupSafe==3.0.2
 neo4j==5.26.0
 pytz==2024.2
 Werkzeug==3.1.2
+blinker==1.8.2
+click==8.1.7
+Flask==3.0.3
+itsdangerous==2.2.0
+Jinja2==3.1.4
+MarkupSafe==3.0.2
+neo4j==5.26.0
+pytz==2024.2
+typing==3.7.4.3
+Werkzeug==3.1.2
