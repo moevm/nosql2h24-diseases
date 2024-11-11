@@ -17,7 +17,7 @@ conn = Neo4jConnection(uri, user, password)
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Start page!"
+    return redirect(url_for('db_page', entity_type=1))
 
 @app.route('/test')
 def test():
@@ -205,3 +205,8 @@ def createEntities():
     
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
+    
+@app.route('/db/<entity_type>', methods=['GET'])
+def db_page(entity_type):
+    return render_template('data_bases.html')
+
