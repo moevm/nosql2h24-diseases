@@ -210,3 +210,4 @@ def createEntities():
 def db_page(entity_type):
     return render_template('data_bases.html')
 
+
