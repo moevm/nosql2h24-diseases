@@ -208,6 +208,7 @@ def createEntities():
     
 @app.route('/db/<entity_type>', methods=['GET'])
 def db_page(entity_type):
+    #new chanes
     return render_template('data_bases.html')
 
 
