@@ -17,12 +17,12 @@ conn = Neo4jConnection(uri, user, password)
 @app.route('/')
 @app.route('/index')
 def index():
-    return redirect(url_for('db_page', entity_type=1))
+    return redirect(url_for('db_page', entity_type="Disease"))
 
 @app.route('/test')
 def test():
     dictToSend = {"full_name": "Шушков Егор", "password": "3214", "email": "lol@gmail.com",
-                                    "sex": "male", "birthday": "2004-08-04", "rd": datetime.now().isoformat(), "height": 95, "weight": 180}
+                                    "sex": "male", "birthday": "2004-08-04", "rd": datetime.now().isoformat(), "height": 95, "weight": 180, "admin": True}
     res = requests.post('http://localhost:5000/register', json=dictToSend)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -46,7 +46,8 @@ def register() -> str:
                                     'sex' in request.form and \
                                     'birthday' in request.form and \
                                     'height' in request.form and \
-                                    'weight' in request.form:
+                                    'weight' in request.form and \
+                                    "admin" in request.form:
 
         full_name : str = request.form['full_name']
         password : str = request.form['password']
@@ -55,6 +56,7 @@ def register() -> str:
         birthday : str = request.form['birthday']
         height : float = request.form['height']
         weight : float = request.form['weight']
+        admin : bool = request.form['admin']
 
         query_string : str = '''
         MATCH(p:Patient {email: $email})
@@ -74,11 +76,11 @@ def register() -> str:
 
         else:
             query_string = '''
-            MERGE (p:Patient {full_name: $full_name, password: $password, email: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd})
+            MERGE (p:Patient {full_name: $full_name, password: $password, email: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
             conn.query(query_string, {"full_name": full_name, "password": password, "email": email,
-                                    "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight})
+                                    "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
 
             msg = "Success"
 
@@ -114,6 +116,7 @@ def login() -> str:
             session["loggedin"] = True
             session["email"] = patient_data["email"]
             session["full_name"] = patient_data["full_name"]
+            session["admin"] = patient_data["admin"]
             
             msg = 'Success'
         else:
@@ -133,6 +136,7 @@ def logout() -> Response:
     session.pop('loggedin', None)
     session.pop('email', None)
     session.pop('full_name', None)
+    session.pop('admin', None)
     
     return redirect(url_for('login'))
 
@@ -208,7 +212,7 @@ def createEntities():
     
 @app.route('/db/<entity_type>', methods=['GET'])
 def db_page(entity_type):
-    #new chanes
-    return render_template('data_bases.html')
+    print(session)
+    return render_template('data_bases.html', session = session, certain_page = False)
 
 
