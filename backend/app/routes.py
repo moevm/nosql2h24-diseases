@@ -3,7 +3,7 @@ from app.models.neo4jConnection import Neo4jConnection
 from app.models.allowedEntity import allowed_entity_parameters
 import re
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json
 import requests
 import os
 
@@ -137,7 +137,18 @@ def logout() -> Response:
     return redirect(url_for('login'))
 
 @app.route('/entities/<entity_type>', methods=['POST'])
-def readEntities(entity_type):
+def readEntities(entity_type) -> json:
+    '''
+    Функция отвечает за чтение любой сущности из базы данных.
+
+    Ключевые переменные: 
+        entity_type (str) : наименование сущности, которую надо считать из БД
+
+    Возвращаемые данные: 
+        jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
+        параметры всех нодов с меткой "entity_type". 
+    '''
+
     query_string : str = f'''
     MATCH(p:{entity_type})
     RETURN p
@@ -151,14 +162,30 @@ def readEntities(entity_type):
         for entity in entities_list:
             entities_parametrs_list.append(entity.data()["p"])
 
-    return str(entities_parametrs_list)
+    return jsonify(entities_parametrs_list)
 
 
 @app.route('/create_entity', methods=['POST']) 
 def createEntities():
-    data = request.json
-    entity_type = data.get('entity_type')
-    entity_parametrs = data.get('parametrs', {})
+    '''
+    Функция отвечает за добавление элемента сущности в базу данных. Разрешено добавление только 
+    определённых сущностей со строго заданными параметрами.  
+
+    Ключевые переменные: 
+        entity_type (str) : наименование сущности, которую надо добавить в БД
+        entity_parametrs (dict) : параметры, которые надо добавить в нод сущности 
+        entity_parametrs_for_query (str) : форматирует запись json в необходимую форму
+        записи для выполнения команды на Cypher (запрос для neo4j)
+        
+
+    Возвращаемые данные: 
+        jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
+        параметры всех нодов с меткой "entity_type". 
+    '''
+
+    data : json = request.json
+    entity_type : str = data.get('entity_type')
+    entity_parametrs : dict = data.get('parametrs', {})
 
     if entity_type and entity_parametrs:
 
@@ -169,10 +196,10 @@ def createEntities():
             if parametr not in allowed_entity_parameters[entity_type]:
                 return jsonify({"Error": f'Parametr {parametr} not allowed to this entity\'s type'}), 400
         
-        entity_parametrs_for_query = ', '.join([f'{key}: "{value}"' if isinstance(value, str) else f'{key}: {value}' for key, value in entity_parametrs.items()])
-        query_string = f'''MERGE(p:{entity_type} {{{entity_parametrs_for_query}}})'''
+        entity_parametrs_for_query : str = ', '.join([f'{key}: "{value}"' if isinstance(value, str) else f'{key}: {value}' for key, value in entity_parametrs.items()])
+        query_string : str = f'''MERGE(p:{entity_type} {{{entity_parametrs_for_query}}})'''
 
-        result = conn.query(query_string)
+        result : list[Record] = conn.query(query_string)
 
         return "Success"
     
