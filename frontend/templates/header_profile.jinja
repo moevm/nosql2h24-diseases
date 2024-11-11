@@ -1,0 +1,11 @@
+<div class="header_profile">
+
+{% if is_profile == True -%}
+    <p>{{fullname}}</p>
+    {% if is_admin == True -%} <p>Администратор</p> {% endif -%}
+    <div class="avatar"></div>
+{% else -%}
+    <div class="log_in"></div>
+{% endif -%}
+
+</div>
