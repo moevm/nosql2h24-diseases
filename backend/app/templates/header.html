@@ -1,0 +1,14 @@
+{% macro input(session, certain_page) -%}
+<div class="header">
+        {% if not certain_page -%} <button> Поисковик </button> {% endif -%}
+        <h1>На дому</h1>
+        <p>Твой медицинский помощник</p>
+
+        {% if not session["loggedin"] -%} <button> Войти </button> 
+        {% else -%}
+                <p id="name"> {{session["full_name"]}} </p>
+                {% if session["admin"] -%} <p id="status">Администратор</p> {% endif -%}
+                <button id="exit">Выйти</button>
+        {% endif -%}
+</div>
+{%- endmacro %}

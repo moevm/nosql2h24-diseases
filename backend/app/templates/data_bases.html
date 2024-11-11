@@ -1,1 +1,41 @@
-Hello, DataBases!
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataBases</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/header.css') }}">
+</head>
+<body>
+    {% import 'header.html' as header %}
+    {{ header.input(session, certain_page) }}
+
+    <div>
+        <a class="menu {% if entity_type == 'Disease' -%} selected {% endif -%}">База болезней</a>
+        <a class="menu {% if entity_type == 'Appeal' -%} selected {% endif -%}">База обращений</a>
+        <a class="menu {% if entity_type == 'Symptom' -%} selected {% endif -%}">База симптомов</a>
+        <a class="menu {% if entity_type == 'Patient' -%} selected {% endif -%}">База пациентов</a>
+    </div>
+
+    <div id="left_panel">
+
+    </div>
+    <div id="list">
+        <table>
+            <tr>
+                {% for name in lst[0].keys() -%}
+                    <th>{{lst[0][name]}}</th>
+                {% endfor %}
+
+            </tr>
+            {% for elem in lst[1:] %}
+            <tr>
+                {% for key in lst[0].keys() %}
+                    <td> {{ elem[key] }} </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body> 
+</html>

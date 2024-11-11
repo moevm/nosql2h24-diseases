@@ -17,7 +17,7 @@ conn = Neo4jConnection(uri, user, password)
 @app.route('/')
 @app.route('/index')
 def index():
-    return redirect(url_for('db_page', entity_type="Disease"))
+    return redirect(url_for('db_page', entity_type="Patient"))
 
 @app.route('/test')
 def test():
@@ -39,7 +39,7 @@ def register() -> str:
         render_template('register.html', msg = msg) (string) : возвращаем шаблон страницы с комментарием 
     '''
 
-    msg : str = ''
+    msg : str = "that's okay"
     if request.method == 'POST' and 'full_name' in request.form and \
                                     'password' in request.form and \
                                     'email' in request.form and \
@@ -87,7 +87,7 @@ def register() -> str:
     elif request.method == 'POST':
         msg = "Пожалуйста, заполните форму!"
 
-    return render_template('register.html', msg = msg)
+    return msg
         
 @app.route('/login', methods=['GET', 'POST'])
 def login() -> str:
@@ -140,8 +140,8 @@ def logout() -> Response:
     
     return redirect(url_for('login'))
 
-@app.route('/entities/<entity_type>', methods=['POST'])
-def readEntities(entity_type) -> json:
+@app.route('/entities', methods=['POST'])
+def readEntities() -> json:
     '''
     Функция отвечает за чтение любой сущности из базы данных.
 
@@ -152,6 +152,8 @@ def readEntities(entity_type) -> json:
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
         параметры всех нодов с меткой "entity_type". 
     '''
+
+    entity_type : str = request.form['entity_type']
 
     query_string : str = f'''
     MATCH(p:{entity_type})
@@ -212,7 +214,32 @@ def createEntities():
     
 @app.route('/db/<entity_type>', methods=['GET'])
 def db_page(entity_type):
-    print(session)
-    return render_template('data_bases.html', session = session, certain_page = False)
+    response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
+    data = response.json()
+
+    match(entity_type):
+        case 'Disease':
+            data.insert(0, {"name": "Наименование", \
+                            "description": "Описание", \
+                            "recommendations": "Рекомендации", \
+                            "type": "Тип", \
+                            "course": "Возбудитель"} )
+        case 'Patient':
+            data.insert(0, {"full_name": "Фамилия и Имя", \
+                            "mail": "Почта", \
+                            "password": "Пароль", \
+                            "sex": "Пол", \
+                            "birthday": "День рождения", \
+                            "last_update": "Время последнего действия", \
+                            "registration_date": "Дата регистрации", \
+                            "height": "Рост", \
+                            "weight": "Вес", \
+                            "admin": "Права администратора"})
+        case 'Appeal':
+            data.insert(0, {"date": "Дата", "complaints": "Жалобы"})
+        case 'Symptom':
+            data.insert(0, {"name": "Наименование", "description": "Описание"})            
+
+    return render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data)
 
 
