@@ -133,3 +133,20 @@ def logout() -> Response:
     session.pop('full_name', None)
     
     return redirect(url_for('login'))
+
+@app.route('/entities/<entity_type>', methods=['POST'])
+def readEntities(entity_type):
+    query_string : str = f'''
+    MATCH(p:{entity_type})
+    RETURN p
+    '''
+   
+    entities_list : list[Record] = conn.query(query_string)
+
+    entities_parametrs_list : list[dict] = []
+
+    if entities_list:
+        for entity in entities_list:
+            entities_parametrs_list.append(entity.data()["p"])
+
+    return str(entities_parametrs_list)
