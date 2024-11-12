@@ -33,7 +33,7 @@ def register() -> str:
         render_template('register.html', msg = msg) (string) : возвращаем шаблон страницы с комментарием 
     '''
 
-    msg : str = "that's okay"
+    msg : str = None
     if request.method == 'POST' and 'full_name' in request.form and \
                                     'password' in request.form and \
                                     'email' in request.form and \
