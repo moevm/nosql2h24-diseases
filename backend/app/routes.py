@@ -17,7 +17,7 @@ conn = Neo4jConnection(uri, user, password)
 @app.route('/')
 @app.route('/index')
 def index():
-    return redirect(url_for('db_page', entity_type="Patient"))
+    return redirect(url_for('db_page', entity_type="Disease"))
 
 @app.route('/test')
 def test():
@@ -189,6 +189,8 @@ def createEntities():
         параметры всех нодов с меткой "entity_type". 
     '''
 
+    print(request)
+
     data : json = request.json
     entity_type : str = data.get('entity_type')
     entity_parametrs : dict = data.get('parametrs', {})
@@ -222,8 +224,8 @@ def db_page(entity_type):
             data.insert(0, {"name": "Наименование", \
                             "description": "Описание", \
                             "recommendations": "Рекомендации", \
-                            "type": "Тип", \
-                            "course": "Возбудитель"} )
+                            "type": "Возбудитель", \
+                            "course": "Протекание болезни"} )
         case 'Patient':
             data.insert(0, {"full_name": "Фамилия и Имя", \
                             "mail": "Почта", \

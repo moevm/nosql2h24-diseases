@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     {% import 'header.html' as header %}
@@ -22,7 +23,7 @@
     </div>
 
     <div id="left_panel">
-        <button id="openModalBtn">+</button>
+        <button id="addItemBtn">+</button>
     </div>
     <div id="list">
         <table>
@@ -44,28 +45,203 @@
 
     <div id="myModal" class="modal">
         <div class="modal-content">
-        <p>Содержимое модального окна...</p>
+        {% if entity_type == 'Disease' -%}
+            <h2>Добавление заболевания</h2>
+            <form id="diseaseForm">
+                <label for="name">Наименование:</label><br>
+                <input type="text" id="name" name="name" required><br>
+                <label for="description">Описание:</label><br>
+                <textarea id="description" name="description" required></textarea><br>
+                <label for="recommendations">Рекомендации:</label><br>
+                <textarea id="recommendations" name="recommendations" required></textarea><br>
+                <label for="type">Возбудитель:</label><br>
+                <input type="text" id="type" name="type" required><br>
+                <label for="course">Протекание болезни:</label><br>
+                <input type="text" id="course" name="course" required><br>
+
+                <input type="submit" value="Submit">
+            </form>
+        {% elif entity_type == 'Appeal' -%}
+            <h2>Добавление обращения</h2>
+            <form id="appealForm">
+                <label for="name">Дата:</label><br>
+                <input type="date" id="date" name="date" required><br>
+                <label for="complaints">Жалобы:</label><br>
+                <textarea id="complaints" name="complaints" required></textarea><br>
+
+                <input type="submit" value="Submit">
+            </form>
+        {% elif entity_type == 'Symptom' -%}
+            <h2>Добавление симптома</h2>
+            <form id="symptomForm">
+                <label for="name">Наименование:</label><br>
+                <input type="text" id="name" name="name" required><br>
+                <label for="description">Описание:</label><br>
+                <textarea id="description" name="description" required></textarea><br>
+
+                <input type="submit" value="Submit">
+            </form>
+        {% elif entity_type == 'Patient' -%}
+            <h2>Добавление пациента</h2>
+            <form id="patientForm">
+                <label for="full_name">ФИО:</label><br>
+                <input type="text" id="full_name" name="full_name" required><br>
+                <label for="mail">Почта:</label><br>
+                <input type="email" id="mail" name="mail" required><br>
+                <label for="password">Пароль:</label><br>
+                <input type="password" id="password" name="password" required><br>
+                <label for="sex">Пол:</label><br>
+                <input type="text" id="sex" name="sex" required><br>
+                <label for="birthday">Дата рождения:</label><br>
+                <input type="date" id="birthday" name="birthday" required><br>
+                <label for="last_update">Последнее обновление:</label><br>
+                <input type="datetime-local" id="last_update" name="last_update" required><br>
+                <label for="registration_date">Дата регистрации:</label><br>
+                <input type="datetime-local" id="registration_date" name="registration_date" required><br>
+                <label for="height">Рост:</label><br>
+                <input type="number" id="height" name="height" required><br>
+                <label for="weight">Вес:</label><br>
+                <input type="number" id="weight" name="weight" required><br>
+                <label for="admin">Администратор:</label><br>
+                <input type="checkbox" id="admin" name="admin"><br>
+
+                <input type="submit" value="Submit">
+            </form>
+        {% endif -%}
         <button id="closeModalBtn">Закрыть</button>
         </div>
     </div>
 
     <script>
-        // Получаем элементы
         var modal = document.getElementById("myModal");
-        var btn = document.getElementById("openModalBtn");
+        var btn = document.getElementById("addItemBtn");
         var span = document.getElementById("closeModalBtn");
         
-        // Когда пользователь нажимает на кнопку, открываем модальное окно
+        {% if entity_type == 'Disease' -%}
+            $(document).ready(function() {
+                $('#diseaseForm').submit(function(event) {
+                    event.preventDefault();
+                    var formData = {
+                        entity_type: 'Disease',
+                        parametrs: {
+                            name: $('#name').val(),
+                            description: $('#description').val(),
+                            recommendations: $('#recommendations').val(),
+                            type: $('#type').val(),
+                            course: $('#course').val()
+                        }
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/create_entity',
+                        data: JSON.stringify(formData),
+                        contentType: 'application/json',
+                        success: function(response) {
+                            modal.style.display = "none";
+                        },
+                        error: function(error) {
+                            alert('Error: ' + error.responseJSON.Error);
+                        }
+                    });
+                });
+            });
+        {% elif entity_type == 'Appeal' -%}
+            $(document).ready(function() {
+                    $('#appealForm').submit(function(event) {
+                        event.preventDefault();
+                        var formData = {
+                            entity_type: 'Appeal',
+                            parametrs: {
+                                date: $('#date').val(),
+                                complaints: $('#complaints').val(),
+                            }
+                        };
+
+                        $.ajax({
+                            type: 'POST',
+                            url: '/create_entity',
+                            data: JSON.stringify(formData),
+                            contentType: 'application/json',
+                            success: function(response) {
+                                modal.style.display = "none";
+                            },
+                            error: function(error) {
+                                alert('Error: ' + error.responseJSON.Error);
+                            }
+                        });
+                    });
+                });
+        {% elif entity_type == 'Symptom' -%}
+            $(document).ready(function() {
+                $('#symptomForm').submit(function(event) {
+                    event.preventDefault();
+                    var formData = {
+                        entity_type: 'Symptom',
+                        parametrs: {
+                            name: $('#name').val(),
+                            description: $('#description').val()
+                        }
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/create_entity',
+                        data: JSON.stringify(formData),
+                        contentType: 'application/json',
+                        success: function(response) {
+                            modal.style.display = "none";
+                        },
+                        error: function(error) {
+                            alert('Error: ' + error.responseJSON.Error);
+                        }
+                    });
+                });
+            });
+        {% elif entity_type == 'Patient' -%}
+            $(document).ready(function() {
+                $('#patientForm').submit(function(event) {
+                    event.preventDefault();
+                    var formData = {
+                        entity_type: 'Patient',
+                        parametrs: {
+                            full_name: $('#full_name').val(),
+                            mail: $('#mail').val(),
+                            password: $('#password').val(),
+                            sex: $('#sex').val(),
+                            birthday: $('#birthday').val(),
+                            last_update: $('#last_update').val(),
+                            registration_date: $('#registration_date').val(),
+                            height: $('#height').val(),
+                            weight: $('#weight').val(),
+                            admin: $('#admin').is(':checked')
+                        }
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '/create_entity',
+                        data: JSON.stringify(formData),
+                        contentType: 'application/json',
+                        success: function(response) {
+                            modal.style.display = "none";
+                        },
+                        error: function(error) {
+                            alert('Error: ' + error.responseJSON.Error);
+                        }
+                    });
+                });
+            });
+        {% endif -%}
+
         btn.onclick = function() {
           modal.style.display = "block";
         }
         
-        // Когда пользователь нажимает на <span> (x), закрываем модальное окно
         span.onclick = function() {
           modal.style.display = "none";
         }
         
-        // Когда пользователь нажимает в любое место за пределами модального окна, закрываем его
         window.onclick = function(event) {
           if (event.target == modal) {
             modal.style.display = "none";
