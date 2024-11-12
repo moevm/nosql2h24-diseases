@@ -19,12 +19,6 @@ conn = Neo4jConnection(uri, user, password)
 def index():
     return redirect(url_for('db_page', entity_type="Disease"))
 
-@app.route('/test')
-def test():
-    dictToSend = {"full_name": "Шушков Егор", "password": "3214", "email": "lol@gmail.com",
-                                    "sex": "male", "birthday": "2004-08-04", "rd": datetime.now().isoformat(), "height": 95, "weight": 180, "admin": True}
-    res = requests.post('http://localhost:5000/register', json=dictToSend)
-
 @app.route('/register', methods=['GET', 'POST'])
 def register() -> str:
     '''
