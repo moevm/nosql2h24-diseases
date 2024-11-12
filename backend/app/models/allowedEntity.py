@@ -8,7 +8,8 @@ allowed_entity_parameters = {
         "last_update",
         "registration_date",
         "height",
-        "weight"
+        "weight",
+        "admin"
     ],
     "Appeal": [
         "date",
