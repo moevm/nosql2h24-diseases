@@ -12,7 +12,7 @@ user = os.getenv("NEO4J_USER", "neo4j")
 password = os.getenv("NEO4J_PASSWORD", "password")
 
 conn = Neo4jConnection(uri, user, password)
-
+ 
 
 @app.route('/')
 @app.route('/index')
