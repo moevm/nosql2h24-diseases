@@ -17,13 +17,7 @@ conn = Neo4jConnection(uri, user, password)
 @app.route('/')
 @app.route('/index')
 def index():
-    return "Start page!"
-
-@app.route('/test')
-def test():
-    dictToSend = {"full_name": "Шушков Егор", "password": "3214", "email": "lol@gmail.com",
-                                    "sex": "male", "birthday": "2004-08-04", "rd": datetime.now().isoformat(), "height": 95, "weight": 180}
-    res = requests.post('http://localhost:5000/register', json=dictToSend)
+    return redirect(url_for('db_page', entity_type="Disease"))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register() -> str:
@@ -39,14 +33,15 @@ def register() -> str:
         render_template('register.html', msg = msg) (string) : возвращаем шаблон страницы с комментарием 
     '''
 
-    msg : str = ''
+    msg : str = "that's okay"
     if request.method == 'POST' and 'full_name' in request.form and \
                                     'password' in request.form and \
                                     'email' in request.form and \
                                     'sex' in request.form and \
                                     'birthday' in request.form and \
                                     'height' in request.form and \
-                                    'weight' in request.form:
+                                    'weight' in request.form and \
+                                    "admin" in request.form:
 
         full_name : str = request.form['full_name']
         password : str = request.form['password']
@@ -55,6 +50,7 @@ def register() -> str:
         birthday : str = request.form['birthday']
         height : float = request.form['height']
         weight : float = request.form['weight']
+        admin : bool = request.form['admin']
 
         query_string : str = '''
         MATCH(p:Patient {email: $email})
@@ -74,18 +70,18 @@ def register() -> str:
 
         else:
             query_string = '''
-            MERGE (p:Patient {full_name: $full_name, password: $password, email: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd})
+            MERGE (p:Patient {full_name: $full_name, password: $password, email: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
             conn.query(query_string, {"full_name": full_name, "password": password, "email": email,
-                                    "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight})
+                                    "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
 
             msg = "Success"
 
     elif request.method == 'POST':
         msg = "Пожалуйста, заполните форму!"
 
-    return render_template('register.html', msg = msg)
+    return msg
         
 @app.route('/login', methods=['GET', 'POST'])
 def login() -> str:
@@ -100,7 +96,7 @@ def login() -> str:
     Возвращаемые данные:
         render_template('login.html', msg = msg) (string) : возвращаем шаблон страницы с комментарием 
     '''
-    msg = ''
+    msg = None
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         query_string : str = '''
         MATCH(p:Patient {email: $email, password: $password})
@@ -114,14 +110,18 @@ def login() -> str:
             session["loggedin"] = True
             session["email"] = patient_data["email"]
             session["full_name"] = patient_data["full_name"]
-            
-            msg = 'Success'
+            session["admin"] = patient_data["admin"]
         else:
             msg = 'Неправильный логин или пароль'
+    elif request.method == 'GET':
+        return render_template('account.html', session = session, certain_page = False)
 
-    return render_template('login.html', msg = msg)
+    if msg is None:
+        return redirect(url_for('db_page', entity_type="Disease"))
+    else:
+        return render_template('account.html', session = session, certain_page = False, err = msg)
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods=['GET'])
 def logout() -> Response:
     '''
     Функция отвечает за выход пользователя из аккаунта. 
@@ -133,11 +133,12 @@ def logout() -> Response:
     session.pop('loggedin', None)
     session.pop('email', None)
     session.pop('full_name', None)
+    session.pop('admin', None)
     
     return redirect(url_for('login'))
 
-@app.route('/entities/<entity_type>', methods=['POST'])
-def readEntities(entity_type) -> json:
+@app.route('/entities', methods=['POST'])
+def readEntities() -> json:
     '''
     Функция отвечает за чтение любой сущности из базы данных.
 
@@ -148,6 +149,8 @@ def readEntities(entity_type) -> json:
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
         параметры всех нодов с меткой "entity_type". 
     '''
+
+    entity_type : str = request.form['entity_type']
 
     query_string : str = f'''
     MATCH(p:{entity_type})
@@ -183,6 +186,8 @@ def createEntities():
         параметры всех нодов с меткой "entity_type". 
     '''
 
+    print(request)
+
     data : json = request.json
     entity_type : str = data.get('entity_type')
     entity_parametrs : dict = data.get('parametrs', {})
@@ -205,3 +210,46 @@ def createEntities():
     
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
+    
+@app.route('/db/<entity_type>', methods=['GET'])
+def db_page(entity_type):
+    '''
+    Функция отвечает за получение данных, создание таблицы сущностей определённого типа и её визуализацию.
+
+    Ключевые переменные: 
+        entity_type (str) : наименование сущности, которую надо добавить в БД
+        data (dict) : база данных с требуемыми запрошенными по entity_type сущностями 
+        
+
+    Возвращаемые данные: 
+        render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data) (string) : возвращаем шаблон страницы с таблицей и данными о пользователе 
+    '''
+    response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
+    data = response.json()
+
+    match(entity_type):
+        case 'Disease':
+            data.insert(0, {"name": "Наименование", \
+                            "description": "Описание", \
+                            "recommendations": "Рекомендации", \
+                            "type": "Возбудитель", \
+                            "course": "Протекание болезни"} )
+        case 'Patient':
+            data.insert(0, {"full_name": "Фамилия и Имя", \
+                            "email": "Почта", \
+                            "password": "Пароль", \
+                            "sex": "Пол", \
+                            "birthday": "День рождения", \
+                            "last_update": "Время последнего действия", \
+                            "registration_date": "Дата регистрации", \
+                            "height": "Рост", \
+                            "weight": "Вес", \
+                            "admin": "Права администратора"})
+        case 'Appeal':
+            data.insert(0, {"date": "Дата", "complaints": "Жалобы"})
+        case 'Symptom':
+            data.insert(0, {"name": "Наименование", "description": "Описание"})            
+
+    return render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data)
+
+

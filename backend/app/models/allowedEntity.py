@@ -1,14 +1,15 @@
 allowed_entity_parameters = {
     "Patient": [
         "full_name",
-        "mail",
+        "email",
         "password",
         "sex",
         "birthday",
         "last_update",
         "registration_date",
         "height",
-        "weight"
+        "weight",
+        "admin"
     ],
     "Appeal": [
         "date",
