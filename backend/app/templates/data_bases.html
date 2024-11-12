@@ -1,19 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DataBases</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/header.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles/db.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
+
     {% import 'header.html' as header %}
-    {{ header.input(session, certain_page) }}
+    {{ header.input(session, certain_page, "db") }}
 
     <div class="menu">
         <a class="menu {% if entity_type == 'Disease' -%} selected {% endif -%}" href="http://127.0.0.1:5000/db/Disease">База болезней</a>
@@ -23,7 +10,9 @@
     </div>
 
     <div id="left_panel">
-        <button id="addItemBtn">+</button>
+        {% if session["admin"] == "True"-%}
+        <button id="addItemBtn">{{session["admin"]}}</button>
+        {% endif -%}
     </div>
     <div id="list">
         <table>
@@ -86,8 +75,8 @@
             <form id="patientForm">
                 <label for="full_name">ФИО:</label><br>
                 <input type="text" id="full_name" name="full_name" required><br>
-                <label for="mail">Почта:</label><br>
-                <input type="email" id="mail" name="mail" required><br>
+                <label for="email">Почта:</label><br>
+                <input type="email" id="email" name="email" required><br>
                 <label for="password">Пароль:</label><br>
                 <input type="password" id="password" name="password" required><br>
                 <label for="sex">Пол:</label><br>
@@ -206,7 +195,7 @@
                         entity_type: 'Patient',
                         parametrs: {
                             full_name: $('#full_name').val(),
-                            mail: $('#mail').val(),
+                            email: $('#email').val(),
                             password: $('#password').val(),
                             sex: $('#sex').val(),
                             birthday: $('#birthday').val(),

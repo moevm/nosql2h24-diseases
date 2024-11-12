@@ -96,7 +96,7 @@ def login() -> str:
     Возвращаемые данные:
         render_template('login.html', msg = msg) (string) : возвращаем шаблон страницы с комментарием 
     '''
-    msg = ''
+    msg = None
     if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
         query_string : str = '''
         MATCH(p:Patient {email: $email, password: $password})
@@ -111,14 +111,17 @@ def login() -> str:
             session["email"] = patient_data["email"]
             session["full_name"] = patient_data["full_name"]
             session["admin"] = patient_data["admin"]
-            
-            msg = 'Success'
         else:
             msg = 'Неправильный логин или пароль'
+    elif request.method == 'GET':
+        return render_template('account.html', session = session, certain_page = False)
 
-    return render_template('login.html', msg = msg)
+    if msg is None:
+        return redirect(url_for('db_page', entity_type="Disease"))
+    else:
+        return render_template('account.html', session = session, certain_page = False, err = msg)
 
-@app.route('/logout', methods=['POST'])
+@app.route('/logout', methods=['GET'])
 def logout() -> Response:
     '''
     Функция отвечает за выход пользователя из аккаунта. 
@@ -222,7 +225,7 @@ def db_page(entity_type):
                             "course": "Протекание болезни"} )
         case 'Patient':
             data.insert(0, {"full_name": "Фамилия и Имя", \
-                            "mail": "Почта", \
+                            "email": "Почта", \
                             "password": "Пароль", \
                             "sex": "Пол", \
                             "birthday": "День рождения", \
