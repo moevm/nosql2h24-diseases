@@ -10,8 +10,8 @@
     </div>
 
     <div id="left_panel">
-        {% if session["admin"] == "True"-%}
-        <button id="addItemBtn">{{session["admin"]}}</button>
+        {% if session.admin == "True" -%}
+        <button id="addItemBtn">Добавить элемент</button>
         {% endif -%}
     </div>
     <div id="list">
@@ -38,7 +38,7 @@
             <h2>Добавление заболевания</h2>
             <form id="diseaseForm">
                 <label for="name">Наименование:</label><br>
-                <input type="text" id="name" name="name" required><br>
+                <input type="text" id="name_disease" name="name" required><br>
                 <label for="description">Описание:</label><br>
                 <textarea id="description" name="description" required></textarea><br>
                 <label for="recommendations">Рекомендации:</label><br>
@@ -64,7 +64,7 @@
             <h2>Добавление симптома</h2>
             <form id="symptomForm">
                 <label for="name">Наименование:</label><br>
-                <input type="text" id="name" name="name" required><br>
+                <input type="text" id="name_symptom" name="name" required><br>
                 <label for="description">Описание:</label><br>
                 <textarea id="description" name="description" required></textarea><br>
 
@@ -113,7 +113,7 @@
                     var formData = {
                         entity_type: 'Disease',
                         parametrs: {
-                            name: $('#name').val(),
+                            name: $('#name_disease').val(),
                             description: $('#description').val(),
                             recommendations: $('#recommendations').val(),
                             type: $('#type').val(),
@@ -168,7 +168,7 @@
                     var formData = {
                         entity_type: 'Symptom',
                         parametrs: {
-                            name: $('#name').val(),
+                            name: $('#name_symptom').val(),
                             description: $('#description').val()
                         }
                     };

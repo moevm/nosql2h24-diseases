@@ -11,28 +11,87 @@ body{
     padding: 0px;
 }
 
-#searching{
-    width: 290px;
+button{
     height: 50px;
     border-radius: 25px;
-    
     padding: 0;
     border: none;
-	background: #FFFFFF;
+      background: #FFFFFF;
     color: #000000;
-    
+      
     font-family: "Comfortaa", sans-serif;
     font-size: 18px;
+      
+      padding: 8px 8px 8px 8px;
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.3;
+      text-align: right;
+  }
+  
+  #searching{
+      width: 290px;
+     
     
-	padding: 8px 8px 8px 8px;
-	font-weight: 400;
-	font-size: 18px;
-	line-height: 1.3;
-	text-align: right;
-	
-	margin-left: 30px;
-	margin-top: 25px;
-}
+      padding: 0;
+      border: none;
+      background: #FFFFFF;
+      color: #000000;
+      
+      font-family: "Comfortaa", sans-serif;
+      font-size: 18px;
+      
+      padding: 8px 8px 8px 8px;
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.3;
+      text-align: right;
+      
+      margin-left: 30px;
+      margin-top: 25px;
+  }
+  
+  .enter{
+    float: right;
+    margin-right: 30px;
+    
+    position: relative;
+    top: -265px;
+  }
+
+  .exit{
+    float: right;
+    position: relative;
+    top: -270px;
+  }
+  
+  #name{
+    float: right;
+    position: relative;
+    top: -275px;
+    right: 10px;
+  
+    height: 40px;
+    color: #FFFFFF;
+    font-weight: 400;
+    font-size: 22px;
+  
+  }
+  
+  #status{
+    float: right;
+    position: relative;
+    top: -245px;
+    left: 160px;
+  
+      width: 173px;
+      height: 38px;
+      color: #1EB9B9;
+  
+      font-weight: 400;
+      font-size: 18px;
+      text-align: left;
+  }
 
 h1{
 	width: 270px;

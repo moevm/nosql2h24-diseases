@@ -213,6 +213,17 @@ def createEntities():
     
 @app.route('/db/<entity_type>', methods=['GET'])
 def db_page(entity_type):
+    '''
+    Функция отвечает за получение данных, создание таблицы сущностей определённого типа и её визуализацию.
+
+    Ключевые переменные: 
+        entity_type (str) : наименование сущности, которую надо добавить в БД
+        data (dict) : база данных с требуемыми запрошенными по entity_type сущностями 
+        
+
+    Возвращаемые данные: 
+        render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data) (string) : возвращаем шаблон страницы с таблицей и данными о пользователе 
+    '''
     response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
     data = response.json()
 
