@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DataBases</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/db.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
 </head>
 <body>
     {% import 'header.html' as header %}
     {{ header.input(session, certain_page) }}
 
-    <div>
-        <a class="menu {% if entity_type == 'Disease' -%} selected {% endif -%}">База болезней</a>
-        <a class="menu {% if entity_type == 'Appeal' -%} selected {% endif -%}">База обращений</a>
-        <a class="menu {% if entity_type == 'Symptom' -%} selected {% endif -%}">База симптомов</a>
-        <a class="menu {% if entity_type == 'Patient' -%} selected {% endif -%}">База пациентов</a>
+    <div class="menu">
+        <a class="menu {% if entity_type == 'Disease' -%} selected {% endif -%}" href="http://127.0.0.1:5000/db/Disease">База болезней</a>
+        <a class="menu {% if entity_type == 'Appeal' -%} selected {% endif -%}" href="http://127.0.0.1:5000/db/Appeal">База обращений</a>
+        <a class="menu {% if entity_type == 'Symptom' -%} selected {% endif -%}" href="http://127.0.0.1:5000/db/Symptom">База симптомов</a>
+        <a class="menu {% if entity_type == 'Patient' -%} selected {% endif -%}" href="http://127.0.0.1:5000/db/Patient">База пациентов</a>
     </div>
 
     <div id="left_panel">
-
+        <button id="openModalBtn">+</button>
     </div>
     <div id="list">
         <table>
@@ -37,5 +41,36 @@
             {% endfor %}
         </table>
     </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+        <p>Содержимое модального окна...</p>
+        <button id="closeModalBtn">Закрыть</button>
+        </div>
+    </div>
+
+    <script>
+        // Получаем элементы
+        var modal = document.getElementById("myModal");
+        var btn = document.getElementById("openModalBtn");
+        var span = document.getElementById("closeModalBtn");
+        
+        // Когда пользователь нажимает на кнопку, открываем модальное окно
+        btn.onclick = function() {
+          modal.style.display = "block";
+        }
+        
+        // Когда пользователь нажимает на <span> (x), закрываем модальное окно
+        span.onclick = function() {
+          modal.style.display = "none";
+        }
+        
+        // Когда пользователь нажимает в любое место за пределами модального окна, закрываем его
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        }
+    </script>
 </body> 
 </html>
