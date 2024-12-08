@@ -1,0 +1,10 @@
+<div class="header">
+    <button *ngIf="is_curtain_page" id="searching"> Вернуться к поисковику </button>
+    <h1>На дому</h1>
+    <p id="title">Твой медицинский помощник</p>
+
+    <button *ngIf="is_logged_in" (click)="navigateToLogin()"  class="button enter">Войти</button>
+    <button  *ngIf="!is_logged_in" (click)="navigateToLogin()"  class="button exit">Выйти</button>
+    <p id="name"> {{ fullname }} </p>
+    <p *ngIf="is_admin" id="status">Администратор</p>
+</div>
