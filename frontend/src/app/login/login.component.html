@@ -1,1 +1,14 @@
-<p>login works!</p>
+<div id="login">
+  <h2>Авторизация</h2>
+  <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+    <label for="email"> <p>Почта</p> </label>
+    <input type="text" id="email" name="email" placeholder="Email" [ngClass]="{'activate': email}" [(ngModel)]="email" required>
+    <label for="password"> <p>Пароль:</p> </label>
+    <input type="password" id="password" name="password" placeholder="Password" [ngClass]="{'activate': password}" [(ngModel)]="password" required>
+
+    <p *ngIf="isError" class="error"> Ошибка </p>
+
+    <input type="submit" value="Войти" id="button">
+  </form>
+  <p>Нет аккаунта? <a>Создай его!</a></p>
+</div>

@@ -6,7 +6,7 @@ import { HeaderComponent } from './header/header.component';
   selector: 'app-root',
   imports: [RouterOutlet, HeaderComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.less'
+  styleUrls: ['./app.component.less']
 })
 export class AppComponent {
   title = 'frontend';
