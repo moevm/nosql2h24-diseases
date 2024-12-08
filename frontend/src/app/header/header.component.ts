@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
@@ -10,16 +10,22 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './header.component.less'
 })
 export class HeaderComponent {
-  is_curtain_page = true;
-  is_logged_in = false;
-  is_admin = true;
+  isCurtainPage = true;
+  isLoggedIn = false;
+  isAdmin = true;
   fullname = "Прошичев Александр"
 
   constructor(private router: Router) {}
 
-  navigateToLogin() {
-    //this.router.navigate(['/login']);
-    this.is_logged_in = !this.is_logged_in;
+  ngOnInit(){
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.isCurtainPage = this.router.url === '/login';
+      }
+    });
+  }
 
+  navigateToLogin() {
+    this.router.navigate(['/login']);
   }
 }
