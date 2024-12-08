@@ -1,0 +1,29 @@
+{% macro input(session, certain_page, css_file) -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataBases</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/' + css_file + '.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<div class="header">
+        {% if not certain_page -%} <button id="searching"> Вернуться к поисковику </button> {% endif -%}
+        <h1>На дому</h1>
+        <p id="title">Твой медицинский помощник</p>
+
+        {% if not session["loggedin"] -%} <button onclick="location.href='http://127.0.0.1:5000/login';" class="button enter">Войти</button>
+        {% else -%}
+                <button onclick="location.href='http://127.0.0.1:5000/logout';" class="button exit">Выйти</button>
+                <p id="name"> {{session["full_name"]}} </p>
+                {% if session.admin == "True" -%} <p id="status">Администратор</p> {% endif -%}
+        {% endif -%}
+</div>
+{%- endmacro %}
