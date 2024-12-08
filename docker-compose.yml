@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   neo4j:
-    image: neo4j:5.25.1
+    build:
+      context: ./neo4j
+      dockerfile: Dockerfile
     ports:
       - "7474:7474"
       - "7687:7687"
@@ -28,8 +30,6 @@ services:
       - neo4j
     networks:
       - neo4j-network
-    volumes:
-      - backend-data:/backend
 
 networks:
   neo4j-network:
@@ -37,4 +37,3 @@ networks:
 
 volumes:
   neo4j-data:
-  backend-data:

@@ -249,6 +249,62 @@ def db_page(entity_type):
         case 'Symptom':
             data.insert(0, {"name": "Наименование", "description": "Описание"})            
 
+    return "OH"
     return render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data)
 
 
+@app.route('/import_dump', methods=['GET'])
+def import_dump():
+    query_string : str = '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'patient'
+        MERGE (p:Patient {fullname: row.fullname, mail: row.mail, password: row.password, sex: row.sex, age: row.age, height: row.height, weight: row.weight, last_update: row.last_update, admin: row.admin, birthday: row.birthday, registration_data: row.registration_data});
+
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'symptom'
+        MERGE (s:Symptom {name: row.symptom_name, description: row.symptom_description});
+
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'disease'
+        MERGE (d:Disease {name: row.disease_name, description: row.disease_description, recommendations: row.disease_recommendations, type: row.disease_type, course: row.disease_course});
+
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'analysis'
+        MERGE (an:Analysis {name: row.analysis_name, source: row.analysis_source});
+
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'patient-appeal'
+        MATCH (p:Patient {email: row.relation_from}), (a:Appeal {date: row.relation_to})
+        MERGE (p)-[:create]->(a)
+        MERGE (a)-[:belong]->(p);
+
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'appeal-symptom'
+        MATCH (a:Appeal {date: row.relation_from}), (s:Symptom {name: row.relation_to})
+        MERGE (a)-[:contain]->(s);
+
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'symptom-analysis'
+        MATCH (s:Symptom {name: row.relation_from}), (an:Analysis {name: row.relation_to})
+        MERGE (s)-[:confirm]->(an);
+
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'appeal-disease'
+        MATCH (a:Appeal {date: row.relation_from}), (d:Disease {name: row.relation_to})
+        MERGE (a)-[:predict]->(d);
+
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'symptom-disease'
+        MATCH (d:Disease {name: row.relation_from}), (s:Symptom {name: row.relation_to}) 
+        MERGE (s)-[:describe {weight: row.symptom_weight}]->(d)
+        MERGE (d)-[:cause {weight: row.symptom_weight}]->(s);
+        '''
+    
+    try:
+        conn.query(query_string)
+    except Exception as e:
+        return str(e)
+         
+    return "done"
+
+        
