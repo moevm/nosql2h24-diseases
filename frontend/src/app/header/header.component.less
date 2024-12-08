@@ -1,0 +1,128 @@
+@import "../app.component.less";
+
+.header{
+    width: 100%;
+    height: 100px;
+    background-color: @med_color;
+    padding: 0px;
+    font-family: @font_family;
+
+    button{
+        height: 50px;
+        font-family: @font_family;
+        border-radius: 25px;
+        padding: 0;
+        border: none;
+        background: #FFFFFF;
+        color: #000000;
+    
+        font-size: 18px;
+          
+        padding: 8px 8px 8px 8px;
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 1.3;
+        text-align: right;
+
+        &:hover{
+            cursor: pointer;
+        }
+
+        &:active{
+            background-color: lighten(@med_color, 35%);
+        }
+    }
+    
+    #searching{
+        position: fixed;
+        width: 290px;
+       
+    
+        border: none;
+        background: #FFFFFF;
+        color: #000000;
+        
+        font-family: @font_family;
+        font-size: 18px;
+        
+        padding: 14px 8px 8px 8px;
+        font-weight: 400;
+        font-size: 18px;
+        line-height: 1.3;
+        text-align: right;
+        
+        margin-left: 30px;
+        margin-top: 25px;
+
+        span{
+            position: relative;
+            bottom: 7px;
+        }
+        
+        mat-icon{
+            position: relative;
+            right: 6px;
+        }
+
+    }
+
+    .enter{
+        position: fixed;
+        float:right;
+        right: 30px;
+        top: 25px;
+      }
+    
+      #name{
+        position: fixed;
+        float: right;
+        right: 140px;
+        top: 15px;
+        height: 40px;
+        color: #FFFFFF;
+        font-weight: 400;
+        font-size: 22px;
+      
+      }
+      
+      #status{
+        float: right;
+        position: fixed;
+        right: 140px;
+        top: 45px;
+      
+          width: 173px;
+          height: 38px;
+          color: #1EB9B9;
+      
+          font-weight: 400;
+          font-size: 18px;
+          text-align: left;
+      }
+    
+    h1{
+        position: fixed;
+        top: 5px;
+        left: 800px;
+        color: #FFFFFF;
+        font-weight: 400;
+        font-size: 60px;
+        margin: 0;
+
+    }
+    
+    #title {
+        position: fixed;
+        top: 55px;
+        left: 790px;
+        color: #232323;
+        font-weight: 400;
+        font-size: 18px;
+    }
+
+}
+  
+  
+  
+
+
