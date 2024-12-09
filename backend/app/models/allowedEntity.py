@@ -1,6 +1,6 @@
 allowed_entity_parameters = {
     "Patient": [
-        "full_name",
+        "fullname",
         "mail",
         "password",
         "sex",
@@ -12,22 +12,51 @@ allowed_entity_parameters = {
         "admin"
     ],
     "Appeal": [
-        "date",
-        "complaints"
+        "appeal_date",
+        "appeal_complaints"
     ],
     "Symptom": [
-        "name",
-        "description"
+        "symptom_name",
+        "symptom_description"
     ],
     "Disease": [
-        "name",
-        "description",
-        "recommendations",
-        "type",
-        "course"
+        "disease_name",
+        "disease_description",
+        "disease_recommendations",
+        "disease_type",
+        "disease_course"
     ],
     "Analysis": [
-        "name",
-        "source"
+        "disease_name",
+        "disease_source"
     ]
 }
+
+CSV_columns = [
+    "type",
+    "fullname",
+    "mail",
+    "password",
+    "sex",
+    "age",
+    "height",
+    "weight",
+    "admin",
+    "birthday",
+    "last_update",
+    "registration_data",
+    "disease_name",
+    "disease_description",
+    "disease_recommendations",
+    "disease_type",
+    "disease_course",
+    "symptom_name",
+    "symptom_description",
+    "analysis_name",
+    "analysis_source",
+    "relation_from",
+    "relation_to",
+    "symptom_weight",
+    "appeal_date",
+    "appeal_complaints"
+]

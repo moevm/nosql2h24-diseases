@@ -30,6 +30,8 @@ services:
       - neo4j
     networks:
       - neo4j-network
+    volumes:
+      - ./backend/app/models/dumps:/backend/app/models/dumps
 
 networks:
   neo4j-network:

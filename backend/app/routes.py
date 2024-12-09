@@ -1,11 +1,12 @@
 from app import app
 from app.models.neo4jConnection import Neo4jConnection
-from app.models.allowedEntity import allowed_entity_parameters
+from app.models.allowedEntity import allowed_entity_parameters, CSV_columns
 import re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json
 import requests
 import os
+import csv 
 
 uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 user = os.getenv("NEO4J_USER", "neo4j")
@@ -42,9 +43,9 @@ def register() -> str:
                                     'weight' in request.form and \
                                     "admin" in request.form:
 
-        full_name : str = request.form['full_name']
+        fullname : str = request.form['full_name']
         password : str = request.form['password']
-        email : str = request.form['email']
+        mail : str = request.form['email']
         sex : str = request.form['sex']
         birthday : str = request.form['birthday']
         height : float = request.form['height']
@@ -69,10 +70,10 @@ def register() -> str:
 
         else:
             query_string = '''
-            MERGE (p:Patient {full_name: $full_name, password: $password, email: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
+            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
-            conn.query(query_string, {"full_name": full_name, "password": password, "email": email,
+            conn.query(query_string, {"fullname": fullname, "password": password, "mail": email,
                                     "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
 
             msg = "Success"
@@ -107,8 +108,8 @@ def login() -> str:
         if patient: 
             patient_data : dict = patient[0].data()["p"]
             session["loggedin"] = True
-            session["email"] = patient_data["email"]
-            session["full_name"] = patient_data["full_name"]
+            session["mail"] = patient_data["mail"]
+            session["fullname"] = patient_data["fullname"]
             session["admin"] = patient_data["admin"]
         else:
             msg = 'Неправильный логин или пароль'
@@ -258,72 +259,95 @@ def import_dump():
     query_strings : list(str) = [
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'patient'
+        WITH row WHERE row.type = 'Patient'
         MERGE (p:Patient {fullname: row.fullname, mail: row.mail, password: row.password, sex: row.sex, age: row.age, height: row.height, weight: row.weight, last_update: row.last_update, admin: row.admin, birthday: row.birthday, registration_data: row.registration_data});
         ''',
 
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'symptom'
-        MERGE (s:Symptom {name: row.symptom_name, description: row.symptom_description});
+        WITH row WHERE row.type = 'Symptom'
+        MERGE (s:Symptom {symptom_name: row.symptom_name, symptom_description: row.symptom_description});
         ''',
 
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'disease'
-        MERGE (d:Disease {name: row.disease_name, description: row.disease_description, recommendations: row.disease_recommendations, type: row.disease_type, course: row.disease_course});
+        WITH row WHERE row.type = 'Disease'
+        MERGE (d:Disease {disease_name: row.disease_name, disease_description: row.disease_description, disease_recommendations: row.disease_recommendations, disease_type: row.disease_type, disease_course: row.disease_course});
         ''',
 
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'analysis'
-        MERGE (an:Analysis {name: row.analysis_name, source: row.analysis_source});
+        WITH row WHERE row.type = 'Analysis'
+        MERGE (an:Analysis {analysis_name: row.analysis_name, analysis_source: row.analysis_source});
         ''',
 
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'patient-appeal'
-        MATCH (p:Patient {email: row.relation_from}), (a:Appeal {date: row.relation_to})
+        WITH row WHERE row.type = 'Appeal'
+        MERGE (ap:Appeal {appeal_date: row.appeal_date, appeal_complaints: row.appeal_complaints});
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Patient-Appeal'
+        MATCH (p:Patient {mail: row.relation_from}), (a:Appeal {appeal_date: row.relation_to})
         MERGE (p)-[:create]->(a)
         MERGE (a)-[:belong]->(p);
         ''',
 
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'appeal-symptom'
-        MATCH (a:Appeal {date: row.relation_from}), (s:Symptom {name: row.relation_to})
+        WITH row WHERE row.type = 'Appeal-Symptom'
+        MATCH (a:Appeal {appeal_date: row.relation_from}), (s:Symptom {symptom_name: row.relation_to})
         MERGE (a)-[:contain]->(s);
         ''',
 
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'symptom-analysis'
-        MATCH (s:Symptom {name: row.relation_from}), (an:Analysis {name: row.relation_to})
+        WITH row WHERE row.type = 'Symptom-Analysis'
+        MATCH (s:Symptom {symptom_name: row.relation_from}), (an:Analysis {analysis_name: row.relation_to})
         MERGE (s)-[:confirm]->(an);
         ''',
 
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'appeal-disease'
-        MATCH (a:Appeal {date: row.relation_from}), (d:Disease {name: row.relation_to})
+        WITH row WHERE row.type = 'Appeal-Disease'
+        MATCH (a:Appeal {appeal_date: row.relation_from}), (d:Disease {disease_name: row.relation_to})
         MERGE (a)-[:predict]->(d);
         ''',
 
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
-        WITH row WHERE row.type = 'symptom-disease'
-        MATCH (d:Disease {name: row.relation_from}), (s:Symptom {name: row.relation_to})
-        MERGE (s)-[:describe {weight: row.symptom_weight}]->(d)
-        MERGE (d)-[:cause {weight: row.symptom_weight}]->(s);
+        WITH row WHERE row.type = 'Symptom-Disease'
+        MATCH (d:Disease {disease_name: row.relation_from}), (s:Symptom {symptom_name: row.relation_to})
+        MERGE (s)-[:describe {symptom_weight: row.symptom_weight}]->(d)
+        MERGE (d)-[:cause {symptom_weight: row.symptom_weight}]->(s);
         '''
     ]
     
-
     for query_string in query_strings:     
         result = conn.query(query_string)
         if result is None:
-            return jsonify({"Error": "error loading the database dump"}), 400
+            return jsonify({"Error": f"error loading the database dump: {query_string}"}), 400
         
     return "Success"
 
+@app.route('/export_dump', methods=['POST'])
+def export_dump():
+
+    file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'models/dumps/dump.csv'))
+    
+    with open(file_path, "w") as csvfile:
+        writer = csv.DictWriter(csvfile, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_ALL, fieldnames=CSV_columns)
+        writer.writeheader()
+
+        for entity_type in allowed_entity_parameters.keys():
+
+            response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
+            data = response.json()
+
+            for row in data:
+                writer.writerow(row)
+
+    return "Success"
         
