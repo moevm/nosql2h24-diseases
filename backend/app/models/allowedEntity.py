@@ -1,7 +1,7 @@
 allowed_entity_parameters = {
     "Patient": [
         "full_name",
-        "email",
+        "mail",
         "password",
         "sex",
         "birthday",
