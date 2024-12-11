@@ -15,12 +15,12 @@ password = os.getenv("NEO4J_PASSWORD", "password")
 
 conn = Neo4jConnection(uri, user, password)
 
-@app.route('/')
+@app.route('/api/')
 @app.route('/index')
 def index():
     return redirect(url_for('db_page', entity_type="Disease"))
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/api/register', methods=['GET', 'POST'])
 def register() -> str:
     '''
     Функция отвечает за регистрацию пользователя. Включает в себя валидацию данных, введённых при регистрации.
@@ -84,7 +84,7 @@ def register() -> str:
 
     return msg
         
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/api/login', methods=['GET', 'POST'])
 def login() -> str:
     '''
     Функция отвечает за вход пользователя в аккаунт. Совершает поиск по почте и паролю.
@@ -118,11 +118,11 @@ def login() -> str:
         return render_template('account.html', session = session, certain_page = False)
 
     if msg is None:
-        return redirect(url_for('db_page', entity_type="Disease"))
+        return jsonify({"msg": None, "entity_type": "Disease"})
     else:
-        return render_template('account.html', session = session, certain_page = False, err = msg)
+        return jsonify({"session": session, "certain_page": False, "err": msg})
 
-@app.route('/logout', methods=['GET'])
+@app.route('/api/logout', methods=['GET'])
 def logout() -> Response:
     '''
     Функция отвечает за выход пользователя из аккаунта. 
@@ -138,7 +138,7 @@ def logout() -> Response:
     
     return redirect(url_for('login'))
 
-@app.route('/entities', methods=['POST'])
+@app.route('/api/entities', methods=['POST'])
 def readEntities() -> json:
     '''
     Функция отвечает за чтение любой сущности из базы данных.
@@ -169,7 +169,7 @@ def readEntities() -> json:
     return jsonify(entities_parametrs_list)
 
 
-@app.route('/create_entity', methods=['POST']) 
+@app.route('/api/create_entity', methods=['POST']) 
 def createEntities():
     '''
     Функция отвечает за добавление элемента сущности в базу данных. Разрешено добавление только 
@@ -212,7 +212,7 @@ def createEntities():
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
     
-@app.route('/db/<entity_type>', methods=['GET'])
+@app.route('/api/db/<entity_type>', methods=['GET'])
 def db_page(entity_type):
     '''
     Функция отвечает за получение данных, создание таблицы сущностей определённого типа и её визуализацию.
@@ -225,7 +225,7 @@ def db_page(entity_type):
     Возвращаемые данные: 
         render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data) (string) : возвращаем шаблон страницы с таблицей и данными о пользователе 
     '''
-    response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
+    response = requests.post("http://127.0.0.1:5000/api/entities", data={'entity_type': entity_type})
     data = response.json()
 
     match(entity_type):
@@ -251,10 +251,10 @@ def db_page(entity_type):
         case 'Symptom':
             data.insert(0, {"name": "Наименование", "description": "Описание"})            
 
-    return render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data)
+    return jsonify({"session": session, "certain_page": False, "entity_type": entity_type, "lst": data})
 
 
-@app.route('/import_dump', methods=['POST'])
+@app.route('/api/import_dump', methods=['POST'])
 def import_dump():
     query_strings : list(str) = [
         '''
@@ -332,7 +332,7 @@ def import_dump():
         
     return "Success"
 
-@app.route('/export_dump', methods=['POST'])
+@app.route('/api/export_dump', methods=['POST'])
 def export_dump():
     file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'models/dumps/dump.csv'))
     
@@ -341,7 +341,7 @@ def export_dump():
         writer.writeheader()
 
         for entity_type in allowed_entity_parameters.keys():
-            response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
+            response = requests.post("http://127.0.0.1:5000/api/entities", data={'entity_type': entity_type})
             data = response.json()
 
             for row in data:
