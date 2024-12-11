@@ -44,9 +44,9 @@ def register() -> str:
                                     'weight' in request.form and \
                                     "admin" in request.form:
 
-        full_name : str = request.form['full_name']
+        fullname : str = request.form['full_name']
         password : str = request.form['password']
-        email : str = request.form['email']
+        mail : str = request.form['email']
         sex : str = request.form['sex']
         birthday : str = request.form['birthday']
         height : float = request.form['height']
@@ -71,10 +71,10 @@ def register() -> str:
 
         else:
             query_string = '''
-            MERGE (p:Patient {full_name: $full_name, password: $password, email: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
+            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
-            conn.query(query_string, {"full_name": full_name, "password": password, "email": email,
+            conn.query(query_string, {"fullname": fullname, "password": password, "mail": mail,
                                     "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
 
             msg = "Success"
@@ -109,13 +109,13 @@ def login() -> str:
         if patient: 
             patient_data : dict = patient[0].data()["p"]
             session["loggedin"] = True
-            session["email"] = patient_data["email"]
-            session["full_name"] = patient_data["full_name"]
+            session["mail"] = patient_data["mail"]
+            session["fullname"] = patient_data["fullname"]
             session["admin"] = patient_data["admin"]
         else:
             msg = 'Неправильный логин или пароль'
     elif request.method == 'GET':
-        return render_template('account.html', session = session, certain_page = False)
+        return jsonify({"session": session, "certain_page": False, "err": msg})
 
     if msg is None:
         return jsonify({"msg": None, "entity_type": "Disease"})
