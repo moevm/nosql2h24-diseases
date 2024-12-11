@@ -1,11 +1,13 @@
 from app import app
 from app.models.neo4jConnection import Neo4jConnection
-from app.models.allowedEntity import allowed_entity_parameters
+from app.models.utils.allowedEntity import allowed_entity_parameters, CSV_columns, allowed_relations
+from app.models.utils.modelsForDumpTransform import create_relation_dict
 import re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json
 import requests
 import os
+import csv 
 
 uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 user = os.getenv("NEO4J_USER", "neo4j")
@@ -139,7 +141,11 @@ def logout() -> Response:
 @app.route('/api/entities', methods=['POST'])
 def readEntities() -> json:
     '''
-    Функция отвечает за чтение любой сущности из базы данных.
+    Функция отвечает за чтение любой сущности из базы данных. Фильтрация имеет следующий вид:
+
+        {"filter_params": {"filter1-field": "height", "filter1-action": "IN", "filter1-value": "[0,5]",
+        "filter2-field": "fullname", "filter2-action": "CONTAINS", "filter2-value": "ушков",
+        "filter3-field": "sex", "filter3-action": "IS", "filter3-value": "male", ...}}
 
     Ключевые переменные: 
         entity_type (str) : наименование сущности, которую надо считать из БД
@@ -150,11 +156,25 @@ def readEntities() -> json:
     '''
 
     entity_type : str = request.form['entity_type']
+    filter_params : dict = json.loads(request.form['filter_params'])
 
-    query_string : str = f'''
-    MATCH(p:{entity_type})
-    RETURN p
-    '''
+    query_string : str = ""
+    tmp_filter_string : str = ""
+
+    query_string : str = f'MATCH(p:{entity_type})\n'
+    
+    if filter_params:
+
+        query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
+
+        filter_idx = 2
+
+        while(filter_params.get(f'filter{filter_idx}-field')):
+            query_string += "AND\n"
+            query_string += f'WHERE p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+
+    query_string += '\nRETURN p'    
+
    
     entities_list : list[Record] = conn.query(query_string)
 
@@ -184,8 +204,6 @@ def createEntities():
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
         параметры всех нодов с меткой "entity_type". 
     '''
-
-    print(request)
 
     data : json = request.json
     entity_type : str = data.get('entity_type')
@@ -362,4 +380,3 @@ def export_dump():
                     writer.writerow(row_dict)
 
     return "Success"
-        
