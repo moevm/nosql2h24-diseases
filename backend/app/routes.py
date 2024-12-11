@@ -88,7 +88,7 @@ def register() -> str:
 
     return msg
         
-@app.route('/api/login', methods=['GET', 'POST'])
+@app.route('/api/login', methods=['POST'])
 def login() -> str:
     '''
     Функция отвечает за вход пользователя в аккаунт. Совершает поиск по почте и паролю.
@@ -115,7 +115,7 @@ def login() -> str:
         RETURN p
         '''
 
-        patient : list[Record] = conn.query(query_string, {"mail": request.form['mail'], "password": request.form['password']})
+        patient : list[Record] = conn.query(query_string, {"mail": mail, "password": password})
 
         if patient: 
             patient_data : dict = patient[0].data()["p"]
