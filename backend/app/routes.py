@@ -104,7 +104,11 @@ def login() -> str:
     msg = None
     user_dict = {}
 
-    if request.method == 'POST' and 'mail' in request.form and 'password' in request.form:
+    data : dict = request.json
+    mail : str = data.get('mail')
+    password : str = data.get('password')
+
+    if request.method == 'POST' and mail and password:
 
         query_string : str = '''
         MATCH(p:Patient {mail: $mail, password: $password})
@@ -127,8 +131,10 @@ def login() -> str:
         else:
             msg = 'Неправильный логин или пароль'
 
-    return jsonify({"msg": msg, "user_data": user_dict})
+    else:
+        msg = 'Заполните данные логина и пароля'
 
+    return jsonify({"msg": msg, "user_data": user_dict})
 
 
 @app.route('/api/entities', methods=['POST'])
@@ -147,9 +153,9 @@ def readEntities() -> json:
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
         параметры всех нодов с меткой "entity_type". 
     '''
-
-    entity_type : str = request.form['entity_type']
-    filter_params : dict = json.loads(request.form['filter_params'])
+    data : dict = request.json
+    entity_type : str = data.get('entity_type')
+    filter_params : str = data.get('filter_params', {})
 
     query_string : str = ""
     tmp_filter_string : str = ""
@@ -220,48 +226,6 @@ def createEntities():
     
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
-    
-@app.route('/api/db/<entity_type>', methods=['GET'])
-def db_page(entity_type):
-    '''
-    Функция отвечает за получение данных, создание таблицы сущностей определённого типа и её визуализацию.
-
-    Ключевые переменные: 
-        entity_type (str) : наименование сущности, которую надо добавить в БД
-        data (dict) : база данных с требуемыми запрошенными по entity_type сущностями 
-        
-
-    Возвращаемые данные: 
-        render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data) (string) : возвращаем шаблон страницы с таблицей и данными о пользователе 
-    '''
-    response = requests.post("http://127.0.0.1:5000/api/entities", data={'entity_type': entity_type})
-    data = response.json()
-
-    match(entity_type):
-        case 'Disease':
-            data.insert(0, {"name": "Наименование", \
-                            "description": "Описание", \
-                            "recommendations": "Рекомендации", \
-                            "type": "Возбудитель", \
-                            "course": "Протекание болезни"} )
-        case 'Patient':
-            data.insert(0, {"fullname": "Фамилия и Имя", \
-                            "mail": "Почта", \
-                            "password": "Пароль", \
-                            "sex": "Пол", \
-                            "birthday": "День рождения", \
-                            "last_update": "Время последнего действия", \
-                            "registration_date": "Дата регистрации", \
-                            "height": "Рост", \
-                            "weight": "Вес", \
-                            "admin": "Права администратора"})
-        case 'Appeal':
-            data.insert(0, {"date": "Дата", "complaints": "Жалобы"})
-        case 'Symptom':
-            data.insert(0, {"name": "Наименование", "description": "Описание"})            
-
-    return jsonify({"session": session, "certain_page": False, "entity_type": entity_type, "lst": data})
-
 
 @app.route('/api/import_dump', methods=['POST'])
 def import_dump():
