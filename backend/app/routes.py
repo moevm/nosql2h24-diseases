@@ -68,7 +68,7 @@ def register() -> str:
             msg = "Почта введена некорректно"
         elif not re.match(r'[А-Яа-я]+', fullname): 
             msg = "Имя может содержать только буквы!"
-        elif password != check_password:
+        elif password != confirmed_password:
             msg = "Пароли не совпадают!" 
         elif not fullname or not password:
             msg = "Пожалуйста, заполните форму!"
