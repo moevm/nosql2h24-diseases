@@ -2,13 +2,13 @@
   <h2>Авторизация</h2>
   <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
     <label for="email"> <p>Почта</p> </label>
-    <input type="text" id="email" name="email" placeholder="Email" [ngClass]="{'activate': email}" [(ngModel)]="email" required>
+    <input type="text" id="email" name="email" placeholder="Email" [ngClass]="{'activate': loginData['mail']}" [(ngModel)]="loginData['mail']" required>
     <label for="password"> <p>Пароль:</p> </label>
-    <input type="password" id="password" name="password" placeholder="Password" [ngClass]="{'activate': password}" [(ngModel)]="password" required>
+    <input type="password" id="password" name="password" placeholder="Пароль" [ngClass]="{'activate': loginData['password']}" [(ngModel)]="loginData['password']" required>
 
     <p *ngIf="isError" class="error"> Ошибка </p>
 
     <input type="submit" value="Войти" id="button">
   </form>
-  <p>Нет аккаунта? <a>Создай его!</a></p>
+  <p>Нет аккаунта? <a href="http://localhost:4200/reg">Создай его!</a></p>
 </div>

@@ -4,15 +4,17 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule, NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-reg',
   imports: [FormsModule, NgClass, CommonModule],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.less']
+  templateUrl: './reg.component.html',
+  styleUrl: './reg.component.less'
 })
-export class LoginComponent {
-  loginData = {
+export class RegComponent {
+  regData = {
+    fullname: null,
     mail: null,
-    password: null
+    password: null,
+    confirmed_password: null
   };
   isError: boolean = false;
 
@@ -20,7 +22,7 @@ export class LoginComponent {
 
   onSubmit() {
 
-    this.http.post('/http://127.0.0.1:5000/api/login', this.loginData).subscribe({
+    this.http.post('/http://127.0.0.1:5000/api/register', this.regData).subscribe({
       next: response => {
         console.log('Success:', response);
         // Обработка успешного ответа
