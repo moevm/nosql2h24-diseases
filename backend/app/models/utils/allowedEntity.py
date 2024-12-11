@@ -32,6 +32,8 @@ allowed_entity_parameters = {
     ]
 }
 
+allowed_relations = ['Symptom-Disease', 'Appeal-Disease', 'Symptom-Analysis', 'Patient-Appeal', 'Appeal-Symptom']
+
 CSV_columns = [
     "type",
     "fullname",

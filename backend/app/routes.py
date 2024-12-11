@@ -1,6 +1,7 @@
 from app import app
 from app.models.neo4jConnection import Neo4jConnection
-from app.models.allowedEntity import allowed_entity_parameters, CSV_columns
+from app.models.utils.allowedEntity import allowed_entity_parameters, CSV_columns, allowed_relations
+from app.models.utils.modelsForDumpTransform import create_relation_dict
 import re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json
@@ -255,7 +256,6 @@ def db_page(entity_type):
 
 @app.route('/import_dump', methods=['POST'])
 def import_dump():
-
     query_strings : list(str) = [
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
@@ -334,7 +334,6 @@ def import_dump():
 
 @app.route('/export_dump', methods=['POST'])
 def export_dump():
-
     file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'models/dumps/dump.csv'))
     
     with open(file_path, "w") as csvfile:
@@ -342,12 +341,27 @@ def export_dump():
         writer.writeheader()
 
         for entity_type in allowed_entity_parameters.keys():
-
             response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
             data = response.json()
 
             for row in data:
+                row["type"] = entity_type
                 writer.writerow(row)
+
+        for relation_type in allowed_relations:
+            relation_from, relation_to = relation_type.split('-')
+ 
+            query_string : str = f'''
+            MATCH((a:{relation_from})-[r]->(b:{relation_to}))
+            RETURN a,r,b 
+            '''
+        
+            relations_list : list[Record] = conn.query(query_string)
+
+            if relations_list:
+                for relation in relations_list:
+                    row_dict = create_relation_dict(relation.data()["a"], relation.data()["b"], relation['r'].get('symptom_weight', None), relation_type)
+                    writer.writerow(row_dict)
 
     return "Success"
         
