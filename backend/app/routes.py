@@ -15,12 +15,12 @@ password = os.getenv("NEO4J_PASSWORD", "password")
 
 conn = Neo4jConnection(uri, user, password)
 
-@app.route('/')
+@app.route('/api/')
 @app.route('/index')
 def index():
     return redirect(url_for('db_page', entity_type="Disease"))
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/api/register', methods=['GET', 'POST'])
 def register() -> str:
     '''
     Функция отвечает за регистрацию пользователя. Включает в себя валидацию данных, введённых при регистрации.
@@ -35,18 +35,20 @@ def register() -> str:
     '''
 
     msg : str = None
-    if request.method == 'POST' and 'full_name' in request.form and \
+    if request.method == 'POST' and 'fullname' in request.form and \
                                     'password' in request.form and \
-                                    'email' in request.form and \
+                                    'confirmed_password' in request.form and \
+                                    'mail' in request.form and \
                                     'sex' in request.form and \
                                     'birthday' in request.form and \
                                     'height' in request.form and \
                                     'weight' in request.form and \
                                     "admin" in request.form:
 
-        fullname : str = request.form['full_name']
+        fullname : str = request.form['fullname']
         password : str = request.form['password']
-        mail : str = request.form['email']
+        confirmed_password : str = request.form['confirmed_password']
+        mail : str = request.form['mail']
         sex : str = request.form['sex']
         birthday : str = request.form['birthday']
         height : float = request.form['height']
@@ -54,27 +56,29 @@ def register() -> str:
         admin : bool = request.form['admin']
 
         query_string : str = '''
-        MATCH(p:Patient {email: $email})
+        MATCH(p:Patient {mail: $mail})
         RETURN p
         '''
 
-        patient : list[Record] = conn.query(query_string, {"email": email})
+        patient : list[Record] = conn.query(query_string, {"mail": mail})
 
         if patient: 
             msg = "Данная почта уже занята!"
-        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email): 
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', mail): 
             msg = "Почта введена некорректно"
-        elif not re.match(r'[А-Яа-я]+', full_name): 
+        elif not re.match(r'[А-Яа-я]+', fullname): 
             msg = "Имя может содержать только буквы!"
-        elif not full_name or not password:
+        elif password != confirmed_password:
+            msg = "Пароли не совпадают!" 
+        elif not fullname or not password:
             msg = "Пожалуйста, заполните форму!"
 
         else:
             query_string = '''
-            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
+            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
-            conn.query(query_string, {"fullname": fullname, "password": password, "mail": email,
+            conn.query(query_string, {"fullname": fullname, "password": password, "mail": mail,
                                     "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
 
             msg = "Success"
@@ -84,7 +88,7 @@ def register() -> str:
 
     return msg
         
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/api/login', methods=['POST'])
 def login() -> str:
     '''
     Функция отвечает за вход пользователя в аккаунт. Совершает поиск по почте и паролю.
@@ -98,50 +102,49 @@ def login() -> str:
         render_template('login.html', msg = msg) (string) : возвращаем шаблон страницы с комментарием 
     '''
     msg = None
-    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+    user_dict = {}
+
+    data : dict = request.json
+    mail : str = data.get('mail')
+    password : str = data.get('password')
+
+    if request.method == 'POST' and mail and password:
+
         query_string : str = '''
-        MATCH(p:Patient {email: $email, password: $password})
+        MATCH(p:Patient {mail: $mail, password: $password})
         RETURN p
         '''
 
-        patient : list[Record] = conn.query(query_string, {"email": request.form['email'], "password": request.form['password']})
+        patient : list[Record] = conn.query(query_string, {"mail": mail, "password": password})
 
         if patient: 
             patient_data : dict = patient[0].data()["p"]
-            session["loggedin"] = True
-            session["mail"] = patient_data["mail"]
-            session["fullname"] = patient_data["fullname"]
-            session["admin"] = patient_data["admin"]
+            user_dict["fullname"] = patient_data["fullname"]
+            user_dict["password"] = patient_data["password"]
+            user_dict["mail"] = patient_data["mail"]
+            user_dict["sex"] = patient_data["sex"]
+            user_dict["birthday"] = patient_data["birthday"]
+            user_dict["height"] = patient_data["height"]
+            user_dict["weight"] = patient_data["weight"]
+            user_dict["admin"] = patient_data["admin"]
+
         else:
             msg = 'Неправильный логин или пароль'
-    elif request.method == 'GET':
-        return render_template('account.html', session = session, certain_page = False)
 
-    if msg is None:
-        return redirect(url_for('db_page', entity_type="Disease"))
     else:
-        return render_template('account.html', session = session, certain_page = False, err = msg)
+        msg = 'Заполните данные логина и пароля'
 
-@app.route('/logout', methods=['GET'])
-def logout() -> Response:
-    '''
-    Функция отвечает за выход пользователя из аккаунта. 
-    Удаляет данные пользователя из текущей сессии. 
-        
-    Возвращаемые данные:
-        redirect(url_for('login')) (BaseResponse) : переадресация на страницу для входа
-    '''
-    session.pop('loggedin', None)
-    session.pop('email', None)
-    session.pop('full_name', None)
-    session.pop('admin', None)
-    
-    return redirect(url_for('login'))
+    return jsonify({"msg": msg, "user_data": user_dict})
 
-@app.route('/entities', methods=['POST'])
+
+@app.route('/api/entities', methods=['POST'])
 def readEntities() -> json:
     '''
-    Функция отвечает за чтение любой сущности из базы данных.
+    Функция отвечает за чтение любой сущности из базы данных. Фильтрация имеет следующий вид:
+
+        {"filter_params": {"filter1-field": "height", "filter1-action": "IN", "filter1-value": "[0,5]",
+        "filter2-field": "fullname", "filter2-action": "CONTAINS", "filter2-value": "ушков",
+        "filter3-field": "sex", "filter3-action": "IS", "filter3-value": "male", ...}}
 
     Ключевые переменные: 
         entity_type (str) : наименование сущности, которую надо считать из БД
@@ -150,13 +153,27 @@ def readEntities() -> json:
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
         параметры всех нодов с меткой "entity_type". 
     '''
+    data : dict = request.json
+    entity_type : str = data.get('entity_type')
+    filter_params : str = data.get('filter_params', {})
 
-    entity_type : str = request.form['entity_type']
+    query_string : str = ""
+    tmp_filter_string : str = ""
 
-    query_string : str = f'''
-    MATCH(p:{entity_type})
-    RETURN p
-    '''
+    query_string : str = f'MATCH(p:{entity_type})\n'
+    
+    if filter_params:
+
+        query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
+
+        filter_idx = 2
+
+        while(filter_params.get(f'filter{filter_idx}-field')):
+            query_string += "AND\n"
+            query_string += f'WHERE p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+
+    query_string += '\nRETURN p'    
+
    
     entities_list : list[Record] = conn.query(query_string)
 
@@ -169,7 +186,7 @@ def readEntities() -> json:
     return jsonify(entities_parametrs_list)
 
 
-@app.route('/create_entity', methods=['POST']) 
+@app.route('/api/create_entity', methods=['POST']) 
 def createEntities():
     '''
     Функция отвечает за добавление элемента сущности в базу данных. Разрешено добавление только 
@@ -186,8 +203,6 @@ def createEntities():
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
         параметры всех нодов с меткой "entity_type". 
     '''
-
-    print(request)
 
     data : json = request.json
     entity_type : str = data.get('entity_type')
@@ -211,50 +226,8 @@ def createEntities():
     
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
-    
-@app.route('/db/<entity_type>', methods=['GET'])
-def db_page(entity_type):
-    '''
-    Функция отвечает за получение данных, создание таблицы сущностей определённого типа и её визуализацию.
 
-    Ключевые переменные: 
-        entity_type (str) : наименование сущности, которую надо добавить в БД
-        data (dict) : база данных с требуемыми запрошенными по entity_type сущностями 
-        
-
-    Возвращаемые данные: 
-        render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data) (string) : возвращаем шаблон страницы с таблицей и данными о пользователе 
-    '''
-    response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
-    data = response.json()
-
-    match(entity_type):
-        case 'Disease':
-            data.insert(0, {"name": "Наименование", \
-                            "description": "Описание", \
-                            "recommendations": "Рекомендации", \
-                            "type": "Возбудитель", \
-                            "course": "Протекание болезни"} )
-        case 'Patient':
-            data.insert(0, {"full_name": "Фамилия и Имя", \
-                            "email": "Почта", \
-                            "password": "Пароль", \
-                            "sex": "Пол", \
-                            "birthday": "День рождения", \
-                            "last_update": "Время последнего действия", \
-                            "registration_date": "Дата регистрации", \
-                            "height": "Рост", \
-                            "weight": "Вес", \
-                            "admin": "Права администратора"})
-        case 'Appeal':
-            data.insert(0, {"date": "Дата", "complaints": "Жалобы"})
-        case 'Symptom':
-            data.insert(0, {"name": "Наименование", "description": "Описание"})            
-
-    return render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data)
-
-
-@app.route('/import_dump', methods=['POST'])
+@app.route('/api/import_dump', methods=['POST'])
 def import_dump():
     query_strings : list(str) = [
         '''
@@ -332,7 +305,7 @@ def import_dump():
         
     return "Success"
 
-@app.route('/export_dump', methods=['POST'])
+@app.route('/api/export_dump', methods=['POST'])
 def export_dump():
     file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'models/dumps/dump.csv'))
     
@@ -341,7 +314,7 @@ def export_dump():
         writer.writeheader()
 
         for entity_type in allowed_entity_parameters.keys():
-            response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
+            response = requests.post("http://127.0.0.1:5000/api/entities", data={'entity_type': entity_type})
             data = response.json()
 
             for row in data:
@@ -364,4 +337,3 @@ def export_dump():
                     writer.writerow(row_dict)
 
     return "Success"
-        
