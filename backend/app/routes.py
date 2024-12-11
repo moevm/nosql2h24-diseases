@@ -1,11 +1,13 @@
 from app import app
 from app.models.neo4jConnection import Neo4jConnection
-from app.models.allowedEntity import allowed_entity_parameters
+from app.models.utils.allowedEntity import allowed_entity_parameters, CSV_columns, allowed_relations
+from app.models.utils.modelsForDumpTransform import create_relation_dict
 import re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json
 import requests
 import os
+import csv 
 
 uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 user = os.getenv("NEO4J_USER", "neo4j")
@@ -13,12 +15,12 @@ password = os.getenv("NEO4J_PASSWORD", "password")
 
 conn = Neo4jConnection(uri, user, password)
 
-@app.route('/')
+@app.route('/api/')
 @app.route('/index')
 def index():
     return redirect(url_for('db_page', entity_type="Disease"))
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/api/register', methods=['GET', 'POST'])
 def register() -> str:
     '''
     Функция отвечает за регистрацию пользователя. Включает в себя валидацию данных, введённых при регистрации.
@@ -42,9 +44,9 @@ def register() -> str:
                                     'weight' in request.form and \
                                     "admin" in request.form:
 
-        full_name : str = request.form['full_name']
+        fullname : str = request.form['full_name']
         password : str = request.form['password']
-        email : str = request.form['email']
+        mail : str = request.form['email']
         sex : str = request.form['sex']
         birthday : str = request.form['birthday']
         height : float = request.form['height']
@@ -69,10 +71,10 @@ def register() -> str:
 
         else:
             query_string = '''
-            MERGE (p:Patient {full_name: $full_name, password: $password, email: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
+            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
-            conn.query(query_string, {"full_name": full_name, "password": password, "email": email,
+            conn.query(query_string, {"fullname": fullname, "password": password, "mail": mail,
                                     "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
 
             msg = "Success"
@@ -82,7 +84,7 @@ def register() -> str:
 
     return msg
         
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/api/login', methods=['GET', 'POST'])
 def login() -> str:
     '''
     Функция отвечает за вход пользователя в аккаунт. Совершает поиск по почте и паролю.
@@ -107,20 +109,20 @@ def login() -> str:
         if patient: 
             patient_data : dict = patient[0].data()["p"]
             session["loggedin"] = True
-            session["email"] = patient_data["email"]
-            session["full_name"] = patient_data["full_name"]
+            session["mail"] = patient_data["mail"]
+            session["fullname"] = patient_data["fullname"]
             session["admin"] = patient_data["admin"]
         else:
             msg = 'Неправильный логин или пароль'
     elif request.method == 'GET':
-        return render_template('account.html', session = session, certain_page = False)
+        return jsonify({"session": session, "certain_page": False, "err": msg})
 
     if msg is None:
-        return redirect(url_for('db_page', entity_type="Disease"))
+        return jsonify({"msg": None, "entity_type": "Disease"})
     else:
-        return render_template('account.html', session = session, certain_page = False, err = msg)
+        return jsonify({"session": session, "certain_page": False, "err": msg})
 
-@app.route('/logout', methods=['GET'])
+@app.route('/api/logout', methods=['GET'])
 def logout() -> Response:
     '''
     Функция отвечает за выход пользователя из аккаунта. 
@@ -136,10 +138,14 @@ def logout() -> Response:
     
     return redirect(url_for('login'))
 
-@app.route('/entities', methods=['POST'])
+@app.route('/api/entities', methods=['POST'])
 def readEntities() -> json:
     '''
-    Функция отвечает за чтение любой сущности из базы данных.
+    Функция отвечает за чтение любой сущности из базы данных. Фильтрация имеет следующий вид:
+
+        {"filter_params": {"filter1-field": "height", "filter1-action": "IN", "filter1-value": "[0,5]",
+        "filter2-field": "fullname", "filter2-action": "CONTAINS", "filter2-value": "ушков",
+        "filter3-field": "sex", "filter3-action": "IS", "filter3-value": "male", ...}}
 
     Ключевые переменные: 
         entity_type (str) : наименование сущности, которую надо считать из БД
@@ -150,11 +156,25 @@ def readEntities() -> json:
     '''
 
     entity_type : str = request.form['entity_type']
+    filter_params : dict = json.loads(request.form['filter_params'])
 
-    query_string : str = f'''
-    MATCH(p:{entity_type})
-    RETURN p
-    '''
+    query_string : str = ""
+    tmp_filter_string : str = ""
+
+    query_string : str = f'MATCH(p:{entity_type})\n'
+    
+    if filter_params:
+
+        query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
+
+        filter_idx = 2
+
+        while(filter_params.get(f'filter{filter_idx}-field')):
+            query_string += "AND\n"
+            query_string += f'WHERE p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+
+    query_string += '\nRETURN p'    
+
    
     entities_list : list[Record] = conn.query(query_string)
 
@@ -167,7 +187,7 @@ def readEntities() -> json:
     return jsonify(entities_parametrs_list)
 
 
-@app.route('/create_entity', methods=['POST']) 
+@app.route('/api/create_entity', methods=['POST']) 
 def createEntities():
     '''
     Функция отвечает за добавление элемента сущности в базу данных. Разрешено добавление только 
@@ -184,8 +204,6 @@ def createEntities():
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
         параметры всех нодов с меткой "entity_type". 
     '''
-
-    print(request)
 
     data : json = request.json
     entity_type : str = data.get('entity_type')
@@ -210,7 +228,7 @@ def createEntities():
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
     
-@app.route('/db/<entity_type>', methods=['GET'])
+@app.route('/api/db/<entity_type>', methods=['GET'])
 def db_page(entity_type):
     '''
     Функция отвечает за получение данных, создание таблицы сущностей определённого типа и её визуализацию.
@@ -223,7 +241,7 @@ def db_page(entity_type):
     Возвращаемые данные: 
         render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data) (string) : возвращаем шаблон страницы с таблицей и данными о пользователе 
     '''
-    response = requests.post("http://127.0.0.1:5000/entities", data={'entity_type': entity_type})
+    response = requests.post("http://127.0.0.1:5000/api/entities", data={'entity_type': entity_type})
     data = response.json()
 
     match(entity_type):
@@ -249,6 +267,116 @@ def db_page(entity_type):
         case 'Symptom':
             data.insert(0, {"name": "Наименование", "description": "Описание"})            
 
-    return render_template('data_bases.html', session = session, certain_page = False, entity_type = entity_type, lst = data)
+    return jsonify({"session": session, "certain_page": False, "entity_type": entity_type, "lst": data})
 
 
+@app.route('/api/import_dump', methods=['POST'])
+def import_dump():
+    query_strings : list(str) = [
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Patient'
+        MERGE (p:Patient {fullname: row.fullname, mail: row.mail, password: row.password, sex: row.sex, age: row.age, height: row.height, weight: row.weight, last_update: row.last_update, admin: row.admin, birthday: row.birthday, registration_data: row.registration_data});
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Symptom'
+        MERGE (s:Symptom {symptom_name: row.symptom_name, symptom_description: row.symptom_description});
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Disease'
+        MERGE (d:Disease {disease_name: row.disease_name, disease_description: row.disease_description, disease_recommendations: row.disease_recommendations, disease_type: row.disease_type, disease_course: row.disease_course});
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Analysis'
+        MERGE (an:Analysis {analysis_name: row.analysis_name, analysis_source: row.analysis_source});
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Appeal'
+        MERGE (ap:Appeal {appeal_date: row.appeal_date, appeal_complaints: row.appeal_complaints});
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Patient-Appeal'
+        MATCH (p:Patient {mail: row.relation_from}), (a:Appeal {appeal_date: row.relation_to})
+        MERGE (p)-[:create]->(a)
+        MERGE (a)-[:belong]->(p);
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Appeal-Symptom'
+        MATCH (a:Appeal {appeal_date: row.relation_from}), (s:Symptom {symptom_name: row.relation_to})
+        MERGE (a)-[:contain]->(s);
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Symptom-Analysis'
+        MATCH (s:Symptom {symptom_name: row.relation_from}), (an:Analysis {analysis_name: row.relation_to})
+        MERGE (s)-[:confirm]->(an);
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Appeal-Disease'
+        MATCH (a:Appeal {appeal_date: row.relation_from}), (d:Disease {disease_name: row.relation_to})
+        MERGE (a)-[:predict]->(d);
+        ''',
+
+        '''
+        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        WITH row WHERE row.type = 'Symptom-Disease'
+        MATCH (d:Disease {disease_name: row.relation_from}), (s:Symptom {symptom_name: row.relation_to})
+        MERGE (s)-[:describe {symptom_weight: row.symptom_weight}]->(d)
+        MERGE (d)-[:cause {symptom_weight: row.symptom_weight}]->(s);
+        '''
+    ]
+    
+    for query_string in query_strings:     
+        result = conn.query(query_string)
+        if result is None:
+            return jsonify({"Error": f"error loading the database dump: {query_string}"}), 400
+        
+    return "Success"
+
+@app.route('/api/export_dump', methods=['POST'])
+def export_dump():
+    file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'models/dumps/dump.csv'))
+    
+    with open(file_path, "w") as csvfile:
+        writer = csv.DictWriter(csvfile, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_ALL, fieldnames=CSV_columns)
+        writer.writeheader()
+
+        for entity_type in allowed_entity_parameters.keys():
+            response = requests.post("http://127.0.0.1:5000/api/entities", data={'entity_type': entity_type})
+            data = response.json()
+
+            for row in data:
+                row["type"] = entity_type
+                writer.writerow(row)
+
+        for relation_type in allowed_relations:
+            relation_from, relation_to = relation_type.split('-')
+ 
+            query_string : str = f'''
+            MATCH((a:{relation_from})-[r]->(b:{relation_to}))
+            RETURN a,r,b 
+            '''
+        
+            relations_list : list[Record] = conn.query(query_string)
+
+            if relations_list:
+                for relation in relations_list:
+                    row_dict = create_relation_dict(relation.data()["a"], relation.data()["b"], relation['r'].get('symptom_weight', None), relation_type)
+                    writer.writerow(row_dict)
+
+    return "Success"
