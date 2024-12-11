@@ -1,6 +1,6 @@
 <div id="login">
   <h2>Авторизация</h2>
-  <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+  <form (ngSubmit)="OnSubmit()" #loginForm="ngForm">
     <label for="email"> <p>Почта</p> </label>
     <input type="text" id="email" name="email" placeholder="Email" [ngClass]="{'activate': loginData['mail']}" [(ngModel)]="loginData['mail']" required>
     <label for="password"> <p>Пароль:</p> </label>
@@ -10,5 +10,5 @@
 
     <input type="submit" value="Войти" id="button">
   </form>
-  <p>Нет аккаунта? <a href="http://localhost:4200/reg">Создай его!</a></p>
+  <p>Нет аккаунта? <a (click)="GoToReg()">Создай его!</a></p>
 </div>

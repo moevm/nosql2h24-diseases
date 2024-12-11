@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, NgClass } from '@angular/common';
+import { Route, Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -16,9 +17,13 @@ export class LoginComponent {
   };
   isError: boolean = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
-  onSubmit() {
+  GoToReg(){
+    this.router.navigate(['/reg']);
+  }
+
+  OnSubmit() {
 
     this.http.post('http://127.0.0.1:5000/api/login', this.loginData).subscribe({
       next: response => {

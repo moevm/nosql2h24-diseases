@@ -1,12 +1,13 @@
 <div class="header">
     
-    <button *ngIf="isCurtainPage" id="searching"> <mat-icon>search</mat-icon> <span>Вернуться к поисковику</span> </button>
+    <button *ngIf="isCurtainPage" id="searching" (click)="GoToSearch()"> <mat-icon>search</mat-icon> <span>Вернуться к поисковику</span> </button>
+
     <h1>На дому</h1>
     <p id="title">Твой медицинский помощник</p>
 
 
-    <button *ngIf="!isLoggedIn" (click)="navigateToLogin()"  class="button enter">Войти</button>
-    <button  *ngIf="isLoggedIn" (click)="navigateToLogin()"  class="button enter">Выйти</button>
+    <button *ngIf="!isLoggedIn && !isAuthForm" (click)="GoToLogin()"  class="button enter">Войти</button>
+    <button  *ngIf="isLoggedIn" (click)="GoToLogin()"  class="button enter">Выйти</button>
     <p *ngIf="isLoggedIn"  id="name"> {{ fullname }} </p>
     <p *ngIf="isLoggedIn && isAdmin" id="status">Администратор</p>
 </div>

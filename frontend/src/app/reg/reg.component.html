@@ -1,6 +1,6 @@
 <div id="login">
     <h2>Регистрация</h2>
-    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+    <form (ngSubmit)="OnSubmit()" #loginForm="ngForm">
       <label for="fullname"> <p>Фамилия и имя пользователя</p> </label>
       <input type="text" id="fullname" name="fullnamed" placeholder="Иванов Иван" [ngClass]="{'activate': regData['fullname']}" [(ngModel)]="regData['fullname']" required>
       <label for="email"> <p>Почта</p> </label>
@@ -12,8 +12,8 @@
         
       <p *ngIf="isError" class="error"> Ошибка </p>
   
-      <input type="submit" value="Войти" id="button">
+      <input type="submit" value="Зарегистрироваться" id="button">
     </form>
-    <p>Нет аккаунта? <a>Создай его!</a></p>
+    <p>Есть аккаунт? <a (click)="GoToLogin()">Войди в него!</a></p>
   </div>
   

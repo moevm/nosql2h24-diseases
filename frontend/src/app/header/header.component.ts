@@ -12,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class HeaderComponent {
   isCurtainPage = true;
   isLoggedIn = false;
+  isAuthForm = false;
   isAdmin = true;
   fullname = "Прошичев Александр"
 
@@ -21,11 +22,16 @@ export class HeaderComponent {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.isCurtainPage = this.router.url === '/login' || this.router.url == '/reg';
+        this.isAuthForm = this.router.url === '/login' || this.router.url === '/reg';
       }
     });
   }
 
-  navigateToLogin() {
+  GoToSearch(){
+    this.router.navigate(['/search']);
+  }
+
+  GoToLogin() {
     this.router.navigate(['/login']);
   }
 }

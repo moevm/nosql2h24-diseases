@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, NgClass } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-reg',
@@ -23,9 +24,14 @@ export class RegComponent {
   };
   isError: boolean = false;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
-  onSubmit() {
+  GoToLogin(){
+    this.router.navigate(['/login']);
+  }
+
+
+  OnSubmit() {
 
     this.http.post('http://127.0.0.1:5000/api/register', this.regData).subscribe({
       next: response => {
