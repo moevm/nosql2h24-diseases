@@ -35,18 +35,20 @@ def register() -> str:
     '''
 
     msg : str = None
-    if request.method == 'POST' and 'full_name' in request.form and \
+    if request.method == 'POST' and 'fullname' in request.form and \
                                     'password' in request.form and \
-                                    'email' in request.form and \
+                                    'confirmed_password' in request.form and \
+                                    'mail' in request.form and \
                                     'sex' in request.form and \
                                     'birthday' in request.form and \
                                     'height' in request.form and \
                                     'weight' in request.form and \
                                     "admin" in request.form:
 
-        fullname : str = request.form['full_name']
+        fullname : str = request.form['fullname']
         password : str = request.form['password']
-        mail : str = request.form['email']
+        confirmed_password : str = request.form['confirmed_password']
+        mail : str = request.form['mail']
         sex : str = request.form['sex']
         birthday : str = request.form['birthday']
         height : float = request.form['height']
@@ -54,19 +56,21 @@ def register() -> str:
         admin : bool = request.form['admin']
 
         query_string : str = '''
-        MATCH(p:Patient {email: $email})
+        MATCH(p:Patient {mail: $mail})
         RETURN p
         '''
 
-        patient : list[Record] = conn.query(query_string, {"email": email})
+        patient : list[Record] = conn.query(query_string, {"mail": mail})
 
         if patient: 
             msg = "Данная почта уже занята!"
-        elif not re.match(r'[^@]+@[^@]+\.[^@]+', email): 
+        elif not re.match(r'[^@]+@[^@]+\.[^@]+', mail): 
             msg = "Почта введена некорректно"
-        elif not re.match(r'[А-Яа-я]+', full_name): 
+        elif not re.match(r'[А-Яа-я]+', fullname): 
             msg = "Имя может содержать только буквы!"
-        elif not full_name or not password:
+        elif password != check_password:
+            msg = "Пароли не совпадают!" 
+        elif not fullname or not password:
             msg = "Пожалуйста, заполните форму!"
 
         else:
@@ -98,45 +102,34 @@ def login() -> str:
         render_template('login.html', msg = msg) (string) : возвращаем шаблон страницы с комментарием 
     '''
     msg = None
-    if request.method == 'POST' and 'email' in request.form and 'password' in request.form:
+    user_dict = {}
+
+    if request.method == 'POST' and 'mail' in request.form and 'password' in request.form:
+
         query_string : str = '''
-        MATCH(p:Patient {email: $email, password: $password})
+        MATCH(p:Patient {mail: $mail, password: $password})
         RETURN p
         '''
 
-        patient : list[Record] = conn.query(query_string, {"email": request.form['email'], "password": request.form['password']})
+        patient : list[Record] = conn.query(query_string, {"mail": request.form['mail'], "password": request.form['password']})
 
         if patient: 
             patient_data : dict = patient[0].data()["p"]
-            session["loggedin"] = True
-            session["mail"] = patient_data["mail"]
-            session["fullname"] = patient_data["fullname"]
-            session["admin"] = patient_data["admin"]
+            user_dict["fullname"] = patient_data["fullname"]
+            user_dict["password"] = patient_data["password"]
+            user_dict["mail"] = patient_data["mail"]
+            user_dict["sex"] = patient_data["sex"]
+            user_dict["birthday"] = patient_data["birthday"]
+            user_dict["height"] = patient_data["height"]
+            user_dict["weight"] = patient_data["weight"]
+            user_dict["admin"] = patient_data["admin"]
+
         else:
             msg = 'Неправильный логин или пароль'
-    elif request.method == 'GET':
-        return jsonify({"session": session, "certain_page": False, "err": msg})
 
-    if msg is None:
-        return jsonify({"msg": None, "entity_type": "Disease"})
-    else:
-        return jsonify({"session": session, "certain_page": False, "err": msg})
+    return jsonify({"msg": msg, "user_data": user_dict})
 
-@app.route('/api/logout', methods=['GET'])
-def logout() -> Response:
-    '''
-    Функция отвечает за выход пользователя из аккаунта. 
-    Удаляет данные пользователя из текущей сессии. 
-        
-    Возвращаемые данные:
-        redirect(url_for('login')) (BaseResponse) : переадресация на страницу для входа
-    '''
-    session.pop('loggedin', None)
-    session.pop('email', None)
-    session.pop('full_name', None)
-    session.pop('admin', None)
-    
-    return redirect(url_for('login'))
+
 
 @app.route('/api/entities', methods=['POST'])
 def readEntities() -> json:
@@ -252,8 +245,8 @@ def db_page(entity_type):
                             "type": "Возбудитель", \
                             "course": "Протекание болезни"} )
         case 'Patient':
-            data.insert(0, {"full_name": "Фамилия и Имя", \
-                            "email": "Почта", \
+            data.insert(0, {"fullname": "Фамилия и Имя", \
+                            "mail": "Почта", \
                             "password": "Пароль", \
                             "sex": "Пол", \
                             "birthday": "День рождения", \
