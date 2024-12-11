@@ -20,7 +20,7 @@ export class LoginComponent {
 
   onSubmit() {
 
-    this.http.post('/http://127.0.0.1:5000/api/login', this.loginData).subscribe({
+    this.http.post('http://127.0.0.1:5000/api/login', this.loginData).subscribe({
       next: response => {
         console.log('Success:', response);
         // Обработка успешного ответа

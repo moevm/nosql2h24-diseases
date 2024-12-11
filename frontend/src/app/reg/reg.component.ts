@@ -11,10 +11,15 @@ import { CommonModule, NgClass } from '@angular/common';
 })
 export class RegComponent {
   regData = {
-    fullname: null,
-    mail: null,
-    password: null,
-    confirmed_password: null
+    fullname : null,
+    password : null,
+    confirmed_password : null,
+    mail : null, 
+    sex : null,
+    birthday : null,
+    height : null,
+    weight : null,
+    admin : false
   };
   isError: boolean = false;
 
@@ -22,7 +27,7 @@ export class RegComponent {
 
   onSubmit() {
 
-    this.http.post('/http://127.0.0.1:5000/api/register', this.regData).subscribe({
+    this.http.post('http://127.0.0.1:5000/api/register', this.regData).subscribe({
       next: response => {
         console.log('Success:', response);
         // Обработка успешного ответа
