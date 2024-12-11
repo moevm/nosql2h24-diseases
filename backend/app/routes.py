@@ -1,13 +1,11 @@
 from app import app
 from app.models.neo4jConnection import Neo4jConnection
-from app.models.utils.allowedEntity import allowed_entity_parameters, CSV_columns, allowed_relations
-from app.models.utils.modelsForDumpTransform import create_relation_dict
+from app.models.allowedEntity import allowed_entity_parameters
 import re
 from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json
 import requests
 import os
-import csv 
 
 uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
 user = os.getenv("NEO4J_USER", "neo4j")
@@ -44,9 +42,9 @@ def register() -> str:
                                     'weight' in request.form and \
                                     "admin" in request.form:
 
-        fullname : str = request.form['full_name']
+        full_name : str = request.form['full_name']
         password : str = request.form['password']
-        mail : str = request.form['email']
+        email : str = request.form['email']
         sex : str = request.form['sex']
         birthday : str = request.form['birthday']
         height : float = request.form['height']
@@ -71,10 +69,10 @@ def register() -> str:
 
         else:
             query_string = '''
-            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
+            MERGE (p:Patient {full_name: $full_name, password: $password, email: $email, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
-            conn.query(query_string, {"fullname": fullname, "password": password, "mail": email,
+            conn.query(query_string, {"full_name": full_name, "password": password, "email": email,
                                     "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
 
             msg = "Success"
@@ -109,8 +107,8 @@ def login() -> str:
         if patient: 
             patient_data : dict = patient[0].data()["p"]
             session["loggedin"] = True
-            session["mail"] = patient_data["mail"]
-            session["fullname"] = patient_data["fullname"]
+            session["email"] = patient_data["email"]
+            session["full_name"] = patient_data["full_name"]
             session["admin"] = patient_data["admin"]
         else:
             msg = 'Неправильный логин или пароль'
