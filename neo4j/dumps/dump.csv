@@ -1,6 +1,6 @@
 type,fullname,mail,password,sex,age,height,weight,admin,birthday,last_update,registration_data,disease_name,disease_description,disease_recommendations,disease_type,disease_course,symptom_name,symptom_description,analysis_name,analysis_source,relation_from,relation_to,symptom_weight,appeal_date,appeal_complaints
-Patient,Шушков Егор,egorka44552014@gmail.com,3214,male,20,182,90,TRUE,2004-04-08,2024-11-08 12:41:12,2024-11-08 12:41:12,,,,,,,,,,,,,,
-Patient,Прошичев Александр,kaidux22@gmail.com,1234,male,21,185,75,FALSE,2003-05-05,2024-11-08 12:40:12,2024-11-08 12:40:12,,,,,,,,,,,,,,
+Patient,Шушков Егор,egorka44552014@gmail.com,3214,male,20,182,90,TRUE,2004-04-08 00:00:00,2024-11-08 12:41:12,2024-11-08 12:41:12,,,,,,,,,,,,,,
+Patient,Прошичев Александр,kaidux22@gmail.com,1234,male,21,185,75,FALSE,2003-05-05 00:00:00,2024-11-08 12:40:12,2024-11-08 12:40:12,,,,,,,,,,,,,,
 Symptom,,,,,,,,,,,,,,,,,зуд,"Неприятное ощущение на коже, вызывающее желание почесать её. Ощущение может быть локализованным или распространенным по всему телу.",,,,,,,
 Symptom,,,,,,,,,,,,,,,,,кожная сыпь,"Появление красных пятен или высыпаний на коже, которые могут быть болезненными или зудящими. Пятна могут быть различной формы и размера.",,,,,,,
 Symptom,,,,,,,,,,,,,,,,,узловые высыпания на коже,"Воспалительное заболевание кожи, характеризующееся появлением болезненных узлов, обычно на ногах. Узлы могут быть твердыми и горячими на ощупь.",,,,,,,

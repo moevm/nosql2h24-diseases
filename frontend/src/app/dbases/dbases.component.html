@@ -1,21 +1,109 @@
 <div class="menu">
     <h2 (click)="GoToDB('diseases')" [ngClass]="{'active': type === 'diseases'}">База болезней</h2>
-    <h2 (click)="GoToDB('appeales')" [ngClass]="{'active': type === 'appeales'}">База обращений</h2>
+    <h2 (click)="GoToDB('appeales')" [ngClass]="{'active': type === 'appeals'}">База обращений</h2>
     <h2 (click)="GoToDB('sympts')" [ngClass]="{'active': type === 'sympts'}">База симптомов</h2>
     <h2 (click)="GoToDB('patients')" [ngClass]="{'active': type === 'patients'}">База пациентов</h2>
 </div>
 
 <div class="filter">
-    <div>
-
+    <div *ngIf="type === 'patients'">
+      <label for="name">Имя</label>
+      <br>
+      <input id="name" [(ngModel)]="patient_filter['name']" (ngModelChange)="MakePostReq('patients')">
+      <br>
+      <label for="mail">Почта</label>
+      <br>
+      <input id="mail" [(ngModel)]="patient_filter['mail']" (ngModelChange)="MakePostReq('patients')">
+      <br>
+      <label for="sex">Пол</label>
+      <br>
+      <input id="sex" [(ngModel)]="patient_filter['sex']" (ngModelChange)="MakePostReq('patients')">
+      <br>
+      <label>Дата рождения</label>
+      <br>
+      <input id="from_birthday" type="date" class="date" [(ngModel)]="patient_filter['from_birthday']" (ngModelChange)="MakePostReq('patients')">
+      -
+      <input id="to_birthday" type="date" class="date" [(ngModel)]="patient_filter['to_birthday']" (ngModelChange)="MakePostReq('patients')">
+      <br>
+      <label>Дата регистрации</label>
+      <br>
+      <input id="from_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['from_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
+      -
+      <input id="to_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['to_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
+      <br>
+      <label for="height">Рост</label>
+      <br>
+      <label>0</label>
+      <mat-slider discrete min="0" max="300" [(ngModel)]="patient_filter['height']" (ngModelChange)="MakePostReq('patients')">
+        <input matSliderStartThumb [(ngModel)]="patient_filter['from_height']" (ngModelChange)="MakePostReq('patients')">
+        <input matSliderEndThumb [(ngModel)]="patient_filter['to_height']" (ngModelChange)="MakePostReq('patients')">
+      </mat-slider>
+      <label>300</label>
+      <br>
+      <label for="weight">Вес</label>
+      <br>
+      <label>0</label>
+      <mat-slider discrete min="0" max="200">
+        <input matSliderStartThumb [(ngModel)]="patient_filter['from_weight']" (ngModelChange)="MakePostReq('patients')">
+        <input matSliderEndThumb [(ngModel)]="patient_filter['to_weight']" (ngModelChange)="MakePostReq('patients')">
+      </mat-slider>
+      <label>200</label>
     </div>
-    <div>
+    <div *ngIf = "type === 'appeals'">
+        <label>Дата обращения</label>
+        <br>
+        <input id="from_appeal_datetime" type="date">
+        -
+        <input id="to_appeal_datetime" type="date">
 
-    </div>
-    <div>
+        <br>
 
+        <label for="complaints">Жалобы</label>
+        <br>
+        <input id="complaints">
     </div>
-    <div>
+    <div *ngIf = "type === 'sympts'">
+        <label for="name">Наименование</label>
+        <br>
+        <input id="name">
+
+        <br>
+
+        <label for="description">Описание</label>
+        <br>
+        <input id="description">
+    </div>
+    <div *ngIf = "type === 'diseases'">
+        <label for="name">Наименование</label>
+        <br>
+        <input id="name">
+
+        <br>
+
+        <label for="description">Описание</label>
+        <br>
+        <input id="description">
+
+        <br>
+
+        <label for="recommendation">Рекомендации</label>
+        <br>
+        <input id="recommendation">
+
+        <br>
+
+        <label for="type">Тип протекания</label>
+        <br>
+        <label for="acute">Острое</label>
+        <input id="acute" type='radio' [(ngModel)]="selectedOption" value="1" (click)="onRadioClick($event)">
+
+        <label for="chronic">Хроническое</label>
+        <input id="chronic" type="radio" [(ngModel)]="selectedOption" value="2" (click)="onRadioClick($event)">
+        <br>
+
+        <label for="source">Источник беспокойства</label>
+        <br>
+        <input id="source">
 
     </div>
 

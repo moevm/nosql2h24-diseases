@@ -150,6 +150,8 @@ def readEntities() -> json:
     data : dict = request.json
     entity_type : str = data.get('entity_type')
     filter_params : str = data.get('filter_params', {})
+    date_list = ['birthday', 'last_update', 'registration_date', 'appeal_date']
+    compare_operations = [">", "<", ">=", "<="]
 
     query_string : str = ""
     tmp_filter_string : str = ""
@@ -157,8 +159,12 @@ def readEntities() -> json:
     query_string : str = f'MATCH(p:{entity_type})\n'
 
     if filter_params:
-
-        query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
+        
+        if(filter_params["filter1-field"] in date_list and filter_params["filter1-action"] in compare_operations):
+            query_string += f'datetime(replace(p.{filter_params[f'filter1-field']}, " ", "T")) {filter_params[f'filter1-action']} datetime({filter_params[f'filter1-value']})'
+        else:
+            query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
+        
 
         filter_idx = 2
 
@@ -166,7 +172,7 @@ def readEntities() -> json:
             
 
             query_string += " AND\n"
-            if(filter_params.get(f'filter{filter_idx}-field') == 'appeal_date'):
+            if(filter_params.get(f'filter{filter_idx}-field') in date_list and filter_params.get(f'filter{filter_idx}-action') in compare_operations):
                 query_string += f'datetime(replace(p.{filter_params[f'filter{filter_idx}-field']}, " ", "T")) {filter_params[f'filter{filter_idx}-action']} datetime({filter_params[f'filter{filter_idx}-value']})'
             else:
                 query_string += f'p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
