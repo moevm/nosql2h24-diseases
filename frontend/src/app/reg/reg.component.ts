@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, NgClass } from '@angular/common';
 import { Router } from '@angular/router';
+import { DataService } from "../data.service"
 
 @Component({
   selector: 'app-reg',
@@ -24,7 +25,7 @@ export class RegComponent {
   };
   error: string = ''
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router, private dataService: DataService) {}
 
   GoToLogin(){
     this.router.navigate(['/login']);
@@ -41,6 +42,7 @@ export class RegComponent {
         this.error = response['msg']
 
         if(!this.error){
+          this.dataService.setUserData(this.regData);
           this.GoToSearch();
         }
       },

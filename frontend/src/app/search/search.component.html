@@ -1,0 +1,22 @@
+<input placeholder="Что Вас беспокоит?" [ngClass]="{'activate': input}" (input)="OnInputChange($event)" (focus)="OnInputFocus()" (blur)="OnInputBlur()">
+
+<div id="labelsaver">
+    <div *ngFor="let sympt of chosen_sympts" class="label">
+        <p>{{ sympt }}</p>
+        <mat-icon id="close_icon" (click)="RemoveItem(sympt)">close</mat-icon>
+    </div>
+</div>
+
+<div class="list-container">
+    <ul class="list">
+        <ng-container *ngFor="let item of data">
+            <li *ngIf="!IsTaken(item['symptom_name'])" (mousedown)="OnItemMouseDown()" (click)="ChooseTheSympt(item['symptom_name'])">
+                {{ item['symptom_name'] }}
+            </li>
+        </ng-container>
+    </ul>
+</div>
+
+<button>
+    <mat-icon id="search_icon">search</mat-icon>
+</button>

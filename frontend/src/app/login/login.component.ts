@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, NgClass } from '@angular/common';
-import { Route, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { DataService } from "../data.service"
 
 @Component({
@@ -24,8 +24,6 @@ export class LoginComponent {
     admin : false
   };
   error : string = '';
-
-  @Output() loginDataEvent = new EventEmitter<any>();
 
   constructor(private http: HttpClient, private router: Router, private dataService: DataService) {}
 
