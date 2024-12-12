@@ -6,7 +6,7 @@
     <label for="password"> <p>Пароль:</p> </label>
     <input type="password" id="password" name="password" placeholder="Пароль" [ngClass]="{'activate': loginData['password']}" [(ngModel)]="loginData['password']" required>
 
-    <p *ngIf="isError" class="error"> Ошибка </p>
+    <p *ngIf="error" class="error"> {{error}} </p>
 
     <input type="submit" value="Войти" id="button">
   </form>

@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule, NgClass } from '@angular/common';
 import { Route, Router } from '@angular/router';
+import { DataService } from "../data.service"
 
 @Component({
   selector: 'app-login',
@@ -12,31 +13,46 @@ import { Route, Router } from '@angular/router';
 })
 export class LoginComponent {
   loginData = {
-    mail: null,
-    password: null
+    fullname : null,
+    password : null,
+    confirmed_password : null,
+    mail : null, 
+    sex : null,
+    birthday : null,
+    height : null,
+    weight : null,
+    admin : false
   };
-  isError: boolean = false;
+  error : string = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  @Output() loginDataEvent = new EventEmitter<any>();
+
+  constructor(private http: HttpClient, private router: Router, private dataService: DataService) {}
 
   GoToReg(){
     this.router.navigate(['/reg']);
   }
 
+  GoToSearch(){
+    this.router.navigate(['/search']);
+  }
+
   OnSubmit() {
 
     this.http.post('http://127.0.0.1:5000/api/login', this.loginData).subscribe({
-      next: response => {
-        console.log('Success:', response);
-        // Обработка успешного ответа
+      next: (response: any) => {
+        this.error = response['msg']
+
+        if(!this.error){
+          this.dataService.setUserData(response['user_data']);
+          this.GoToSearch();
+        }
       },
       error: error => {
         console.error('Error:', error);
-        // Обработка ошибки
       },
       complete: () => {
         console.log('Request complete');
-        // Обработка завершения запроса
       }
     });
   }

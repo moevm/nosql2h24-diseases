@@ -9,9 +9,9 @@
 
     button{
         height: 50px;
+        width: 50px;
         font-family: @font_family;
-        border-radius: 25px;
-        padding: 0;
+        border-radius: 50px;
         border: none;
         background: #FFFFFF;
         color: #000000;
@@ -28,7 +28,49 @@
             cursor: pointer;
         }
 
+        #exit_to_app_icon{
+            position: relative;
+            right: 3px;
+            top: 2px;
+        }
 
+        #heghlight_off_icon{
+            position: relative;
+            font-size: 25px;
+            right: 5px;
+            top: 2px;
+        }
+        
+        #account_circle{
+            position: relative;
+            right: 6px;
+            top: 2px;
+            font-size: 25px;
+        }
+
+    }
+
+    h3{
+        position: fixed;
+        right: 170px;
+        top: 15px;
+
+        color: #FFFFFF;
+        font-family: @font_family;
+        font-weight: 400;
+        font-size: 22px;
+        
+    }
+
+    #admin{
+        position: fixed;
+        right: 170px;
+        top: 45px;
+
+        color: #1EB9B9;
+        font-family: @font_family;
+        font-weight: 400;
+        font-size: 18px;
     }
     
     #searching{
@@ -57,10 +99,12 @@
             bottom: 7px;
         }
         
-        mat-icon{
+        #seach_icon{
             position: relative;
             right: 6px;
         }
+
+
 
     }
 
@@ -68,6 +112,13 @@
         position: fixed;
         float:right;
         right: 30px;
+        top: 25px;
+      }
+
+    .profile{
+        position: fixed;
+        float:right;
+        right: 100px;
         top: 25px;
       }
     

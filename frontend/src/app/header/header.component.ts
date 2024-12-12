@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -10,6 +10,8 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrl: './header.component.less'
 })
 export class HeaderComponent {
+  @Input() userData : any;
+
   isCurtainPage = true;
   isLoggedIn = false;
   isAuthForm = false;
@@ -32,6 +34,10 @@ export class HeaderComponent {
   }
 
   GoToLogin() {
+    this.router.navigate(['/login']);
+  }
+
+  GoToProfile() {
     this.router.navigate(['/login']);
   }
 }

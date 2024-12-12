@@ -10,7 +10,7 @@
       <label for="confrimed_password"> <p>Пароль:</p> </label>
       <input type="password" id="confrimed_password" name="confrimed_password" placeholder="Подтвердите пароль" [ngClass]="{'activate': regData['confirmed_password']}" [(ngModel)]="regData['confirmed_password']" required>
         
-      <p *ngIf="isError" class="error"> Ошибка </p>
+      <p *ngIf="error" class="error"> {{error}} </p>
   
       <input type="submit" value="Зарегистрироваться" id="button">
     </form>

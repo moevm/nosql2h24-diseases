@@ -22,7 +22,7 @@ export class RegComponent {
     weight : null,
     admin : false
   };
-  isError: boolean = false;
+  error: string = ''
 
   constructor(private http: HttpClient, private router: Router) {}
 
@@ -30,21 +30,25 @@ export class RegComponent {
     this.router.navigate(['/login']);
   }
 
+  GoToSearch(){
+    this.router.navigate(['/search'])
+  }
 
   OnSubmit() {
 
     this.http.post('http://127.0.0.1:5000/api/register', this.regData).subscribe({
-      next: response => {
-        console.log('Success:', response);
-        // Обработка успешного ответа
+      next: (response: any) => {
+        this.error = response['msg']
+
+        if(!this.error){
+          this.GoToSearch();
+        }
       },
       error: error => {
         console.error('Error:', error);
-        // Обработка ошибки
       },
       complete: () => {
         console.log('Request complete');
-        // Обработка завершения запроса
       }
     });
   }
