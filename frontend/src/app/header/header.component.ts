@@ -24,7 +24,7 @@ export class HeaderComponent {
   ngOnInit(){
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
-        this.isCurtainPage = this.router.url === '/login' || this.router.url == '/reg';
+        this.isCurtainPage = this.router.url != '/search' && this.router.url != '/home';
         this.isAuthForm = this.router.url === '/login' || this.router.url === '/reg';
       }
     });

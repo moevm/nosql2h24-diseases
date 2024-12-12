@@ -69,4 +69,8 @@ export class ProfileComponent {
     }
     this.MakePostReq()
   }
+
+  GoToDBases(){
+    this.router.navigate(['/dbases'])
+  }
 }

@@ -4,11 +4,13 @@ import { LoginComponent } from './login/login.component';
 import { RegComponent } from './reg/reg.component';
 import { SearchComponent } from './search/search.component';
 import { ProfileComponent } from './profile/profile.component';
+import { DbasesComponent } from './dbases/dbases.component';
 
 export const routes: Routes = [
     {path: "", component: HomeComponent},
     {path: "login", component: LoginComponent},
     {path: "reg", component: RegComponent},
     {path: "search", component: SearchComponent},
-    {path: "profile", component: ProfileComponent}
+    {path: "profile", component: ProfileComponent},
+    {path: "dbases", component: DbasesComponent}
 ];
