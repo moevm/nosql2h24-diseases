@@ -1,4 +1,4 @@
-<input placeholder="Что Вас беспокоит?" [ngClass]="{'activate': input}" (input)="OnInputChange($event)" (focus)="OnInputFocus()" (blur)="OnInputBlur()">
+<input placeholder="Что Вас беспокоит?" [ngClass]="{'activate': input}"  [(ngModel)]="input" (input)="OnInputChange($event)" (focus)="OnInputFocus()" (blur)="OnInputBlur()">
 
 <div id="labelsaver">
     <div *ngFor="let sympt of chosen_sympts" class="label">

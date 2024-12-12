@@ -63,7 +63,7 @@ export class SearchComponent {
   ChooseTheSympt(name: string){
     this.chosen_sympts.push(name)
     this.data = null;
-    console.log(this.chosen_sympts)
+    this.input = ''
   }
 
   IsTaken(name: string){

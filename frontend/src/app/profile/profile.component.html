@@ -1,0 +1,66 @@
+<div id="leftBlock">
+    <h2>{{ userData['fullname'] }}</h2>
+    <p class="subtitle">{{ userData['mail'] }}</p>
+
+    <div>
+        <div class="label">
+            <p>  Профиль </p>
+        </div>
+
+        <label for="sex">Пол <mat-icon *ngIf="userData['sex']">edit</mat-icon></label> <br>
+        <p *ngIf="userData['sex']">{{ userData['sex'] }}</p>
+        <input *ngIf="!userData['sex']" id="sex">
+
+        <br>
+
+        <label for="birthday">Дата рождения <mat-icon *ngIf="userData['birthday']">edit</mat-icon></label> <br>
+        <p *ngIf="userData['birthday']">{{ userData['birthday'] }}</p>
+        <input type="date" *ngIf="!userData['birthday']" id="birthday">
+
+        <br>
+
+        <label for="height">Рост <mat-icon *ngIf="userData['height']">edit</mat-icon></label> <br>
+        <p *ngIf="userData['height']">{{ userData['height'] }} см</p>
+        <input *ngIf="!userData['height']" id="height">
+
+        <br>
+
+        <label for="weight">Вес <mat-icon *ngIf="userData['weight']">edit</mat-icon></label> <br>
+        <p *ngIf="userData['weight']">{{ userData['weight'] }} кг</p>
+        <input *ngIf="!userData['weight']" id="weight">
+
+    </div>
+</div>
+
+<div id="rightBlock">
+    <div class="filter">    
+        <label>За какой срок?</label>
+        <input class="date_field" type="date"> - <input class="date_field" type="date">
+    </div>
+
+    <div class="container">
+        <h3>Ранее Вас беспокоило:</h3>
+
+        <ul class="list">
+            <ng-container *ngFor="let item of data">
+                <li>
+                    {{ item['appeal_complaints'] }}
+                    <div>
+                        {{ item['appeal_date'] }}     
+                    </div>
+                </li>
+            </ng-container>
+        </ul>
+    </div>
+
+    <div class="label">
+        <p>  Обращения </p>
+    </div>
+
+
+
+</div>
+
+
+
+<div id="seperator"></div>
