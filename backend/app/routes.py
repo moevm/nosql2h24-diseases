@@ -155,7 +155,7 @@ def readEntities() -> json:
     tmp_filter_string : str = ""
 
     query_string : str = f'MATCH(p:{entity_type})\n'
-    
+
     if filter_params:
 
         query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
@@ -163,10 +163,18 @@ def readEntities() -> json:
         filter_idx = 2
 
         while(filter_params.get(f'filter{filter_idx}-field')):
-            query_string += "AND\n"
-            query_string += f'WHERE p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+            
 
-    query_string += '\nRETURN p'    
+            query_string += " AND\n"
+            if(filter_params.get(f'filter{filter_idx}-field') == 'appeal_date'):
+                query_string += f'datetime(replace(p.{filter_params[f'filter{filter_idx}-field']}, " ", "T")) {filter_params[f'filter{filter_idx}-action']} datetime({filter_params[f'filter{filter_idx}-value']})'
+            else:
+                query_string += f'p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+
+            filter_idx += 1
+            
+
+    query_string += '\nRETURN p'
 
    
     entities_list : list[Record] = conn.query(query_string)

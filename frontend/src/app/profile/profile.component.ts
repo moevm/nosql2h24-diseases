@@ -13,18 +13,31 @@ import { FormsModule } from '@angular/forms';
   styleUrl: './profile.component.less'
 })
 export class ProfileComponent {
-  userData : any = null;
+  userData: any = null;
   data: any = null;
+  from: string = '';
+  to: string = '';
 
-  constructor(private router : Router, private dataService : DataService, private http : HttpClient){}
+  constructor(private router: Router, private dataService: DataService, private http: HttpClient) {}
 
-  MakePostReq(){
-    this.http.post('http://127.0.0.1:5000/api/entities', {"entity_type": "Appeal", 
-                    "filter_params": {"filter1-field": "appeal_date", "filter1-action": "<>", "filter1-value": "''"
-                    }}).subscribe({
+  MakePostReq() {
+    this.http.post('http://127.0.0.1:5000/api/entities', {
+      "entity_type": "Appeal",
+      "filter_params": {
+        "filter1-field": "appeal_date",
+        "filter1-action": "<>",
+        "filter1-value": "''",
+        "filter2-field": "appeal_date",
+        "filter2-action": ">=",
+        "filter2-value": "'" + (this.from ? this.from.split(' ')[0] : '1900-01-01') + "T23:59:59" + "'",
+        "filter3-field": "appeal_date",
+        "filter3-action": "<=",
+        "filter3-value": "'" + (this.to ? this.to.split(' ')[0] : '2200-01-01') + "T23:59:59" + "'"
+      }
+    }).subscribe({
       next: (response: any) => {
-        this.data = response['ans']
-        console.log(this.data)
+        this.data = response['ans'];
+        console.log(response['req']);
       },
       error: error => {
         console.error('Error:', error);
@@ -35,14 +48,25 @@ export class ProfileComponent {
     });
   }
 
-  ngOnInit(){
-    this.userData = this.dataService.getUserData()
-    console.log(this.userData)
+  ngOnInit() {
+    this.userData = this.dataService.getUserData();
+    console.log(this.userData);
 
-    if(!this.userData){
-      this.router.navigate(['/login']) 
+    if (!this.userData) {
+      this.router.navigate(['/login']);
     }
 
+    this.MakePostReq();
+  }
+
+  onDateChange(event: any, type: string) {
+    if (type === 'from') {
+      this.from = event.target.value;
+      console.log('From:', this.from);
+    } else if (type === 'to') {
+      this.to = event.target.value;
+      console.log('To:', this.to);
+    }
     this.MakePostReq()
   }
 }
