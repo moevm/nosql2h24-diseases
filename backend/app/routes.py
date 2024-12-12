@@ -161,7 +161,7 @@ def readEntities() -> json:
     if filter_params:
         
         if(filter_params["filter1-field"] in date_list and filter_params["filter1-action"] in compare_operations):
-            query_string += f'datetime(replace(p.{filter_params[f'filter1-field']}, " ", "T")) {filter_params[f'filter1-action']} datetime({filter_params[f'filter1-value']})'
+            query_string += f'WHERE datetime(replace(p.{filter_params[f'filter1-field']}, " ", "T")) {filter_params[f'filter1-action']} datetime({filter_params[f'filter1-value']})'
         else:
             query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
         
