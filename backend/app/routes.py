@@ -35,31 +35,26 @@ def register() -> str:
     '''
 
     msg : str = None
-    if request.method == 'POST' and 'fullname' in request.form and \
-                                    'password' in request.form and \
-                                    'confirmed_password' in request.form and \
-                                    'mail' in request.form and \
-                                    'sex' in request.form and \
-                                    'birthday' in request.form and \
-                                    'height' in request.form and \
-                                    'weight' in request.form and \
-                                    "admin" in request.form:
+    data : dict = request.json
+    fullname : str = data.get('fullname')
+    password : str = data.get('password')
+    confirmed_password : str = data.get('confirmed_password')
+    mail : str = data.get('mail')
+    sex : str = data.get('sex') if data.get('sex') else ''
+    birthday : str = data.get('birthday') if data.get('birthday') else ''
+    height : float = data.get('height') if data.get('height') else ''
+    weight : float = data.get('weight') if data.get('weight') else ''
+    admin : bool = data.get('admin')
 
-        fullname : str = request.form['fullname']
-        password : str = request.form['password']
-        confirmed_password : str = request.form['confirmed_password']
-        mail : str = request.form['mail']
-        sex : str = request.form['sex']
-        birthday : str = request.form['birthday']
-        height : float = request.form['height']
-        weight : float = request.form['weight']
-        admin : bool = request.form['admin']
+    if request.method == 'POST' and fullname and password and confirmed_password and mail:
+
 
         query_string : str = '''
         MATCH(p:Patient {mail: $mail})
         RETURN p
         '''
 
+        msg = None
         patient : list[Record] = conn.query(query_string, {"mail": mail})
 
         if patient: 
@@ -78,15 +73,14 @@ def register() -> str:
             MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
+            print(fullname, password, mail, sex, birthday, height, weight, admin)
             conn.query(query_string, {"fullname": fullname, "password": password, "mail": mail,
                                     "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
-
-            msg = "Success"
 
     elif request.method == 'POST':
         msg = "Пожалуйста, заполните форму!"
 
-    return msg
+    return jsonify({"msg": msg})
         
 @app.route('/api/login', methods=['POST'])
 def login() -> str:
@@ -161,7 +155,7 @@ def readEntities() -> json:
     tmp_filter_string : str = ""
 
     query_string : str = f'MATCH(p:{entity_type})\n'
-    
+
     if filter_params:
 
         query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
@@ -169,10 +163,18 @@ def readEntities() -> json:
         filter_idx = 2
 
         while(filter_params.get(f'filter{filter_idx}-field')):
-            query_string += "AND\n"
-            query_string += f'WHERE p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+            
 
-    query_string += '\nRETURN p'    
+            query_string += " AND\n"
+            if(filter_params.get(f'filter{filter_idx}-field') == 'appeal_date'):
+                query_string += f'datetime(replace(p.{filter_params[f'filter{filter_idx}-field']}, " ", "T")) {filter_params[f'filter{filter_idx}-action']} datetime({filter_params[f'filter{filter_idx}-value']})'
+            else:
+                query_string += f'p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+
+            filter_idx += 1
+            
+
+    query_string += '\nRETURN p'
 
    
     entities_list : list[Record] = conn.query(query_string)
@@ -183,7 +185,7 @@ def readEntities() -> json:
         for entity in entities_list:
             entities_parametrs_list.append(entity.data()["p"])
 
-    return jsonify(entities_parametrs_list)
+    return jsonify({"ans": entities_parametrs_list, "req": query_string})
 
 
 @app.route('/api/create_entity', methods=['POST']) 
