@@ -15,61 +15,165 @@
         &:hover {
             cursor: pointer;
         }
-        
     }
 
-    .active{
+    .active {
         text-decoration: underline;
     }
 }
 
-.filter {
-	width: 400px;
-	height: auto;
-	padding: 8px 8px 8px 8px;
-	background: #21D9D9;
-	border-radius: 10px 10px 10px 10px;
-    margin-left: 20px;   
+.dbases {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box; /* Включает padding в высоту и ширину */
 
-    label{
-        color: #FFFFFF;
-        font-family: "Comfortaa";
-        font-weight: 400;
-        font-size: 18px;
-        text-align: left;
-        margin: 5px;
+    .filter {
+        width: 400px;
+        height: auto;
+        padding: 8px;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        background: #21D9D9;
+        border-radius: 10px;
+        margin-right: 20px;
+
+        position: absolute;
+
+        label {
+            color: #FFFFFF;
+            font-family: "Comfortaa";
+            font-weight: 400;
+            font-size: 18px;
+            text-align: left;
+            margin: 5px;
+        }
+
+        .last{
+            margin-top: 20px;
+        }
+
+        input {
+            height: 30px;
+            padding: 4px 8px;
+            background: #FFFFFF;
+            color: #000000;
+            border-color: #21D9D9;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 10px;
+            font-family: "Comfortaa";
+            font-weight: 400;
+            font-size: 16px;
+            text-align: left;
+            margin: 5px;
+        }
+
+        mat-slider {
+            background-color: #FFFFFF;
+            border-radius: 20px;
+            width: 250px;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+          }
+          
+        input[type="range"] {
+            writing-mode: bt-lr; /* bottom to top, left to right */
+            -webkit-appearance: slider-vertical;
+            width: 8px;
+            height: 70px;
+            padding: 0;
+            margin-right: 10px;
+            background: transparent;
+            margin-left: 10px;
+            accent-color: #fff;
+            
+        }
+          
+        .labels {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 70px;
+        }
+          
+        .labels span {
+            margin: 0;
+            padding: 0;
+            font-family: "Comfortaa";
+            color: #fff;
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #21D9D9; /* Цвет трека */
+            border-radius: 20px;
+            border: 1px solid #fff;
+          }
+          
     }
 
-    input{
-        height: 30px;
-        padding: 4px 8px 4px 8px;
-        background: #FFFFFF;
-        color: #000000;
-        border-color: #21D9D9;
-        border-width: 1px;
-        border-style: solid;
-        border-radius: 10px 10px 10px 10px;
-        font-family: "Comfortaa";
-        font-weight: 400;
-        font-size: 16px;
-        text-align: left;
-        margin: 5px;
-    }
+    .list {
+        margin-left: 460px;
 
-    mat-slider{
-        background-color: #FFFFFF;
-        border-radius: 20px;
-        width: 250px;
+
+        .table-container {
+            overflow-x: auto; /* Добавляем горизонтальную прокрутку */
+            width: 100%; /* Убедитесь, что ширина достаточна для содержимого */
+            border-radius: 20px;
+            height: 580px;
+
+            table {
+                width: 100%;
+                border-radius: 20px;
+                font-family: "Comfortaa";
+                font-size: 20px;
+                border-collapse: collapse;
+
+                thead {
+                    color: #fff;
+                    
+
+                    th {
+                        background-color: #21D9D9;
+                        padding: 10px;
+                        min-width: 150px; /* Фиксированная ширина для колонок */
+                        border: 1px solid #21D9D9;
+                    }
+
+
+                }
+
+                tbody {
+                    td {
+                        padding: 10px;
+                        min-width: 150px; /* Фиксированная ширина для колонок */
+                        border: 1px solid #21D9D9;
+
+                    }
+                }
+            }
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 6px; /* Ширина ползунка */
+          }
+          
+          .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1; /* Цвет фона ползунка */
+          }
+          
+          .table-container::-webkit-scrollbar-thumb {
+            background: darken(#21D9D9, 5%); /* Цвет ползунка */
+            border-radius: 6px; /* Скругление ползунка */
+          }
+          
+          .table-container::-webkit-scrollbar-thumb:hover {
+            background: #21D9D9; /* Цвет ползунка при наведении */
+          }
     }
 }
 
 .io {
-	width: 300px;
-	height: 100px;
-	padding: 8px 8px 8px 8px;
-	background: #21D9D9;
-	border-radius: 10px 10px 10px 10px;
-    margin-left: 70px;
-    margin-top: 20px;
 }
-

@@ -14,16 +14,16 @@ import { Route, Router } from '@angular/router';
 })
 export class DbasesComponent {
   type: string = 'diseases';
-  selectedOption: string | null = null;
   data: any = null;
+  items: any = [];
   idx: number = 0;
 
   disease_filter: any = {
     name: '',
     description: '',
     recommendation: '', 
-    type: null,
-    source: ''
+    type: '',
+    cource: null
   }
 
   appeal_filter: any = {
@@ -55,19 +55,42 @@ export class DbasesComponent {
 
   GoToDB(type: string){
     this.type = type
-  }
-  
-  onRadioClick(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    if (target.checked && this.selectedOption === target.value) {
-      this.selectedOption = null;
-    }
+    this.MakePostReq(this.type)
   }
 
+
   MakePostReq(type: string){
-    console.log("was there")
     if(type == 'diseases'){
-      console.log(this.disease_filter)
+      this.data = {"entity_type": "Disease", "filter_params": {}}
+      this.idx = 1
+
+      if(this.disease_filter['name']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'disease_name'
+        this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
+        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.disease_filter['name'] + "'"
+        this.idx += 1
+      }
+
+      if(this.disease_filter['description']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'disease_description'
+        this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
+        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.disease_filter['description'] + "'"
+        this.idx += 1
+      }
+
+      if(this.disease_filter['recommendation']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'disease_recommendations'
+        this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
+        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.disease_filter['recommendation'] + "'"
+        this.idx += 1
+      }
+
+      if(this.disease_filter['cource']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'disease_course'
+        this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
+        this.data['filter_params'][`filter${this.idx}-value`] = "'" + (this.disease_filter['cource'] == -1 ? "Острое течение" : "Хроническое течение")  + "'"
+        this.idx += 1
+      }
     }
     else if(type == 'patients'){
       this.data = {"entity_type": "Patient", "filter_params": {}}
@@ -101,23 +124,73 @@ export class DbasesComponent {
         this.idx += 1
       }
 
-      this.http.post('http://127.0.0.1:5000/api/entities', this.data).subscribe({
-        next: (response: any) => {
-          this.data = response['ans']
-          console.log(response['req'])
-        },
-        error: error => {
-          console.error('Error:', error);
-        },
-        complete: () => {
-          console.log('Request complete');
-        }
-      });
+      if(this.patient_filter['to_birthday']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'birthday'
+        this.data['filter_params'][`filter${this.idx}-action`] = '<='
+        this.data['filter_params'][`filter${this.idx}-value`] = "'" + (this.patient_filter['to_birthday'] ? this.patient_filter['to_birthday'].split(' ')[0] : '2200-01-01') + "T23:59:59" + "'"
+        this.idx += 1
+      }
+
+      if(this.patient_filter['from_reg_datetime']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'registration_date'
+        this.data['filter_params'][`filter${this.idx}-action`] = '>='
+        this.data['filter_params'][`filter${this.idx}-value`] = "'" + (this.patient_filter['from_reg_datetime'] ? this.patient_filter['from_reg_datetime'].split(' ')[0] : '1900-01-01T00:00:00') + "'"
+        this.idx += 1
+      }
+
+      if(this.patient_filter['to_reg_datetime']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'registration_date'
+        this.data['filter_params'][`filter${this.idx}-action`] = '<='
+        this.data['filter_params'][`filter${this.idx}-value`] = "'" + (this.patient_filter['to_reg_datetime'] ? this.patient_filter['to_reg_datetime'].split(' ')[0] : '2200-01-01T23:59:59') + "'"
+        this.idx += 1
+      }
+
+      /*
+
+      this.data['filter_params'][`filter${this.idx}-field`] = 'height'
+      this.data['filter_params'][`filter${this.idx}-action`] = '>='
+      this.data['filter_params'][`filter${this.idx}-value`] = `${this.patient_filter['from_height']}`
+      this.idx += 1
+
+      this.data['filter_params'][`filter${this.idx}-field`] = 'height'
+      this.data['filter_params'][`filter${this.idx}-action`] = '<='
+      this.data['filter_params'][`filter${this.idx}-value`] = `${this.patient_filter['to_height']}`
+      this.idx += 1
+
+      this.data['filter_params'][`filter${this.idx}-field`] = 'weight'
+      this.data['filter_params'][`filter${this.idx}-action`] = '>='
+      this.data['filter_params'][`filter${this.idx}-value`] = `${this.patient_filter['from_weight']}`
+      this.idx += 1
+
+      this.data['filter_params'][`filter${this.idx}-field`] = 'weight'
+      this.data['filter_params'][`filter${this.idx}-action`] = '>='
+      this.data['filter_params'][`filter${this.idx}-value`] = `${this.patient_filter['to_weight']}`
+      this.idx += 1
+
+      */
     }
     else if(type == 'sympts'){
       console.log(this.sympts_filter)
     } else{
       console.log(this.appeal_filter)
     }
+
+    this.http.post('http://127.0.0.1:5000/api/entities', this.data).subscribe({
+      next: (response: any) => {
+        this.items = response['ans']
+        console.log(response['ans'])
+      },
+      error: error => {
+        console.error('Error:', error);
+      },
+      complete: () => {
+        console.log('Request complete');
+      }
+    });
+  }
+
+  ngOnInit(){
+    this.MakePostReq(this.type)
+    console.log(this.items)
   }
 }

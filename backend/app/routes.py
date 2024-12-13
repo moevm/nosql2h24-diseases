@@ -241,7 +241,7 @@ def import_dump():
         '''
         LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
         WITH row WHERE row.type = 'Patient'
-        MERGE (p:Patient {fullname: row.fullname, mail: row.mail, password: row.password, sex: row.sex, age: row.age, height: row.height, weight: row.weight, last_update: row.last_update, admin: row.admin, birthday: row.birthday, registration_data: row.registration_data});
+        MERGE (p:Patient {fullname: row.fullname, mail: row.mail, password: row.password, sex: row.sex, age: row.age, height: row.height, weight: row.weight, last_update: row.last_update, admin: row.admin, birthday: row.birthday, registration_date: row.registration_date});
         ''',
 
         '''

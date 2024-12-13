@@ -1,121 +1,192 @@
 <div class="menu">
     <h2 (click)="GoToDB('diseases')" [ngClass]="{'active': type === 'diseases'}">База болезней</h2>
-    <h2 (click)="GoToDB('appeales')" [ngClass]="{'active': type === 'appeals'}">База обращений</h2>
+    <h2 (click)="GoToDB('appeals')" [ngClass]="{'active': type === 'appeals'}">База обращений</h2>
     <h2 (click)="GoToDB('sympts')" [ngClass]="{'active': type === 'sympts'}">База симптомов</h2>
     <h2 (click)="GoToDB('patients')" [ngClass]="{'active': type === 'patients'}">База пациентов</h2>
 </div>
 
-<div class="filter">
-    <div *ngIf="type === 'patients'">
-      <label for="name">Имя</label>
-      <br>
-      <input id="name" [(ngModel)]="patient_filter['name']" (ngModelChange)="MakePostReq('patients')">
-      <br>
-      <label for="mail">Почта</label>
-      <br>
-      <input id="mail" [(ngModel)]="patient_filter['mail']" (ngModelChange)="MakePostReq('patients')">
-      <br>
-      <label for="sex">Пол</label>
-      <br>
-      <input id="sex" [(ngModel)]="patient_filter['sex']" (ngModelChange)="MakePostReq('patients')">
-      <br>
-      <label>Дата рождения</label>
-      <br>
-      <input id="from_birthday" type="date" class="date" [(ngModel)]="patient_filter['from_birthday']" (ngModelChange)="MakePostReq('patients')">
-      -
-      <input id="to_birthday" type="date" class="date" [(ngModel)]="patient_filter['to_birthday']" (ngModelChange)="MakePostReq('patients')">
-      <br>
-      <label>Дата регистрации</label>
-      <br>
-      <input id="from_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['from_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
-      -
-      <input id="to_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['to_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
-      <br>
-      <label for="height">Рост</label>
-      <br>
-      <label>0</label>
-      <mat-slider discrete min="0" max="300" [(ngModel)]="patient_filter['height']" (ngModelChange)="MakePostReq('patients')">
-        <input matSliderStartThumb [(ngModel)]="patient_filter['from_height']" (ngModelChange)="MakePostReq('patients')">
-        <input matSliderEndThumb [(ngModel)]="patient_filter['to_height']" (ngModelChange)="MakePostReq('patients')">
-      </mat-slider>
-      <label>300</label>
-      <br>
-      <label for="weight">Вес</label>
-      <br>
-      <label>0</label>
-      <mat-slider discrete min="0" max="200">
-        <input matSliderStartThumb [(ngModel)]="patient_filter['from_weight']" (ngModelChange)="MakePostReq('patients')">
-        <input matSliderEndThumb [(ngModel)]="patient_filter['to_weight']" (ngModelChange)="MakePostReq('patients')">
-      </mat-slider>
-      <label>200</label>
-    </div>
-    <div *ngIf = "type === 'appeals'">
-        <label>Дата обращения</label>
+<div class="dbases">
+  <div class="filter">
+      <div *ngIf="type === 'patients'">
+        <label for="name">ФИО</label>
         <br>
-        <input id="from_appeal_datetime" type="date">
+        <input id="name" [(ngModel)]="patient_filter['name']" (ngModelChange)="MakePostReq('patients')">
+        <br>
+        <label for="mail">Почта</label>
+        <br>
+        <input id="mail" [(ngModel)]="patient_filter['mail']" (ngModelChange)="MakePostReq('patients')">
+        <br>
+        <label for="sex">Пол</label>
+        <br>
+        <input id="sex" [(ngModel)]="patient_filter['sex']" (ngModelChange)="MakePostReq('patients')">
+        <br>
+        <label>Дата рождения</label>
+        <br>
+        <input id="from_birthday" type="date" class="date" [(ngModel)]="patient_filter['from_birthday']" (ngModelChange)="MakePostReq('patients')">
         -
-        <input id="to_appeal_datetime" type="date">
-
+        <input id="to_birthday" type="date" class="date" [(ngModel)]="patient_filter['to_birthday']" (ngModelChange)="MakePostReq('patients')">
         <br>
-
-        <label for="complaints">Жалобы</label>
+        <label>Дата регистрации</label>
         <br>
-        <input id="complaints">
+        <input id="from_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['from_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
+        -
+        <input id="to_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['to_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
+        <br>
+        <label for="height">Рост</label>
+        <br>
+        <label>0</label>
+        <mat-slider discrete min="0" max="300">
+          <input matSliderStartThumb [(ngModel)]="patient_filter['from_height']" (ngModelChange)="MakePostReq('patients')">
+          <input matSliderEndThumb [(ngModel)]="patient_filter['to_height']" (ngModelChange)="MakePostReq('patients')">
+        </mat-slider>
+        <label>300</label>
+        <br>
+        <label for="weight">Вес</label>
+        <br>
+        <label>0</label>
+        <mat-slider discrete min="0" max="200">
+          <input matSliderStartThumb [(ngModel)]="patient_filter['from_weight']" (ngModelChange)="MakePostReq('patients')">
+          <input matSliderEndThumb [(ngModel)]="patient_filter['to_weight']" (ngModelChange)="MakePostReq('patients')">
+        </mat-slider>
+        <label>200</label>
+      </div>
+      <div *ngIf = "type === 'appeals'">
+          <label>Дата обращения</label>
+          <br>
+          <input id="from_appeal_datetime" type="date">
+          -
+          <input id="to_appeal_datetime" type="date">
+
+          <br>
+
+          <label for="complaints">Жалобы</label>
+          <br>
+          <input id="complaints">
+      </div>
+      <div *ngIf = "type === 'sympts'">
+          <label for="name">Наименование</label>
+          <br>
+          <input id="name">
+
+          <br>
+
+          <label for="description">Описание</label>
+          <br>
+          <input id="description">
+      </div>
+      <div *ngIf = "type === 'diseases'">
+          <label for="name">Наименование</label>
+          <br>
+          <input id="name" [(ngModel)]="disease_filter['name']" (ngModelChange)="MakePostReq('diseases')">
+
+          <br>
+
+          <label for="description" >Описание</label>
+          <br>
+          <input id="description" [(ngModel)]="disease_filter['description']" (ngModelChange)="MakePostReq('diseases')">
+
+          <br>
+
+          <label for="recommendation">Рекомендации</label>
+          <br>
+          <input id="recommendation" [(ngModel)]="disease_filter['recommendation']" (ngModelChange)="MakePostReq('diseases')">
+
+          <br>
+            <br>
+
+          <label for="type">Тип протекания</label>
+          <br>
+          <div class="slider-container">
+            <input id="course" type='range' min="-1" max="1" [(ngModel)]="disease_filter['cource']" (ngModelChange)="MakePostReq('diseases')">
+            <div class="labels">
+              <span>- Хроническое течение </span>
+              <span> </span>
+              <span>- Острое течение</span>
+            </div>
+          </div>
+          
+          <datalist>
+            <option value="Острое течение" label="Острое течение"></option>
+            <option value="" label=""></option>
+            <option value="Хроническое течение" label="Хроническое течение"></option>
+          </datalist>
+          
+          <br>
+
+          <label for="source" class="last">Источник беспокойства</label>
+          <br>
+          <input id="source">
+
+      </div>
+
+  </div>
+
+  <div class="list">
+    <div class="table-container" *ngIf="type === 'patients'">
+        <table>
+            <thead>
+                <tr>
+                    <th>Имя пациента</th>
+                    <th>Почта</th>
+                    <th>Пол</th>
+                    <th>Дата рождения</th>
+                    <th>Рост</th>
+                    <th>Вес</th>
+                    <th>Был в сети</th>
+                    <th>Зарегистрировался</th>
+                    <th>Права администратора</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let item of items">
+                    <tr>
+                        <td>{{item['fullname']}}</td>
+                        <td>{{item['mail']}}</td>
+                        <td>{{item['sex']}}</td>
+                        <td>{{item['birthday']}}</td>
+                        <td>{{item['height']}}</td>
+                        <td>{{item['weight']}}</td>
+                        <td>{{item['last_update']}}</td>
+                        <td>{{item['registration_date']}}</td>
+                        <td>{{item['admin']}}</td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
     </div>
-    <div *ngIf = "type === 'sympts'">
-        <label for="name">Наименование</label>
-        <br>
-        <input id="name">
 
-        <br>
-
-        <label for="description">Описание</label>
-        <br>
-        <input id="description">
+    <div class="table-container" *ngIf="type === 'diseases'">
+        <table>
+            <thead>
+                <tr>
+                    <th>Наименование</th>
+                    <th>Описание</th>
+                    <th>Рекомендации</th>
+                    <th>Источник беспокойства</th>
+                    <th>Тип протекания</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let item of items">
+                    <tr>
+                        <td>{{item['disease_name']}}</td>
+                        <td>{{item['disease_description']}}</td>
+                        <td>{{item['disease_recommendations']}}</td>
+                        <td>{{item['disease_type']}}</td>
+                        <td>{{item['disease_course']}}</td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
     </div>
-    <div *ngIf = "type === 'diseases'">
-        <label for="name">Наименование</label>
-        <br>
-        <input id="name">
 
-        <br>
-
-        <label for="description">Описание</label>
-        <br>
-        <input id="description">
-
-        <br>
-
-        <label for="recommendation">Рекомендации</label>
-        <br>
-        <input id="recommendation">
-
-        <br>
-
-        <label for="type">Тип протекания</label>
-        <br>
-        <label for="acute">Острое</label>
-        <input id="acute" type='radio' [(ngModel)]="selectedOption" value="1" (click)="onRadioClick($event)">
-
-        <label for="chronic">Хроническое</label>
-        <input id="chronic" type="radio" [(ngModel)]="selectedOption" value="2" (click)="onRadioClick($event)">
-        <br>
-
-        <label for="source">Источник беспокойства</label>
-        <br>
-        <input id="source">
-
+    <div class="managing_pages">
+        <!-- Здесь можно добавить элементы управления страницами, если необходимо -->
     </div>
+</div>
 
 </div>
 
 <div class="io">
-        
-</div>
-
-<div class="list">
-    <ul></ul>
-    <div class="managing_pages">
-
-    </div>
+            
 </div>
