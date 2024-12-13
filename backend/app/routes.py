@@ -227,6 +227,25 @@ def createEntities():
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
 
+@app.route('/api/set_admin', methods=['POST'])
+def set_entity():
+    data : json = request.json
+    entity_mail : str = data.get('mail')
+    entity_admin : bool = data.get('flag')
+
+    if entity_mail and entity_admin:
+        query_string = f'''MATCH(p:Patient{{mail:'{entity_mail}'}})
+        SET p.admin = {entity_admin}
+        '''
+
+        conn.query(query_string)
+
+        return("Success")
+    else:
+        return jsonify({"error": "No mail or admin fields"}), 400
+
+    
+
 @app.route('/api/import_dump', methods=['POST'])
 def import_dump():
 
