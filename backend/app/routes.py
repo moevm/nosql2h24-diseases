@@ -4,7 +4,7 @@ from app.models.utils.allowedEntity import allowed_entity_parameters, CSV_column
 from app.models.utils.modelsForDumpTransform import create_relation_dict
 import re
 from datetime import datetime
-from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json
+from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json, send_file
 import requests
 import os
 import csv 
@@ -229,72 +229,88 @@ def createEntities():
 
 @app.route('/api/import_dump', methods=['POST'])
 def import_dump():
+
+    if 'file' not in request.files:
+        return jsonify({"error": "No file part"}), 400
+
+    file = request.files['file']
+
+    if file.filename == '':
+        return jsonify({"error": "No selected file"}), 400
+        
+    if file:
+        file_path = os.path.join('/backend/app/models/dumps', file.filename)
+        file.save(file_path)
+
+    query_string = "MATCH(p) DETACH DELETE p"
+    conn.query(query_string)
+
     query_strings : list(str) = [
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Patient'
-        MERGE (p:Patient {fullname: row.fullname, mail: row.mail, password: row.password, sex: row.sex, age: row.age, height: row.height, weight: row.weight, last_update: row.last_update, admin: row.admin, birthday: row.birthday, registration_data: row.registration_data});
+        MERGE (p:Patient {{fullname: row.fullname, mail: row.mail, password: row.password, sex: row.sex, age: row.age, height: row.height, weight: row.weight, last_update: row.last_update, admin: row.admin, birthday: row.birthday, registration_date: row.registration_date}});
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Symptom'
-        MERGE (s:Symptom {symptom_name: row.symptom_name, symptom_description: row.symptom_description});
+        MERGE (s:Symptom {{symptom_name: row.symptom_name, symptom_description: row.symptom_description}});
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Disease'
-        MERGE (d:Disease {disease_name: row.disease_name, disease_description: row.disease_description, disease_recommendations: row.disease_recommendations, disease_type: row.disease_type, disease_course: row.disease_course});
+        MERGE (d:Disease {{disease_name: row.disease_name, disease_description: row.disease_description, disease_recommendations: row.disease_recommendations, disease_type: row.disease_type, disease_course: row.disease_course}});
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Analysis'
-        MERGE (an:Analysis {analysis_name: row.analysis_name, analysis_source: row.analysis_source});
+        MERGE (an:Analysis {{analysis_name: row.analysis_name, analysis_source: row.analysis_source}});
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Appeal'
-        MERGE (ap:Appeal {appeal_date: row.appeal_date, appeal_complaints: row.appeal_complaints});
+        MERGE (ap:Appeal {{appeal_date: row.appeal_date, appeal_complaints: row.appeal_complaints}});
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Patient-Appeal'
-        MATCH (p:Patient {mail: row.relation_from}), (a:Appeal {appeal_date: row.relation_to})
+        MATCH (p:Patient {{mail: row.relation_from}}), (a:Appeal {{appeal_date: row.relation_to}})
         MERGE (p)-[:create]->(a)
         MERGE (a)-[:belong]->(p);
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Appeal-Symptom'
-        MATCH (a:Appeal {appeal_date: row.relation_from}), (s:Symptom {symptom_name: row.relation_to})
+        MATCH (a:Appeal {{appeal_date: row.relation_from}}), (s:Symptom {{symptom_name: row.relation_to}})
         MERGE (a)-[:contain]->(s);
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Symptom-Analysis'
-        MATCH (s:Symptom {symptom_name: row.relation_from}), (an:Analysis {analysis_name: row.relation_to})
+        MATCH (s:Symptom {{symptom_name: row.relation_from}}), (an:Analysis {{analysis_name: row.relation_to}})
         MERGE (s)-[:confirm]->(an);
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Appeal-Disease'
-        MATCH (a:Appeal {appeal_date: row.relation_from}), (d:Disease {disease_name: row.relation_to})
+        MATCH (a:Appeal {{appeal_date: row.relation_from}}), (d:Disease {{disease_name: row.relation_to}})
         MERGE (a)-[:predict]->(d);
         ''',
 
-        '''
-        LOAD CSV WITH HEADERS FROM 'file:///dump.csv' AS row
+        f'''
+        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Symptom-Disease'
-        MATCH (d:Disease {disease_name: row.relation_from}), (s:Symptom {symptom_name: row.relation_to})
-        MERGE (s)-[:describe {symptom_weight: row.symptom_weight}]->(d)
-        MERGE (d)-[:cause {symptom_weight: row.symptom_weight}]->(s);
+        MATCH (d:Disease {{disease_name: row.relation_from}}), (s:Symptom {{symptom_name: row.relation_to}})
+        MERGE (s)-[:describe {{symptom_weight: row.symptom_weight}}]->(d)
+        MERGE (d)-[:cause {{symptom_weight: row.symptom_weight}}]->(s);
         '''
     ]
     
@@ -314,7 +330,7 @@ def export_dump():
         writer.writeheader()
 
         for entity_type in allowed_entity_parameters.keys():
-            response = requests.post("http://127.0.0.1:5000/api/entities", data={'entity_type': entity_type})
+            response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': entity_type})
             data = response.json()
 
             for row in data:
@@ -336,4 +352,4 @@ def export_dump():
                     row_dict = create_relation_dict(relation.data()["a"], relation.data()["b"], relation['r'].get('symptom_weight', None), relation_type)
                     writer.writerow(row_dict)
 
-    return "Success"
+    return send_file(file_path, as_attachment=True, mimetype='text/csv')
