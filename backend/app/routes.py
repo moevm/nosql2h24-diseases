@@ -266,9 +266,21 @@ def import_dump():
 
     query_strings : list(str) = [
         f'''
-        LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
+                LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Patient'
-        MERGE (p:Patient {{fullname: row.fullname, mail: row.mail, password: row.password, sex: row.sex, age: row.age, height: row.height, weight: row.weight, last_update: row.last_update, admin: row.admin, birthday: row.birthday, registration_date: row.registration_date}});
+        MERGE (p:Patient {{
+            fullname: row.fullname,
+            mail: row.mail,
+            password: row.password,
+            sex: row.sex,
+            age: toInteger(row.age),
+            height: toFloat(row.height),
+            weight: toFloat(row.weight),
+            last_update: row.last_update,
+            admin: row.admin,
+            birthday: row.birthday,
+            registration_date: row.registration_date
+        }});
         ''',
 
         f'''
@@ -328,8 +340,8 @@ def import_dump():
         LOAD CSV WITH HEADERS FROM 'file:///{file.filename}' AS row
         WITH row WHERE row.type = 'Symptom-Disease'
         MATCH (d:Disease {{disease_name: row.relation_from}}), (s:Symptom {{symptom_name: row.relation_to}})
-        MERGE (s)-[:describe {{symptom_weight: row.symptom_weight}}]->(d)
-        MERGE (d)-[:cause {{symptom_weight: row.symptom_weight}}]->(s);
+        MERGE (s)-[:describe {{symptom_weight: toFloat(row.symptom_weight)}}]->(d)
+        MERGE (d)-[:cause {{symptom_weight: toFloat(row.symptom_weight)}}]->(s);
         '''
     ]
     
