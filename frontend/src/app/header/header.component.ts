@@ -16,7 +16,7 @@ export class HeaderComponent {
   isCurtainPage = true;
   isLoggedIn = false;
   isAuthForm = false;
-  isAdmin = true;
+  isAdmin = true; 
   fullname = "Прошичев Александр"
 
   constructor(private router: Router, private dataService: DataService) {}

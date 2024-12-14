@@ -354,7 +354,7 @@ def import_dump():
         if result is None:
             return jsonify({"Error": f"error loading the database dump: {query_string}"}), 400
         
-    return "Success"
+    return jsonify({"Success": f"File uploaded successfully"}), 200
 
 @app.route('/api/export_dump', methods=['POST'])
 def export_dump():

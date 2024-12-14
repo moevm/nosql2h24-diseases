@@ -1,18 +1,23 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSliderModule } from '@angular/material/slider';
 import { Router } from '@angular/router';
+import { AddDialogComponent } from '../add-dialog/add-dialog.component';
+import { FileDownloadService } from '../file-download.service';
+import {saveAs} from 'file-saver'
 
 @Component({
   selector: 'app-dbases',
-  imports: [CommonModule, FormsModule, NgClass, MatIconModule, MatSliderModule],
+  imports: [CommonModule, FormsModule, NgClass, MatIconModule, MatSliderModule, AddDialogComponent],
   templateUrl: './dbases.component.html',
   styleUrl: './dbases.component.less'
 })
 export class DbasesComponent {
+  @ViewChild('fileInput') fileInput!: ElementRef;
   type: string = 'diseases';
   data: any = null;
   items: any = [];
@@ -54,7 +59,18 @@ export class DbasesComponent {
     description: ''
   }
 
-  constructor(private http: HttpClient, private router: Router){}
+  constructor(private http: HttpClient, private router: Router, private dialog: MatDialog, private fileDownloadService: FileDownloadService){}
+
+  openAddDialog(): void {
+    const dialogRef = this.dialog.open(AddDialogComponent, {
+      width: '600px',
+      data: { type: this.type, fields: {} }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      this.AddNewObject(result)
+    });
+  }
 
   GoToDB(type: string){
     this.type = type
@@ -64,6 +80,9 @@ export class DbasesComponent {
     this.MakePostReq(this.type)
   }
 
+  AddNewObject(data: any){
+    console.log(data)
+  }
 
   MakePostReq(type: string){
     if(type == 'diseases'){
@@ -266,5 +285,42 @@ export class DbasesComponent {
   ngOnInit(){
     this.MakePostReq(this.type)
     console.log(this.items)
+  }
+
+  triggerFileInput() {
+    this.fileInput.nativeElement.click();
+  }
+
+  onFileSelected(event: any) {
+    console.log("was here")
+    const file = event.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      this.http.post('http://127.0.0.1:5000/api/import_dump', formData).subscribe(
+        response => {
+          console.log('File uploaded successfully', response);
+          this.MakePostReq(this.type);
+        },
+        error => {
+          console.error('Error uploading file', error);
+        }
+      );
+    }
+  }
+
+  downloadFile() {
+    const url = 'http://127.0.0.1:5000/api/export_dump'; // Замените на URL вашего файла
+    this.fileDownloadService.downloadFile(url).subscribe(
+      (response: HttpResponse<Blob>) => {
+        console.log(response)
+        //const filename = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '');
+        //saveAs(response.body!, filename || 'downloaded_file');
+      },
+      error => {
+        console.error('Error downloading the file', error);
+      }
+    );
   }
 }

@@ -235,14 +235,24 @@
         <mat-icon (click)="LastPage()">last_page</mat-icon>
     </p>
         
-    <div>
-
+    <div class="io">
+        <div class="add" (click)="openAddDialog()">
+            <a>Add</a>
+            <mat-icon>add_box</mat-icon>
+        </div>
+    
+        <div class="import" (click)="triggerFileInput()">
+            <a>Import</a>
+            <mat-icon>attach_file</mat-icon>
+        </div>
+        <input type="file" #fileInput (change)="onFileSelected($event)" style="display: none;">
+    
+        <div class="export" (click)="downloadFile()">
+            <a>Export</a>
+            <mat-icon>save_alt</mat-icon>
+        </div>
     </div>
 
 </div>
 
-</div>
-
-<div class="io">
-            
 </div>
