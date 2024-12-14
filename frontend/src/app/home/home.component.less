@@ -1,0 +1,66 @@
+@import "../app.component.less";
+
+#main_block {
+    height: 550px;
+    width: auto;
+    margin-top: 80px;
+    display: flex; /* Используем Flexbox */
+    justify-content: space-around; /* Распределяем блоки равномерно */
+
+    .block {
+        width: 434px;
+        height: 541px;
+        padding: 0px;
+        margin: 0px;
+        background: #F0FFFF;
+        color: @med_color;
+        font-family: @font_family;
+        font-weight: 300;
+        font-size: 24px;
+        line-height: 1.3;
+        text-align: center;
+        box-sizing: border-box; /* Учитываем padding и border в ширине и высоте */
+
+        p {
+            color: #000;
+        }
+    }
+}
+
+h1{
+    color: @med_color;
+    font-family: @font_family;
+    font-weight: 400;
+    font-size: 60px;
+    text-align: center;
+}
+
+#go{
+    height: 550px;
+    width: auto;
+    display: flex; /* Используем Flexbox */
+    justify-content: space-around; /* Распределяем блоки равномерно */
+
+    button{
+        width: 234px;
+        height: 79px;
+        padding: 0px 10px 0px 10px;
+        background: @med_color;
+        color: #FFFFFF;
+        border-radius: 3px 3px 3px 3px;
+        font-family: @font_family;
+        font-weight: 400;
+        font-size: 30px;
+        text-align: center;
+        border: 0;
+        
+        &:hover{
+            cursor: pointer;
+        }
+
+        &:active{
+            background-color: lighten(@med_color, 35%);
+        }
+    }
+}
+
