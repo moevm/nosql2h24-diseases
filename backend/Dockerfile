@@ -7,6 +7,8 @@ COPY . .
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
+COPY /app/models/dumps/ /var/lib/neo4j/import/
+
 ENV FLASK_APP=diseases.py
 
 ENV FLASK_ENV=development
