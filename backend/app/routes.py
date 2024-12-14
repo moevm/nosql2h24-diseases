@@ -1,4 +1,4 @@
-from app import app
+from app import app, conn
 from app.models.neo4jConnection import Neo4jConnection
 from app.models.utils.allowedEntity import allowed_entity_parameters, CSV_columns, allowed_relations
 from app.models.utils.modelsForDumpTransform import create_relation_dict
@@ -9,11 +9,7 @@ import requests
 import os
 import csv 
 
-uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-user = os.getenv("NEO4J_USER", "neo4j")
-password = os.getenv("NEO4J_PASSWORD", "password")
 
-conn = Neo4jConnection(uri, user, password)
 
 @app.route('/api/')
 @app.route('/index')
