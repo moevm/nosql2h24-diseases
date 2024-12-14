@@ -46,7 +46,7 @@ CSV_columns = [
     "admin",
     "birthday",
     "last_update",
-    "registration_data",
+    "registration_date",
     "disease_name",
     "disease_description",
     "disease_recommendations",
