@@ -6,7 +6,9 @@
 </div>
 
 <div class="dbases">
+
   <div class="filter">
+
       <div *ngIf="type === 'patients'">
         <label for="name">ФИО</label>
         <br>
@@ -31,48 +33,32 @@
         <input id="from_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['from_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
         -
         <input id="to_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['to_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
-        <br>
-        <label for="height">Рост</label>
-        <br>
-        <label>0</label>
-        <mat-slider discrete min="0" max="300">
-          <input matSliderStartThumb [(ngModel)]="patient_filter['from_height']" (ngModelChange)="MakePostReq('patients')">
-          <input matSliderEndThumb [(ngModel)]="patient_filter['to_height']" (ngModelChange)="MakePostReq('patients')">
-        </mat-slider>
-        <label>300</label>
-        <br>
-        <label for="weight">Вес</label>
-        <br>
-        <label>0</label>
-        <mat-slider discrete min="0" max="200">
-          <input matSliderStartThumb [(ngModel)]="patient_filter['from_weight']" (ngModelChange)="MakePostReq('patients')">
-          <input matSliderEndThumb [(ngModel)]="patient_filter['to_weight']" (ngModelChange)="MakePostReq('patients')">
-        </mat-slider>
-        <label>200</label>
-      </div>
+    
+    </div>
+
       <div *ngIf = "type === 'appeals'">
           <label>Дата обращения</label>
           <br>
-          <input id="from_appeal_datetime" type="date">
+          <input id="from_appeal_datetime" type="date" class='date' [(ngModel)]="appeal_filter['from_appeal_datetime']" (ngModelChange)="MakePostReq('appeals')">
           -
-          <input id="to_appeal_datetime" type="date">
+          <input id="to_appeal_datetime" type="date" class='date' [(ngModel)]="appeal_filter['to_appeal_datetime']" (ngModelChange)="MakePostReq('appeals')">
 
           <br>
 
           <label for="complaints">Жалобы</label>
           <br>
-          <input id="complaints">
+          <input id="complaints" [(ngModel)]="appeal_filter['complaints']" (ngModelChange)="MakePostReq('appeals')">
       </div>
       <div *ngIf = "type === 'sympts'">
           <label for="name">Наименование</label>
           <br>
-          <input id="name">
+          <input id="name" [(ngModel)]="sympts_filter['name']" (ngModelChange)="MakePostReq('sympts')">
 
           <br>
 
           <label for="description">Описание</label>
           <br>
-          <input id="description">
+          <input id="description" [(ngModel)]="sympts_filter['description']" (ngModelChange)="MakePostReq('sympts')">
       </div>
       <div *ngIf = "type === 'diseases'">
           <label for="name">Наименование</label>
@@ -113,13 +99,34 @@
           
           <br>
 
-          <label for="source" class="last">Источник беспокойства</label>
+          <label for="source">Источник беспокойства</label>
           <br>
-          <input id="source">
+          <input id="source" [(ngModel)]="disease_filter['type']" (ngModelChange)="MakePostReq('diseases')">
 
       </div>
 
   </div>
+
+  <div *ngIf="type === 'patients'" class="additional_block">
+    <label for="height">Рост</label>
+    <br>
+    <label>0</label>
+    <mat-slider discrete min="0" max="300" step="1">
+      <input matSliderStartThumb [(ngModel)]="patient_filter['from_height']" (ngModelChange)="MakePostReq('patients')">
+      <input matSliderEndThumb [(ngModel)]="patient_filter['to_height']" (ngModelChange)="MakePostReq('patients')">
+    </mat-slider>
+    <label>300</label>
+    <br>
+    <label for="weight">Вес</label>
+    <br>
+    <label>0</label>
+    <mat-slider discrete min="0" max="200">
+            <input matSliderStartThumb [(ngModel)]="patient_filter['from_weight']" (ngModelChange)="MakePostReq('patients')">
+            <input matSliderEndThumb [(ngModel)]="patient_filter['to_weight']" (ngModelChange)="MakePostReq('patients')">
+    </mat-slider>
+    <label>200</label>
+  </div>
+
 
   <div class="list">
     <div class="table-container" *ngIf="type === 'patients'">
@@ -138,7 +145,7 @@
                 </tr>
             </thead>
             <tbody>
-                <ng-container *ngFor="let item of items">
+                <ng-container *ngFor="let item of currect_enters">
                     <tr>
                         <td>{{item['fullname']}}</td>
                         <td>{{item['mail']}}</td>
@@ -167,7 +174,7 @@
                 </tr>
             </thead>
             <tbody>
-                <ng-container *ngFor="let item of items">
+                <ng-container *ngFor="let item of currect_enters">
                     <tr>
                         <td>{{item['disease_name']}}</td>
                         <td>{{item['disease_description']}}</td>
@@ -180,9 +187,58 @@
         </table>
     </div>
 
-    <div class="managing_pages">
-        <!-- Здесь можно добавить элементы управления страницами, если необходимо -->
+    <div class="table-container" *ngIf="type === 'sympts'">
+        <table>
+            <thead>
+                <tr>
+                    <th>Наименование</th>
+                    <th>Описание</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let item of currect_enters">
+                    <tr>
+                        <td>{{item['symptom_name']}}</td>
+                        <td>{{item['symptom_description']}}</td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
     </div>
+
+    <div class="table-container" *ngIf="type === 'appeals'">
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Жалобы</th>
+                </tr>
+            </thead>
+            <tbody>
+                <ng-container *ngFor="let item of currect_enters">
+                    <tr>
+                        <td>{{item['appeal_date']}}</td>
+                        <td>{{item['appeal_complaints']}}</td>
+                    </tr>
+                </ng-container>
+            </tbody>
+        </table>
+    </div>
+        
+    <p> 
+        <mat-icon (click)="FirstPage()">first_page</mat-icon> 
+        <mat-icon (click)="PreviousPage()">chevron_left</mat-icon> 
+
+        {{ page }} / {{ totalPages }} 
+
+        <mat-icon (click)="NextPage()">chevron_right</mat-icon>
+        <mat-icon (click)="LastPage()">last_page</mat-icon>
+    </p>
+        
+    <div>
+
+    </div>
+
 </div>
 
 </div>
