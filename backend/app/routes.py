@@ -210,6 +210,29 @@ def readEntities() -> json:
     return jsonify({"ans": entities_parametrs_list, "req": query_string})
 
 
+@app.route('/api/appeal_database', methods=['POST'])
+def appeal_database():
+    data : dict = request.json
+    filter_params : str = data.get('filter_params', {})
+
+    response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'belong'})
+    patients = response.json()["ans"]
+
+    response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'contain'})
+    symptoms = response.json()["ans"]
+
+    appeal_database = []
+
+    for i in range(0, len(patients), 2):
+        row = {}
+        row["appeal"] = patients[i]
+        row["patient"] = patients[i+1]
+        row["related"] = symptoms[symptoms.index(row["appeal"]) + 1]
+        appeal_database.append(row)
+
+    return jsonify({"ans": appeal_database})
+    
+
 @app.route('/api/create_entity', methods=['POST']) 
 def createEntities():
     '''
