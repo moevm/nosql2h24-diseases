@@ -59,6 +59,8 @@ def register() -> str:
             msg = "Почта введена некорректно"
         elif not re.match(r'[А-Яа-я]+', fullname): 
             msg = "Имя может содержать только буквы!"
+        elif password.isdigit(): 
+            msg = "Пароль должен содержать буквы!"
         elif password != confirmed_password:
             msg = "Пароли не совпадают!" 
         elif not fullname or not password:
@@ -162,32 +164,34 @@ def readEntities() -> json:
         query_string = f'MATCH(p:{entity_type})\n'
 
     if filter_params:
-        
-        if(filter_params["filter1-field"] in date_list and filter_params["filter1-action"] in compare_operations):
-            query_string += f'WHERE datetime(replace(p.{filter_params[f'filter1-field']}, " ", "T")) {filter_params[f'filter1-action']} datetime({filter_params[f'filter1-value']})'
-        else:
-            query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
-        
+        filter_idx = 1
+        while filter_params.get(f'filter{filter_idx}-field'):
+            field = filter_params[f'filter{filter_idx}-field']
+            action = filter_params[f'filter{filter_idx}-action']
+            value = filter_params[f'filter{filter_idx}-value']
 
-        filter_idx = 2
-
-        while(filter_params.get(f'filter{filter_idx}-field')):
-            
-
-            query_string += " AND\n"
-            if(filter_params.get(f'filter{filter_idx}-field') in date_list and filter_params.get(f'filter{filter_idx}-action') in compare_operations):
-                query_string += f'datetime(replace(p.{filter_params[f'filter{filter_idx}-field']}, " ", "T")) {filter_params[f'filter{filter_idx}-action']} datetime({filter_params[f'filter{filter_idx}-value']})'
+            if field in date_list and action in compare_operations:
+                query_string += f'WHERE datetime(replace(p.{field}, " ", "T")) {action} datetime({value})'
             else:
-                query_string += f'p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+                if isinstance(value, str):
+                    if value.isnumeric() or (value.count('.') == 1 and value.replace('.', '').isnumeric()):
+                        value = float(value) if '.' in value else int(value)
+                        query_string += f'WHERE p.{field} {action} {value}'
+                    else:
+                        value = value.lower()
+                        query_string += f'WHERE lower(p.{field}) {action} "{value}"'
+                else:
+                    query_string += f'WHERE p.{field} {action} {value}'
 
             filter_idx += 1
-            
+            if filter_params.get(f'filter{filter_idx}-field'):
+                query_string += " AND\n"
+
     if relation_type:
-        query_string += '\nRETURN p,r,b' 
+        query_string += '\nRETURN p,r,b'
     else:
         query_string += '\nRETURN p'
 
-   
     entities_list : list[Record] = conn.query(query_string)
 
     entities_parametrs_list : list[dict] = []

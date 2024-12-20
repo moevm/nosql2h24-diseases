@@ -1,5 +1,5 @@
 type,fullname,mail,password,sex,age,height,weight,admin,birthday,last_update,registration_date,disease_name,disease_description,disease_recommendations,disease_type,disease_course,symptom_name,symptom_description,analysis_name,analysis_source,relation_from,relation_to,symptom_weight,appeal_date,appeal_complaints
-Patient,Шушков Егор,egorka44552014@gmail.com,3214,male,20,182,90,TRUE,2004-04-08 00:00:00,2024-11-08 12:41:12,2024-11-08 12:41:12,,,,,,,,,,,,,,
+Patient,Шушков Егор,egorka44552014@gmail.com,3214e,male,20,182,90,TRUE,2004-04-08 00:00:00,2024-11-08 12:41:12,2024-11-08 12:41:12,,,,,,,,,,,,,,
 ,,,,,,,,,,,,,,,,,,,,,,,,,
 Symptom,,,,,,,,,,,,,,,,,зуд,"Неприятное ощущение на коже, вызывающее желание почесать её. Ощущение может быть локализованным или распространенным по всему телу.",,,,,,,
 Symptom,,,,,,,,,,,,,,,,,кожная сыпь,"Появление красных пятен или высыпаний на коже, которые могут быть болезненными или зудящими. Пятна могут быть различной формы и размера.",,,,,,,
