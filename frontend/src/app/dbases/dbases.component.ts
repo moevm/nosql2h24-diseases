@@ -388,8 +388,8 @@ export class DbasesComponent {
     this.fileDownloadService.downloadFile(url).subscribe(
       (response: HttpResponse<Blob>) => {
         console.log(response)
-        //const filename = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '');
-        //saveAs(response.body!, filename || 'downloaded_file');
+        const filename = response.headers.get('Content-Disposition')?.split('filename=')[1]?.replace(/"/g, '');
+        saveAs(response.body!, filename || 'athome_database');
       },
       error => {
         console.error('Error downloading the file', error);
