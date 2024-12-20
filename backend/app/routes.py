@@ -205,7 +205,7 @@ def readEntities() -> json:
 
             else:
                 entities_parametrs_list.append(entity_data)
-                entities_parametrs_list.append([])
+                #entities_parametrs_list.append([])
     
     return jsonify({"ans": entities_parametrs_list, "req": query_string})
 
