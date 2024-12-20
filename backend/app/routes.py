@@ -127,6 +127,9 @@ def login() -> str:
     return jsonify({"msg": msg, "user_data": user_dict})
 
 
+    [{"symptom_description":"e","symptom_name":"e"},{"symptom_description":"e","symptom_name":"e"},{"symptom_description":"\u0416\u0436\u0435\u043d\u0438\u0435 \u0438\u043b\u0438 \u0431\u043e\u043b\u044c \u043f\u0440\u0438 \u043c\u043e\u0447\u0435\u0438\u0441\u043f\u0443\u0441\u043a\u0430\u043d\u0438\u0438. \u041c\u043e\u0436\u0435\u0442 \u0441\u043e\u043f\u0440\u043e\u0432\u043e\u0436\u0434\u0430\u0442\u044c\u0441\u044f \u0447\u0430\u0441\u0442\u044b\u043c\u0438 \u043f\u043e\u0437\u044b\u0432\u0430\u043c\u0438 \u043a \u043c\u043e\u0447\u0435\u0438\u0441\u043f\u0443\u0441\u043a\u0430\u043d\u0438\u044e \u0438 \u0434\u0438\u0441\u043a\u043e\u043c\u0444\u043e\u0440\u0442\u043e\u043c \u0432 \u043d\u0438\u0436\u043d\u0435\u0439 \u0447\u0430\u0441\u0442\u0438 \u0436\u0438\u0432\u043e\u0442\u0430.","symptom_name":"\u0436\u0433\u0443\u0447\u0435\u0435 \u043c\u043e\u0447\u0435\u0438\u0441\u043f\u0443\u0441\u043a\u0430\u043d\u0438\u0435"},{"symptom_description":"\u041d\u0435\u043f\u0440\u0438\u044f\u0442\u043d\u043e\u0435 \u043e\u0449\u0443\u0449\u0435\u043d\u0438\u0435 \u043d\u0430 \u043a\u043e\u0436\u0435, \u0432\u044b\u0437\u044b\u0432\u0430\u044e\u0449\u0435\u0435 \u0436\u0435\u043b\u0430\u043d\u0438\u0435 \u043f\u043e\u0447\u0435\u0441\u0430\u0442\u044c \u0435\u0451. \u041e\u0449\u0443\u0449\u0435\u043d\u0438\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043b\u043e\u043a\u0430\u043b\u0438\u0437\u043e\u0432\u0430\u043d\u043d\u044b\u043c \u0438\u043b\u0438 \u0440\u0430\u0441\u043f\u0440\u043e\u0441\u0442\u0440\u0430\u043d\u0435\u043d\u043d\u044b\u043c \u043f\u043e \u0432\u0441\u0435\u043c\u0443 \u0442\u0435\u043b\u0443.","symptom_name":"\u0437\u0443\u0434"},{"symptom_description":"\u0411\u043e\u043b\u044c \u0432 \u043e\u0431\u043b\u0430\u0441\u0442\u0438 \u0436\u0438\u0432\u043e\u0442\u0430. \u041c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0442\u0443\u043f\u043e\u0439 \u0438\u043b\u0438 \u043e\u0441\u0442\u0440\u043e\u0439, \u043f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u043e\u0439 \u0438\u043b\u0438 \u043f\u0435\u0440\u0438\u043e\u0434\u0438\u0447\u0435\u0441\u043a\u043e\u0439.","symptom_name":"\u0431\u043e\u043b\u044c \u0432 \u0436\u0438\u0432\u043e\u0442\u0435"},{"symptom_description":"\u0411\u043e\u043b\u044c \u0432 \u0436\u0438\u0432\u043e\u0442\u0435. \u041c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u0442\u0443\u043f\u043e\u0439 \u0438\u043b\u0438 \u043e\u0441\u0442\u0440\u043e\u0439, \u043f\u043e\u0441\u0442\u043e\u044f\u043d\u043d\u043e\u0439 \u0438\u043b\u0438 \u043f\u0435\u0440\u0438\u043e\u0434\u0438\u0447\u0435\u0441\u043a\u043e\u0439.","symptom_name":"\u0431\u043e\u043b\u044c \u0432 \u0436\u0438\u0432\u043e\u0442\u0435"}]
+
+
 @app.route('/api/entities', methods=['POST'])
 def readEntities() -> json:
     '''
@@ -146,13 +149,17 @@ def readEntities() -> json:
     data : dict = request.json
     entity_type : str = data.get('entity_type')
     filter_params : str = data.get('filter_params', {})
+    relation_type : str = data.get('relation_type')
     date_list = ['birthday', 'last_update', 'registration_date', 'appeal_date']
     compare_operations = [">", "<", ">=", "<="]
 
     query_string : str = ""
     tmp_filter_string : str = ""
 
-    query_string : str = f'MATCH(p:{entity_type})\n'
+    if relation_type:
+        query_string = f'MATCH((p:{entity_type})-[r:{relation_type}]->(b))'
+    else:
+        query_string = f'MATCH(p:{entity_type})\n'
 
     if filter_params:
         
@@ -175,8 +182,10 @@ def readEntities() -> json:
 
             filter_idx += 1
             
-
-    query_string += '\nRETURN p'
+    if relation_type:
+        query_string += '\nRETURN p,r,b' 
+    else:
+        query_string += '\nRETURN p'
 
    
     entities_list : list[Record] = conn.query(query_string)
@@ -185,8 +194,19 @@ def readEntities() -> json:
 
     if entities_list:
         for entity in entities_list:
-            entities_parametrs_list.append(entity.data()["p"])
+            entity_data = entity.data()["p"]
 
+            if(relation_type):
+                if(entity_data in entities_parametrs_list):
+                    entities_parametrs_list[entities_parametrs_list.index(entity_data)+1].append(entity.data()["b"])
+                else:
+                    entities_parametrs_list.append(entity_data)
+                    entities_parametrs_list.append([entity.data()["b"]])
+
+            else:
+                entities_parametrs_list.append(entity_data)
+                entities_parametrs_list.append([])
+    
     return jsonify({"ans": entities_parametrs_list, "req": query_string})
 
 
