@@ -12,7 +12,7 @@ import {saveAs} from 'file-saver'
 
 @Component({
   selector: 'app-dbases',
-  imports: [CommonModule, FormsModule, NgClass, MatIconModule, MatSliderModule, AddDialogComponent],
+  imports: [CommonModule, FormsModule, NgClass, MatIconModule, MatSliderModule],
   templateUrl: './dbases.component.html',
   styleUrl: './dbases.component.less'
 })
@@ -22,6 +22,7 @@ export class DbasesComponent {
   data: any = null;
   items: any = [];
   idx: number = 0;
+  req: any;
 
   page: number = 1;
   currect_enters: any = [];
@@ -80,8 +81,80 @@ export class DbasesComponent {
     this.MakePostReq(this.type)
   }
 
+  formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+
   AddNewObject(data: any){
-    console.log(data)
+    if(this.type == 'diseases'){
+        this.req = {
+          "entity_type": "Disease",
+          "parametrs": {
+              "disease_name": data.disease_name ? data.disease_name : "",
+              "disease_description": data.disease_description ? data.disease_description : "",
+              "disease_recommendations": data.disease_recommendations ? data.disease_recommendations : "",
+              "disease_type": data.disease_type ? data.disease_type : "",
+              "disease_course": data.disease_course == 0 ? "" : (data.disease_course == -1 ? "Острое течение" : "Хроническое течение")
+          }
+        }
+    }
+    else if(this.type == 'appeals'){
+      this.req = {
+        "entity_type": "Appeal",
+        "parametrs": {
+            "appeal_date": data.appeal_date ? data.appeal_date.replace('T', ' ') : "",
+            "appeal_complaints": data.appeal_complaints ? data.appeal_complaints : ""
+        }
+      }
+    }
+    else if(this.type == 'sympts'){
+      this.req = {
+        "entity_type": "Symptom",
+        "parametrs": {
+            "symptom_name": data.symptom_name ? data.symptom_name : "",
+            "symptom_description": data.symptom_description ? data.symptom_description : "" 
+        }
+      }
+    }
+    else{
+      this.req = {
+        "entity_type": "Patient",
+        "parametrs": {
+            "fullname": data.fullname ? data.fullname : "",
+            "mail": data.mail ? data.mail : "",
+            "password": data.password ? data.password : "",
+            "sex": data.sex ? data.sex : "",
+            "birthday": data.birthday ? data.birthday : "",
+            "last_update": this.formatDate(new Date()),
+            "registration_date": this.formatDate(new Date()),
+            "height": data.height ? data.height : "",
+            "weight": data.weight ? data.weight : "",
+            "admin": data.admin ? "TRUE" : "FALSE"
+        }
+      }
+    }
+
+
+    this.http.post('http://127.0.0.1:5000/api/create_entity', this.req).subscribe({
+      next: (response: any) => {
+        console.log(response)
+
+      },
+      error: error => {
+        console.error('Error:', error);
+      },
+      complete: () => {
+        console.log('here')
+          this.MakePostReq(this.type)
+      }
+    });
   }
 
   MakePostReq(type: string){
@@ -92,35 +165,35 @@ export class DbasesComponent {
       if(this.disease_filter['name']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'disease_name'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.disease_filter['name'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.disease_filter['name']
         this.idx += 1
       }
 
       if(this.disease_filter['description']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'disease_description'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.disease_filter['description'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.disease_filter['description']
         this.idx += 1
       }
 
       if(this.disease_filter['recommendation']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'disease_recommendations'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.disease_filter['recommendation'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.disease_filter['recommendation']
         this.idx += 1
       }
 
       if(this.disease_filter['type']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'disease_type'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.disease_filter['type']  + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.disease_filter['type']
         this.idx += 1
       }
 
       if(this.disease_filter['cource']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'disease_course'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + (this.disease_filter['cource'] == -1 ? "Острое течение" : "Хроническое течение")  + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = (this.disease_filter['cource'] == -1 ? "Острое течение" : "Хроническое течение")
         this.idx += 1
       }
     }
@@ -131,21 +204,21 @@ export class DbasesComponent {
       if(this.patient_filter['name']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'fullname'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.patient_filter['name'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.patient_filter['name']
         this.idx += 1
       }
       
       if(this.patient_filter['mail']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'mail'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.patient_filter['mail'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.patient_filter['mail']
         this.idx += 1
       }
 
       if(this.patient_filter['sex']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'sex'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.patient_filter['sex'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.patient_filter['sex']
         this.idx += 1
       }
 
@@ -205,14 +278,14 @@ export class DbasesComponent {
       if(this.sympts_filter['name']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'symptom_name'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.sympts_filter['name'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.sympts_filter['name']
         this.idx += 1
       }
       
       if(this.sympts_filter['description']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'symptom_description'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.sympts_filter['description'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.sympts_filter['description']
         this.idx += 1
       }
 
@@ -237,7 +310,7 @@ export class DbasesComponent {
       if(this.appeal_filter['complaints']){
         this.data['filter_params'][`filter${this.idx}-field`] = 'appeal_complaints'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
-        this.data['filter_params'][`filter${this.idx}-value`] = "'" + this.appeal_filter['complaints'] + "'"
+        this.data['filter_params'][`filter${this.idx}-value`] = this.appeal_filter['complaints']
         this.idx += 1
       }
     }

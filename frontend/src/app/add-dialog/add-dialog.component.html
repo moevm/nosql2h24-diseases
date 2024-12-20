@@ -1,80 +1,102 @@
-<h1 mat-dialog-title>Добавление {{ dict[data.type] }}</h1>
 <div mat-dialog-content>
+  <h1>Добавление {{ dict[data.type] }}</h1>
   <form #addForm="ngForm">
     <div *ngIf="data.type === 'patients'">
-        <label for="fullname">ФИО</label><br>
-      <input id="fullname" [(ngModel)]="data.fields.fullname" name="fullname" required>
-      <div *ngIf="addForm.controls['fullname']?.invalid">
-        <p>*Обязательно к заполнению</p>
+      <div class="form-group">
+        <label for="fullname">ФИО</label>
+        <input id="fullname" [(ngModel)]="data.fields.fullname" name="fullname" placeholder="Иванов Иван" required>
+        <div *ngIf="addForm.controls['fullname']?.invalid">
+          <p>*Обязательно к заполнению</p>
+        </div>
       </div>
-      <br>
-      <label for="mail">Mail</label><br>
-      <input id="mail" [(ngModel)]="data.fields.mail" name="mail" required>
-      <div *ngIf="addForm.controls['mail']?.invalid">
-        <p>*Обязательно к заполнению</p>
+      <div class="form-group">
+        <label for="mail">Почта</label>
+        <input id="mail" [(ngModel)]="data.fields.mail" name="mail" placeholder="ivan@main.ru" required>
+        <div *ngIf="addForm.controls['mail']?.invalid">
+          <p>*Обязательно к заполнению</p>
+        </div>
       </div>
-      <br>
-      <label for="password">Password</label><br>
-      <input id="password" [(ngModel)]="data.fields.password" name="password" required>
-      <div *ngIf="addForm.controls['password']?.invalid">
-        <p>*Обязательно к заполнению</p>
+      <div class="form-group">
+        <label for="password">Пароль</label>
+        <input id="password" [(ngModel)]="data.fields.password" name="password" placeholder="Пароль123" required>
+        <div *ngIf="addForm.controls['password']?.invalid">
+          <p>*Обязательно к заполнению</p>
+        </div>
       </div>
-        <br>
-        <label for="sex">Пол</label><br>
-        <input id="sex" [(ngModel)]="data.fields.sex" name="sex">
-        <br>
-        <label for="birthday">Дата рождения</label><br>
+      <div class="form-group">
+        <label for="sex">Пол</label>
+        <input id="sex" [(ngModel)]="data.fields.sex" name="sex" placeholder="male">
+      </div>
+      <div class="form-group">
+        <label for="birthday">Дата рождения</label>
         <input id="birthday" [(ngModel)]="data.fields.birthday" name="birthday" type="date">
-        <br>
-        <label for="height">Рост</label><br>
-        <input id="height" [(ngModel)]="data.fields.height" name="height">
-        <br>
-        <label for="weight">Вес</label><br>
-        <input id="weight" [(ngModel)]="data.fields.weight" name="weight">
-        <br>
-        <label for="admin">Admin</label>
+      </div>
+      <div class="form-group">
+        <label for="height">Рост</label>
+        <input id="height" [(ngModel)]="data.fields.height" name="height" placeholder="160">
+      </div>
+      <div class="form-group">
+        <label for="weight">Вес</label>
+        <input id="weight" [(ngModel)]="data.fields.weight" name="weight" placeholder="50">
+      </div>
+      <div class="form-group">
+        <label for="admin">Права администратора</label>
         <input id="admin" [(ngModel)]="data.fields.admin" name="admin" type="checkbox">
+      </div>
     </div>
     <div *ngIf="data.type === 'appeals'">
-      <label for="appeal_date">Дата</label><br>
-      <input id="appeal_date" [(ngModel)]="data.fields.appeal_date" name="appeal_date" required>
-      <div *ngIf="addForm.controls['appeal_date']?.invalid">
-        <p>*Обязательно к заполнению</p>
+      <div class="form-group">
+        <label for="appeal_date">Дата</label>
+        <input id="appeal_date" [(ngModel)]="data.fields.appeal_date" name="appeal_date" type="datetime-local" step="1" required>
+        <div *ngIf="addForm.controls['appeal_date']?.invalid">
+          <p>*Обязательно к заполнению</p>
+        </div>
       </div>
-      <br>
-      <label for="appeal_complaints">Жалобы</label><br>
-      <input id="appeal_complaints" [(ngModel)]="data.fields.appeal_complaints" name="appeal_complaints">
+      <div class="form-group">
+        <label for="appeal_complaints">Жалобы</label>
+        <input id="appeal_complaints" [(ngModel)]="data.fields.appeal_complaints" name="appeal_complaints">
+      </div>
     </div>
     <div *ngIf="data.type === 'sympts'">
-      <label for="symptom_name">Наименование</label><br>
-      <input id="symptom_name" [(ngModel)]="data.fields.symptom_name" name="symptom_name" required>
-      <div *ngIf="addForm.controls['symptom_name']?.invalid">
-        <p>*Обязательно к заполнению</p>
+      <div class="form-group">
+        <label for="symptom_name">Наименование</label>
+        <input id="symptom_name" [(ngModel)]="data.fields.symptom_name" name="symptom_name" placeholder="Тошнота" required>
+        <div *ngIf="addForm.controls['symptom_name']?.invalid">
+          <p>*Обязательно к заполнению</p>
+        </div>
       </div>
-      <br>
-      <label for="symptom_description">Описание</label><br>
-      <input id="symptom_description" [(ngModel)]="data.fields.symptom_description" name="symptom_description">
+      <div class="form-group">
+        <label for="symptom_description">Описание</label>
+        <input id="symptom_description" [(ngModel)]="data.fields.symptom_description" name="symptom_description">
+      </div>
     </div>
     <div *ngIf="data.type === 'diseases'">
-      <label for="disease_name">Наименование</label><br>
-      <input id="disease_name" [(ngModel)]="data.fields.disease_name" name="disease_name" required>
-      <div *ngIf="addForm.controls['disease_name']?.invalid">
-        <p>*Обязательно к заполнению</p>
+      <div class="form-group">
+        <label for="disease_name">Наименование</label>
+        <input id="disease_name" [(ngModel)]="data.fields.disease_name" name="disease_name" placeholder="Депрессия" required>
+        <div *ngIf="addForm.controls['disease_name']?.invalid">
+          <p>*Обязательно к заполнению</p>
+        </div>
       </div>
-      <br>
-      <label for="disease_description">Описание</label><br>
-      <input id="disease_description" [(ngModel)]="data.fields.disease_description" name="disease_description">
-      <br>
-      <label for="disease_recommendations">Рекоммендации</label><br>
-      <input id="disease_recommendations" [(ngModel)]="data.fields.disease_recommendations" name="disease_recommendations">
-      <br>
-      <label for="disease_type">Источник беспокойства</label><br>
-      <input id="disease_type" [(ngModel)]="data.fields.disease_type" name="disease_type">
-      <br>
-      <label for="disease_course">Disease Course</label><br>
-      <input id="disease_course" [(ngModel)]="data.fields.disease_course" name="disease_course" type="range" min="0" max="1" required>
-      <div *ngIf="addForm.controls['disease_course']?.invalid">
-        <p>*Обязательно к заполнению</p>
+      <div class="form-group">
+        <label for="disease_description">Описание</label>
+        <input id="disease_description" [(ngModel)]="data.fields.disease_description" name="disease_description">
+      </div>
+      <div class="form-group">
+        <label for="disease_recommendations">Рекоммендации</label>
+        <input id="disease_recommendations" [(ngModel)]="data.fields.disease_recommendations" name="disease_recommendations">
+      </div>
+      <div class="form-group">
+        <label for="disease_type">Источник беспокойства</label>
+        <input id="disease_type" [(ngModel)]="data.fields.disease_type" name="disease_type">
+      </div>
+      <div class="form-group">
+        <label for="disease_course">Течение болезни</label>
+        <div class="range-container">
+          <label>Острое</label>
+          <input id="disease_course" [(ngModel)]="data.fields.disease_course" name="disease_course" type="range" min="-1" max="1" required>
+          <label>Хроническое</label>
+        </div>
       </div>
     </div>
   </form>

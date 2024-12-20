@@ -13,7 +13,7 @@ services:
     networks:
       - neo4j-network
     volumes:
-      - neo4j-data:/data
+      - neo4j-data:/var/lib/neo4j/data
       - neo4j-import:/var/lib/neo4j/import
 
   backend:

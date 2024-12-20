@@ -235,22 +235,21 @@ def appeal_database():
     return jsonify({"ans": appeal_database})
     
 
-@app.route('/api/create_entity', methods=['POST']) 
+@app.route('/api/create_entity', methods=['POST'])
 def createEntities():
     '''
-    Функция отвечает за добавление элемента сущности в базу данных. Разрешено добавление только 
-    определённых сущностей со строго заданными параметрами.  
+    Функция отвечает за добавление элемента сущности в базу данных. Разрешено добавление только
+    определённых сущностей со строго заданными параметрами.
 
-    Ключевые переменные: 
+    Ключевые переменные:
         entity_type (str) : наименование сущности, которую надо добавить в БД
-        entity_parametrs (dict) : параметры, которые надо добавить в нод сущности 
+        entity_parametrs (dict) : параметры, которые надо добавить в нод сущности
         entity_parametrs_for_query (str) : форматирует запись json в необходимую форму
         записи для выполнения команды на Cypher (запрос для neo4j)
-        
 
-    Возвращаемые данные: 
+    Возвращаемые данные:
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
-        параметры всех нодов с меткой "entity_type". 
+        параметры всех нодов с меткой "entity_type".
     '''
 
     data : json = request.json
@@ -265,16 +264,22 @@ def createEntities():
         for parametr in entity_parametrs:
             if parametr not in allowed_entity_parameters[entity_type]:
                 return jsonify({"Error": f'Parametr {parametr} not allowed to this entity\'s type'}), 400
-        
-        entity_parametrs_for_query : str = ', '.join([f'{key}: "{value}"' if isinstance(value, str) else f'{key}: {value}' for key, value in entity_parametrs.items()])
+
+        entity_parametrs_for_query : str = ', '.join([
+            f'{key}: {float(value) if "." in value else int(value)}'
+            if value.replace('.', '', 1).isdigit() else
+            f'{key}: "{value}"'
+            for key, value in entity_parametrs.items()
+        ])
         query_string : str = f'''MERGE(p:{entity_type} {{{entity_parametrs_for_query}}})'''
 
         result : list[Record] = conn.query(query_string)
 
-        return "Success"
-    
+        return jsonify({"status": "Success"}), 200
+
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
+
 
 @app.route('/api/set_admin', methods=['POST'])
 def set_entity():
