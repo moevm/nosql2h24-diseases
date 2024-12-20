@@ -26,7 +26,7 @@ export class ProfileComponent {
       "filter_params": {
         "filter1-field": "appeal_date",
         "filter1-action": "<>",
-        "filter1-value": "''",
+        "filter1-value": "",
         "filter2-field": "appeal_date",
         "filter2-action": ">=",
         "filter2-value": "'" + (this.from ? this.from.split(' ')[0] : '1900-01-01') + "T23:59:59" + "'",

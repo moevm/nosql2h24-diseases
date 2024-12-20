@@ -20,7 +20,7 @@ export class SearchComponent {
   constructor(private http: HttpClient, private dataService: DataService){}
 
   MakePostReq(){
-    this.http.post('http://127.0.0.1:5000/api/entities', {"entity_type": "Symptom", "filter_params": {"filter1-field": "symptom_name", "filter1-action": "CONTAINS", "filter1-value": "'" + this.input.toLowerCase() + "'"}}).subscribe({
+    this.http.post('http://127.0.0.1:5000/api/entities', {"entity_type": "Symptom", "filter_params": {"filter1-field": "symptom_name", "filter1-action": "CONTAINS", "filter1-value": this.input.toLowerCase()}}).subscribe({
       next: (response: any) => {
         this.data = response['ans']
         console.log(this.data)
