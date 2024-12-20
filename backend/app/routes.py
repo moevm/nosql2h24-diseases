@@ -366,7 +366,7 @@ def export_dump():
 
         for entity_type in allowed_entity_parameters.keys():
             response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': entity_type})
-            data = response.json()
+            data = response.json()["ans"]
 
             for row in data:
                 row["type"] = entity_type
