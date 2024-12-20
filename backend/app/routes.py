@@ -161,23 +161,25 @@ def readEntities() -> json:
 
     if filter_params:
         filter_idx = 1
+        query_string += "WHERE "
+
         while filter_params.get(f'filter{filter_idx}-field'):
             field = filter_params[f'filter{filter_idx}-field']
             action = filter_params[f'filter{filter_idx}-action']
             value = filter_params[f'filter{filter_idx}-value']
 
             if field in date_list and action in compare_operations:
-                query_string += f'WHERE datetime(replace(p.{field}, " ", "T")) {action} datetime({value})'
+                query_string += f'datetime(replace(p.{field}, " ", "T")) {action} datetime({value})'
             else:
                 if isinstance(value, str):
                     if value.isnumeric() or (value.count('.') == 1 and value.replace('.', '').isnumeric()):
                         value = float(value) if '.' in value else int(value)
-                        query_string += f'WHERE p.{field} {action} {value}'
+                        query_string += f'p.{field} {action} {value}'
                     else:
                         value = value.lower()
-                        query_string += f'WHERE lower(p.{field}) {action} "{value}"'
+                        query_string += f'lower(p.{field}) {action} "{value}"'
                 else:
-                    query_string += f'WHERE p.{field} {action} {value}'
+                    query_string += f'p.{field} {action} {value}'
 
             filter_idx += 1
             if filter_params.get(f'filter{filter_idx}-field'):
