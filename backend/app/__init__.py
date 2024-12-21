@@ -6,7 +6,7 @@ from app.models.neo4jConnection import Neo4jConnection
 
 app = Flask(__name__, static_folder='static')
 
-cors = CORS(app, resources={r"/api/*": {"origins": ["http://localhost:4200"]}})
+cors = CORS(app, resources={r"/api/*": {"origins": ["http://localhost:4200", "http://localhost:8080"]}})
 
 app.secret_key = ' key'
 app.config['JSON_AS_ASCII'] = False
