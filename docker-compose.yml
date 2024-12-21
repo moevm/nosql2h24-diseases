@@ -1,19 +1,16 @@
 version: '3.8'
 
 services:
-  neo4j:
+  db:
     build:
       context: ./neo4j
       dockerfile: Dockerfile
-    ports:
-      - "7474:7474"
-      - "7687:7687"
     environment:
       - NEO4J_AUTH=neo4j/password
     networks:
       - neo4j-network
     volumes:
-      - neo4j-data:/var/lib/neo4j/data
+      - neo4j-data:/data
       - neo4j-import:/var/lib/neo4j/import
 
   backend:
@@ -24,11 +21,11 @@ services:
       - "127.0.0.1:5000:5000"
     environment:
       - FLASK_ENV=development
-      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_URI=bolt://db:7687
       - NEO4J_USER=neo4j
       - NEO4J_PASSWORD=password
     depends_on:
-      - neo4j
+      - db
     networks:
       - neo4j-network
     volumes:
@@ -39,7 +36,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "8080:4200"
+      - "127.0.0.1:8080:4200"
     networks:
       - neo4j-network
 

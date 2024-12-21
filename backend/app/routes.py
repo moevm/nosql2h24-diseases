@@ -11,8 +11,6 @@ import requests
 import os
 import csv
 
-# Настройка CORS
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 
 @app.route('/api/')
 @app.route('/index')
