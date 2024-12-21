@@ -49,10 +49,10 @@ export class DbasesComponent {
     to_birthday: '',
     from_reg_datetime: '',
     to_reg_datetime: '',
-    from_height: 0,
-    to_height: 300,
-    from_weight: 0,
-    to_weight: 200
+    from_height: null,
+    to_height: null,
+    from_weight: null,
+    to_weight: null
   }
 
   sympts_filter: any = {
@@ -250,25 +250,34 @@ export class DbasesComponent {
         this.idx += 1
       }
 
-      this.data['filter_params'][`filter${this.idx}-field`] = 'height'
-      this.data['filter_params'][`filter${this.idx}-action`] = '>='
-      this.data['filter_params'][`filter${this.idx}-value`] = `${this.patient_filter['from_height']}`
-      this.idx += 1
+      if(this.patient_filter['from_height']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'height'
+        this.data['filter_params'][`filter${this.idx}-action`] = '>='
+        this.data['filter_params'][`filter${this.idx}-value`] = this.patient_filter['from_height']
+        this.idx += 1
+      }
 
-      this.data['filter_params'][`filter${this.idx}-field`] = 'height'
-      this.data['filter_params'][`filter${this.idx}-action`] = '<='
-      this.data['filter_params'][`filter${this.idx}-value`] = `${this.patient_filter['to_height']}`
-      this.idx += 1
+      if(this.patient_filter['to_height']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'height'
+        this.data['filter_params'][`filter${this.idx}-action`] = '<='
+        this.data['filter_params'][`filter${this.idx}-value`] = this.patient_filter['to_height']
+        this.idx += 1
+      }
 
-      this.data['filter_params'][`filter${this.idx}-field`] = 'weight'
-      this.data['filter_params'][`filter${this.idx}-action`] = '>='
-      this.data['filter_params'][`filter${this.idx}-value`] = `${this.patient_filter['from_weight']}`
-      this.idx += 1
+      if(this.patient_filter['from_weight']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'weight'
+        this.data['filter_params'][`filter${this.idx}-action`] = '>='
+        this.data['filter_params'][`filter${this.idx}-value`] = this.patient_filter['from_weight']
+        this.idx += 1
+      }
 
-      this.data['filter_params'][`filter${this.idx}-field`] = 'weight'
-      this.data['filter_params'][`filter${this.idx}-action`] = '<='
-      this.data['filter_params'][`filter${this.idx}-value`] = `${this.patient_filter['to_weight']}`
-      this.idx += 1
+      if(this.patient_filter['to_weight']){
+        this.data['filter_params'][`filter${this.idx}-field`] = 'weight'
+        this.data['filter_params'][`filter${this.idx}-action`] = '<='
+        this.data['filter_params'][`filter${this.idx}-value`] = this.patient_filter['to_weight']
+        this.idx += 1
+      }
+
 
     }
     else if(type == 'sympts'){

@@ -28,12 +28,26 @@
         -
         <input id="to_birthday" type="date" class="date" [(ngModel)]="patient_filter['to_birthday']" (ngModelChange)="MakePostReq('patients')">
         <br>
+
         <label>Дата регистрации</label>
         <br>
         <input id="from_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['from_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
         -
         <input id="to_reg_datetime" type="datetime-local" class="date" [(ngModel)]="patient_filter['to_reg_datetime']" (ngModelChange)="MakePostReq('patients')">
-    
+        
+        <br>
+        <label for="height">Рост</label>
+        <br>
+        <input type="number" id="from_height" [(ngModel)]="patient_filter['from_height']" (ngModelChange)="MakePostReq('patients')" class="int" placeholder="От">
+        -
+        <input type="number" id="to_height" [(ngModel)]="patient_filter['to_height']" (ngModelChange)="MakePostReq('patients')" class="int" placeholder="До">
+        <br>
+
+        <label for="weight">Вес</label>
+        <br>
+        <input type="number" id="from_weight" [(ngModel)]="patient_filter['from_weight']" (ngModelChange)="MakePostReq('patients')" class="int" placeholder="От">
+        -
+        <input type="number" id="to_weight" [(ngModel)]="patient_filter['to_weight']" (ngModelChange)="MakePostReq('patients')" class="int" placeholder="До">
     </div>
 
       <div *ngIf = "type === 'appeals'">
@@ -106,27 +120,6 @@
       </div>
 
   </div>
-
-  <div *ngIf="type === 'patients'" class="additional_block">
-    <label for="height">Рост</label>
-    <br>
-    <label>0</label>
-    <mat-slider discrete min="0" max="300" step="1">
-      <input matSliderStartThumb [(ngModel)]="patient_filter['from_height']" (ngModelChange)="MakePostReq('patients')">
-      <input matSliderEndThumb [(ngModel)]="patient_filter['to_height']" (ngModelChange)="MakePostReq('patients')">
-    </mat-slider>
-    <label>300</label>
-    <br>
-    <label for="weight">Вес</label>
-    <br>
-    <label>0</label>
-    <mat-slider discrete min="0" max="200">
-        <input matSliderStartThumb [(ngModel)]="patient_filter['from_weight']" (ngModelChange)="MakePostReq('patients')">
-        <input matSliderEndThumb [(ngModel)]="patient_filter['to_weight']" (ngModelChange)="MakePostReq('patients')">
-    </mat-slider>
-    <label>200</label>
-  </div>
-
 
   <div class="list">
     <div class="table-container" *ngIf="type === 'patients'">
