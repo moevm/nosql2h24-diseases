@@ -1,13 +1,13 @@
 @import "../app.component.less";
 
-.header{
+.header {
     width: 100%;
     height: 100px;
     background-color: @med_color;
     padding: 0px;
     font-family: @font_family;
 
-    button{
+    button {
         height: 50px;
         width: 50px;
         font-family: @font_family;
@@ -15,33 +15,33 @@
         border: none;
         background: #FFFFFF;
         color: #000000;
-    
+
         font-size: 18px;
-          
+
         padding: 8px 8px 8px 8px;
         font-weight: 400;
         font-size: 18px;
         line-height: 1.3;
         text-align: right;
 
-        &:hover{
+        &:hover {
             cursor: pointer;
         }
 
-        #exit_to_app_icon{
+        #exit_to_app_icon {
             position: relative;
             right: 3px;
             top: 2px;
         }
 
-        #heghlight_off_icon{
+        #heghlight_off_icon {
             position: relative;
             font-size: 25px;
             right: 5px;
             top: 2px;
         }
-        
-        #account_circle{
+
+        #account_circle {
             position: relative;
             right: 6px;
             top: 2px;
@@ -50,7 +50,7 @@
 
     }
 
-    h3{
+    h3 {
         position: fixed;
         right: 170px;
         top: 15px;
@@ -59,10 +59,10 @@
         font-family: @font_family;
         font-weight: 400;
         font-size: 22px;
-        
+
     }
 
-    #admin{
+    #admin {
         position: fixed;
         right: 170px;
         top: 45px;
@@ -72,57 +72,54 @@
         font-weight: 400;
         font-size: 18px;
     }
-    
-    #searching{
+
+    #searching {
         position: fixed;
         width: 290px;
-       
-    
+
         border: none;
         background: #FFFFFF;
         color: #000000;
-        
+
         font-family: @font_family;
         font-size: 18px;
-        
+
         padding: 14px 8px 8px 8px;
         font-weight: 400;
         font-size: 18px;
         line-height: 1.3;
         text-align: right;
-        
+
         margin-left: 30px;
         margin-top: 25px;
 
-        span{
+        span {
             position: relative;
             bottom: 7px;
         }
-        
-        #seach_icon{
+
+        #seach_icon {
             position: relative;
             right: 6px;
         }
 
-
-
     }
 
-    .enter{
+    .enter {
         position: fixed;
-        float:right;
+        float: right;
         right: 30px;
         top: 25px;
-      }
+    }
 
-    .profile{
+    .profile {
         position: fixed;
-        float:right;
+        float: right;
         right: 100px;
         top: 25px;
-      }
-    
-      #name{
+    }
+
+    #name {
         position: fixed;
         float: right;
         right: 140px;
@@ -131,47 +128,123 @@
         color: #FFFFFF;
         font-weight: 400;
         font-size: 22px;
-      
-      }
-      
-      #status{
+
+    }
+
+    #status {
         float: right;
         position: fixed;
         right: 140px;
         top: 45px;
-      
-          width: 173px;
-          height: 38px;
-          color: #1EB9B9;
-      
-          font-weight: 400;
-          font-size: 18px;
-          text-align: left;
-      }
-    
-    h1{
+
+        width: 173px;
+        height: 38px;
+        color: #1EB9B9;
+
+        font-weight: 400;
+        font-size: 18px;
+        text-align: left;
+    }
+
+    h1 {
         position: fixed;
         top: 5px;
-        left: 800px;
+        left: 50%;
+        transform: translateX(-50%);
         color: #FFFFFF;
         font-weight: 400;
         font-size: 60px;
         margin: 0;
-
     }
-    
+
     #title {
         position: fixed;
         top: 55px;
-        left: 790px;
+        left: 50%;
+        transform: translateX(-50%);
         color: #232323;
         font-weight: 400;
         font-size: 18px;
     }
 
+    @media (max-width: 1200px) {
+        h1 {
+            font-size: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #title {
+            font-size: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #searching {
+            width: 200px;
+            margin-left: 10px;
+        }
+
+        .enter, .profile {
+            right: 10px;
+        }
+
+        #name, #status {
+            right: 50px;
+        }
+    }
+
+    @media (max-width: 900px) {
+        h1 {
+            font-size: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #title {
+            font-size: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #searching {
+            width: 150px;
+            margin-left: 5px;
+        }
+
+        .enter, .profile {
+            right: 5px;
+        }
+
+        #name, #status {
+            right: 30px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        h1 {
+            font-size: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #title {
+            font-size: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        #searching {
+            width: 120px;
+            margin-left: 0;
+        }
+
+        .enter, .profile {
+            right: 0;
+        }
+
+        #name, #status {
+            right: 10px;
+        }
+    }
 }
-  
-  
-  
-
-
