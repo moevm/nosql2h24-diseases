@@ -1,3 +1,5 @@
+from flask import Flask
+from flask_cors import CORS
 from app import app, conn
 from app.models.neo4jConnection import Neo4jConnection
 from app.models.utils.allowedEntity import allowed_entity_parameters, CSV_columns, allowed_relations
@@ -7,9 +9,10 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json, send_file
 import requests
 import os
-import csv 
+import csv
 
-
+# Настройка CORS
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 
 @app.route('/api/')
 @app.route('/index')
@@ -31,31 +34,26 @@ def register() -> str:
     '''
 
     msg : str = None
-    if request.method == 'POST' and 'fullname' in request.form and \
-                                    'password' in request.form and \
-                                    'confirmed_password' in request.form and \
-                                    'mail' in request.form and \
-                                    'sex' in request.form and \
-                                    'birthday' in request.form and \
-                                    'height' in request.form and \
-                                    'weight' in request.form and \
-                                    "admin" in request.form:
+    data : dict = request.json
+    fullname : str = data.get('fullname')
+    password : str = data.get('password')
+    confirmed_password : str = data.get('confirmed_password')
+    mail : str = data.get('mail')
+    sex : str = data.get('sex') if data.get('sex') else ''
+    birthday : str = data.get('birthday') if data.get('birthday') else ''
+    height : float = data.get('height') if data.get('height') else ''
+    weight : float = data.get('weight') if data.get('weight') else ''
+    admin : bool = data.get('admin')
 
-        fullname : str = request.form['fullname']
-        password : str = request.form['password']
-        confirmed_password : str = request.form['confirmed_password']
-        mail : str = request.form['mail']
-        sex : str = request.form['sex']
-        birthday : str = request.form['birthday']
-        height : float = request.form['height']
-        weight : float = request.form['weight']
-        admin : bool = request.form['admin']
+    if request.method == 'POST' and fullname and password and confirmed_password and mail:
+
 
         query_string : str = '''
         MATCH(p:Patient {mail: $mail})
         RETURN p
         '''
 
+        msg = None
         patient : list[Record] = conn.query(query_string, {"mail": mail})
 
         if patient: 
@@ -64,6 +62,8 @@ def register() -> str:
             msg = "Почта введена некорректно"
         elif not re.match(r'[А-Яа-я]+', fullname): 
             msg = "Имя может содержать только буквы!"
+        elif password.isdigit(): 
+            msg = "Пароль должен содержать буквы!"
         elif password != confirmed_password:
             msg = "Пароли не совпадают!" 
         elif not fullname or not password:
@@ -74,15 +74,14 @@ def register() -> str:
             MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
             '''
 
+            print(fullname, password, mail, sex, birthday, height, weight, admin)
             conn.query(query_string, {"fullname": fullname, "password": password, "mail": mail,
                                     "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
-
-            msg = "Success"
 
     elif request.method == 'POST':
         msg = "Пожалуйста, заполните форму!"
 
-    return msg
+    return jsonify({"msg": msg})
         
 @app.route('/api/login', methods=['POST'])
 def login() -> str:
@@ -132,7 +131,6 @@ def login() -> str:
 
     return jsonify({"msg": msg, "user_data": user_dict})
 
-
 @app.route('/api/entities', methods=['POST'])
 def readEntities() -> json:
     '''
@@ -152,52 +150,109 @@ def readEntities() -> json:
     data : dict = request.json
     entity_type : str = data.get('entity_type')
     filter_params : str = data.get('filter_params', {})
+    relation_type : str = data.get('relation_type')
+    date_list = ['birthday', 'last_update', 'registration_date', 'appeal_date']
+    compare_operations = [">", "<", ">=", "<="]
 
     query_string : str = ""
     tmp_filter_string : str = ""
 
-    query_string : str = f'MATCH(p:{entity_type})\n'
-    
+    if relation_type:
+        query_string = f'MATCH((p:{entity_type})-[r:{relation_type}]->(b))'
+    else:
+        query_string = f'MATCH(p:{entity_type})\n'
+
     if filter_params:
+        filter_idx = 1
+        query_string += "WHERE "
 
-        query_string += f'WHERE p.{filter_params["filter1-field"]} {filter_params["filter1-action"]} {filter_params["filter1-value"]}'
+        while filter_params.get(f'filter{filter_idx}-field'):
+            field = filter_params[f'filter{filter_idx}-field']
+            action = filter_params[f'filter{filter_idx}-action']
+            value = filter_params[f'filter{filter_idx}-value']
 
-        filter_idx = 2
+            if field in date_list and action in compare_operations:
+                query_string += f'datetime(replace(p.{field}, " ", "T")) {action} datetime({value})'
+            else:
+                if isinstance(value, str):
+                    if value.isnumeric() or (value.count('.') == 1 and value.replace('.', '').isnumeric()):
+                        value = float(value) if '.' in value else int(value)
+                        query_string += f'p.{field} {action} {value}'
+                    else:
+                        value = value.lower()
+                        query_string += f'lower(p.{field}) {action} "{value}"'
+                else:
+                    query_string += f'p.{field} {action} {value}'
 
-        while(filter_params.get(f'filter{filter_idx}-field')):
-            query_string += "AND\n"
-            query_string += f'WHERE p.{filter_params[f'filter{filter_idx}-field']} {filter_params[f'filter{filter_idx}-action']} {filter_params[f'filter{filter_idx}-value']}'
+            filter_idx += 1
+            if filter_params.get(f'filter{filter_idx}-field'):
+                query_string += " AND\n"
 
-    query_string += '\nRETURN p'    
+    if relation_type:
+        query_string += '\nRETURN p,r,b'
+    else:
+        query_string += '\nRETURN p'
 
-   
     entities_list : list[Record] = conn.query(query_string)
 
     entities_parametrs_list : list[dict] = []
 
     if entities_list:
         for entity in entities_list:
-            entities_parametrs_list.append(entity.data()["p"])
+            entity_data = entity.data()["p"]
 
-    return jsonify(entities_parametrs_list)
+            if(relation_type):
+                if(entity_data in entities_parametrs_list):
+                    entities_parametrs_list[entities_parametrs_list.index(entity_data)+1].append(entity.data()["b"])
+                else:
+                    entities_parametrs_list.append(entity_data)
+                    entities_parametrs_list.append([entity.data()["b"]])
+
+            else:
+                entities_parametrs_list.append(entity_data)
+                #entities_parametrs_list.append([])
+    
+    return jsonify({"ans": entities_parametrs_list, "req": query_string})
 
 
-@app.route('/api/create_entity', methods=['POST']) 
+@app.route('/api/appeal_database', methods=['POST'])
+def appeal_database():
+    data : dict = request.json
+    filter_params : str = data.get('filter_params', {})
+
+    response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'belong'})
+    patients = response.json()["ans"]
+
+    response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'contain'})
+    symptoms = response.json()["ans"]
+
+    appeal_database = []
+
+    for i in range(0, len(patients), 2):
+        row = {}
+        row["appeal"] = patients[i]
+        row["patient"] = patients[i+1]
+        row["related"] = symptoms[symptoms.index(row["appeal"]) + 1]
+        appeal_database.append(row)
+
+    return jsonify({"ans": appeal_database})
+    
+
+@app.route('/api/create_entity', methods=['POST'])
 def createEntities():
     '''
-    Функция отвечает за добавление элемента сущности в базу данных. Разрешено добавление только 
-    определённых сущностей со строго заданными параметрами.  
+    Функция отвечает за добавление элемента сущности в базу данных. Разрешено добавление только
+    определённых сущностей со строго заданными параметрами.
 
-    Ключевые переменные: 
+    Ключевые переменные:
         entity_type (str) : наименование сущности, которую надо добавить в БД
-        entity_parametrs (dict) : параметры, которые надо добавить в нод сущности 
+        entity_parametrs (dict) : параметры, которые надо добавить в нод сущности
         entity_parametrs_for_query (str) : форматирует запись json в необходимую форму
         записи для выполнения команды на Cypher (запрос для neo4j)
-        
 
-    Возвращаемые данные: 
+    Возвращаемые данные:
         jsonify(entities_parametrs_list) (json) : массив со словарями, которые хранят
-        параметры всех нодов с меткой "entity_type". 
+        параметры всех нодов с меткой "entity_type".
     '''
 
     data : json = request.json
@@ -212,16 +267,22 @@ def createEntities():
         for parametr in entity_parametrs:
             if parametr not in allowed_entity_parameters[entity_type]:
                 return jsonify({"Error": f'Parametr {parametr} not allowed to this entity\'s type'}), 400
-        
-        entity_parametrs_for_query : str = ', '.join([f'{key}: "{value}"' if isinstance(value, str) else f'{key}: {value}' for key, value in entity_parametrs.items()])
-        query_string : str = f'''MERGE(p:{entity_type} {{{entity_parametrs_for_query}}})'''
+
+        entity_parametrs_for_query : str = ', '.join([
+            f'{key}: {float(value) if "." in value else int(value)}'
+            if value.replace('.', '', 1).isdigit() else
+            f'{key}: "{value}"'
+            for key, value in entity_parametrs.items()
+        ])
+        query_string : str = f'''MERGE(p:{entity_type} {{{entity_parametrs_for_query}}});'''
 
         result : list[Record] = conn.query(query_string)
 
-        return "Success"
-    
+        return jsonify({"status": "Success"}), 200
+
     else:
         return jsonify({"Error": "Invalid format of form"}), 400
+
 
 @app.route('/api/set_admin', methods=['POST'])
 def set_entity():
@@ -240,7 +301,6 @@ def set_entity():
     else:
         return jsonify({"error": "No mail or admin fields"}), 400
 
-    
 
 @app.route('/api/import_dump', methods=['POST'])
 def import_dump():
@@ -346,7 +406,7 @@ def import_dump():
         if result is None:
             return jsonify({"Error": f"error loading the database dump: {query_string}"}), 400
         
-    return "Success"
+    return jsonify({"Success": f"File uploaded successfully"}), 200
 
 @app.route('/api/export_dump', methods=['POST'])
 def export_dump():
@@ -358,7 +418,7 @@ def export_dump():
 
         for entity_type in allowed_entity_parameters.keys():
             response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': entity_type})
-            data = response.json()
+            data = response.json()["ans"]
 
             for row in data:
                 row["type"] = entity_type

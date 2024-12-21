@@ -1,0 +1,14 @@
+<div id="login">
+  <h2>Авторизация</h2>
+  <form (ngSubmit)="OnSubmit()" #loginForm="ngForm">
+    <label for="email"> <p>Почта</p> </label>
+    <input type="text" id="email" name="email" placeholder="Email" [ngClass]="{'activate': loginData['mail']}" [(ngModel)]="loginData['mail']" required>
+    <label for="password"> <p>Пароль:</p> </label>
+    <input type="password" id="password" name="password" placeholder="Пароль" [ngClass]="{'activate': loginData['password']}" [(ngModel)]="loginData['password']" required>
+
+    <p *ngIf="error" class="error"> {{error}} </p>
+
+    <input type="submit" value="Войти" id="button">
+  </form>
+  <p>Нет аккаунта? <a (click)="GoToReg()">Создай его!</a></p>
+</div>

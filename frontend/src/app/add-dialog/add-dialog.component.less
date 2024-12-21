@@ -1,0 +1,121 @@
+mat-dialog-container {
+    h1{
+      font-family: 'Comfortaa';
+      color: #000;
+      font-size: 20px;
+      margin-bottom: 40px;
+    }
+
+    form{
+        background-color: #fff;
+        font-family: "Comfortaa";
+
+        label{
+            color: #000;
+            display: block; /* Перенос на новую строку */
+            margin-bottom: 5px; /* Отступ снизу для метки */
+        }
+
+        br{
+          line-height: 100px;
+        }
+        
+        p{
+            color: red;
+            margin: 0;
+        }
+
+
+
+        input{
+          padding: 4px 8px 4px 8px;
+          background: #FFFFFF;
+          color: #000;
+          border-style: solid;
+          border-radius: 20px 20px 20px 20px;
+          font-family: "Comfortaa";
+          font-weight: 400;
+          font-size: 20px;
+          text-align: left;
+          margin: 0;
+
+          &:placeholder-shown{
+            color: #C0C0C0;
+          }
+        }
+        
+        input[type="checkbox"] {
+          width: 50px;
+          height: 27.77777777777778px;
+          border-width: 0.5px;
+          border-style: solid;
+          accent-color: #21D9D9;
+          background-color: #fff;
+        }
+    }
+
+
+}
+
+  /* Содержимое модального окна */
+.mat-dialog-content {
+    padding: 20px; /* Внутренний отступ */
+    background-color: #fff;
+    font-family: "Comfortaa";
+  }
+  
+  /* Кнопки модального окна */
+  .mat-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px; /* Внутренний отступ */
+    background-color: #fff;
+    font-family: "Comfortaa";
+  }
+  
+  button {
+    margin-left: 10px; /* Отступ слева */
+    background-color: #21D9D9; /* Цвет фона кнопки */
+    color: #fff; /* Цвет текста кнопки */
+    border: none; /* Убираем обводку */
+    border-radius: 5px; /* Скругление углов */
+    padding: 10px 20px; /* Внутренний отступ */
+    cursor: pointer; /* Курсор при наведении */
+    font-family: "Comfortaa";
+
+    &:active{
+      background-color: lighten(#21D9D9, 30%);
+    }
+
+    &:hover{
+      cursor: pointer;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 20px; /* Отступ между группами полей */
+
+    .range-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 55%;
+
+      label {
+        flex: 1;
+        text-align: center;
+        font-size: 12px;
+      }
+    
+
+    }
+  
+
+}
+
+#disease_course {
+  flex: 2;
+  margin: 0 10px;
+}
+
+  

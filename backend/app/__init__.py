@@ -30,7 +30,7 @@ def initialize_app():
         initialized = True
         query_string = "MATCH (n) RETURN COUNT(n) AS count"
         if conn.query(query_string):
-            file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'models/dumps/test.csv'))
+            file_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'default_dump.csv'))
             with open(file_path, 'rb') as f:
                 requests.post("http://127.0.0.1:5000/api/import_dump", files={'file': f})
 

@@ -13,7 +13,7 @@ services:
     networks:
       - neo4j-network
     volumes:
-      - neo4j-data:/data
+      - neo4j-data:/var/lib/neo4j/data
       - neo4j-import:/var/lib/neo4j/import
 
   backend:
@@ -32,8 +32,16 @@ services:
     networks:
       - neo4j-network
     volumes:
-      - ./backend/app/models/dumps:/backend/app/models/dumps
       - neo4j-import:/backend/app/models/dumps
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:4200"
+    networks:
+      - neo4j-network
 
 networks:
   neo4j-network:

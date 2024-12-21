@@ -1,0 +1,20 @@
+<div class="header">
+    <div class="header-section">
+        <button *ngIf="isCurtainPage" id="searching" (click)="GoToSearch()"> <mat-icon id="seach_icon">search</mat-icon> <span>Вернуться к поисковику</span> </button>
+    </div>
+
+    <div class="header-section">
+        <h1>На дому</h1>
+        <p id="title">Твой медицинский помощник</p>
+    </div>
+
+    <div class="header-section">
+        <button *ngIf="!userData && !isAuthForm" (click)="GoToLogin()"  class="button enter"> <mat-icon id="exit_to_app_icon">exit_to_app</mat-icon> </button>
+        <h3 *ngIf="userData && !isAuthForm">{{userData['fullname']}}</h3>
+        <p id="admin" *ngIf="userData && !isAuthForm && userData['admin'] == 'TRUE'">Администратор</p>
+        <button  *ngIf="userData && !isAuthForm" (click)="GoToProfile()"  class="button profile"> <mat-icon id="account_circle">account_circle</mat-icon></button>
+        <button  *ngIf="userData && !isAuthForm" (click)="LogOut()"  class="button enter"> <mat-icon id="heghlight_off_icon">highlight_off</mat-icon></button>
+        <p *ngIf="isLoggedIn"  id="name"> {{ fullname }} </p>
+        <p *ngIf="isLoggedIn && isAdmin" id="status">Администратор</p>
+    </div>
+</div>
