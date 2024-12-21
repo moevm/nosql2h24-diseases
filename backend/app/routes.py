@@ -1,3 +1,5 @@
+from flask import Flask
+from flask_cors import CORS
 from app import app, conn
 from app.models.neo4jConnection import Neo4jConnection
 from app.models.utils.allowedEntity import allowed_entity_parameters, CSV_columns, allowed_relations
@@ -7,9 +9,10 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, session, Response, jsonify, json, send_file
 import requests
 import os
-import csv 
+import csv
 
-
+# Настройка CORS
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
 
 @app.route('/api/')
 @app.route('/index')
@@ -271,7 +274,7 @@ def createEntities():
             f'{key}: "{value}"'
             for key, value in entity_parametrs.items()
         ])
-        query_string : str = f'''MERGE(p:{entity_type} {{{entity_parametrs_for_query}}})'''
+        query_string : str = f'''MERGE(p:{entity_type} {{{entity_parametrs_for_query}}});'''
 
         result : list[Record] = conn.query(query_string)
 
