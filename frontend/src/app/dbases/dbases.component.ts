@@ -405,4 +405,24 @@ export class DbasesComponent {
       }
     );
   }
+
+  onCheckboxChange(event: Event, user: any){
+    const checkbox = event.target as HTMLInputElement;
+    
+    if (confirm('Вы уверены, что хотите измернить права пользователя?')) {
+      console.log("was here")
+      this.http.post('http://127.0.0.1:5000/api/set_admin', {'mail': user.mail, 'flag':  user.admin == "TRUE" ? "FALSE" : "TRUE"}).subscribe(
+        response => {
+          console.log('Admin rights changed successfully', response);
+          this.MakePostReq(this.type);
+        },
+        error => {
+          console.error('Error uploading file', error);
+        }
+      );
+    }
+    else{
+      checkbox.checked = !checkbox.checked
+    }
+  }
 }

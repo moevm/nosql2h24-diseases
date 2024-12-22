@@ -286,16 +286,16 @@ def createEntities():
 def set_entity():
     data : json = request.json
     entity_mail : str = data.get('mail')
-    entity_admin : bool = data.get('flag')
+    entity_admin : str = data.get('flag')
 
     if entity_mail and entity_admin:
         query_string = f'''MATCH(p:Patient{{mail:'{entity_mail}'}})
-        SET p.admin = {entity_admin}
+        SET p.admin = '{entity_admin}'
         '''
 
         conn.query(query_string)
 
-        return("Success")
+        return jsonify({"status": "Success", "admin": entity_admin}), 200
     else:
         return jsonify({"error": "No mail or admin fields"}), 400
 

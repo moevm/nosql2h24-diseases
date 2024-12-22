@@ -148,7 +148,7 @@
                         <td>{{item['weight']}}</td>
                         <td>{{item['last_update']}}</td>
                         <td>{{item['registration_date']}}</td>
-                        <td>{{item['admin']}}</td>
+                        <td> <input id="admin" name="admin" type="checkbox" [checked]="item['admin'] === 'TRUE'" (change)="onCheckboxChange($event, item)"> </td>
                     </tr>
                 </ng-container>
             </tbody>
