@@ -278,7 +278,7 @@ def createEntities():
 
     data : json = request.json
     entity_type : str = data.get('entity_type')
-    entity_parametrs : dict = data.get('parametrs', {})
+    entity_parametrs : dict = data.get('params', {})
 
     if entity_type and entity_parametrs:
 
@@ -302,7 +302,7 @@ def createEntities():
         return jsonify({"status": "Success"}), 200
 
     else:
-        return jsonify({"Error": "Invalid format of form"}), 400
+        return jsonify({"status": "Error", "Error": "Invalid format of form"}), 400
 
 
 @app.route('/api/set_admin', methods=['POST'])
@@ -461,3 +461,99 @@ def export_dump():
                     writer.writerow(row_dict)
 
     return send_file(file_path, as_attachment=True, mimetype='text/csv')
+
+@app.route('/api/merge_entities', methods=['POST'])
+def merge_entities():
+    data = request.json
+    entity_A_type = data['entity_A_type']
+    entity_B_type = data['entity_B_type']
+    entity_A_params = data['entity_A_params']
+    entity_B_params = data['entity_B_params']
+    relation_type = data['relation_type']
+
+    # Формирование параметров для запроса
+    entity_A_param_str = f"{entity_A_params['param']}: '{entity_A_params['value']}'"
+    entity_B_param_str = f"{entity_B_params['param']}: '{entity_B_params['value']}'"
+
+    # Проверка существования сущностей
+    check_query_A = f'''
+    MATCH (A:{entity_A_type} {{{entity_A_param_str}}})
+    RETURN A
+    '''
+    check_query_B = f'''
+    MATCH (B:{entity_B_type} {{{entity_B_param_str}}})
+    RETURN B
+    '''
+
+    result_A = conn.query(check_query_A)
+    result_B = conn.query(check_query_B)
+
+    if not result_A or not result_B:
+        return jsonify({'status': 'Error', 'Error': f'Entity A or Entity B not found', 'query': check_query_A + "\n" + check_query_B}), 400
+
+    # Выполнение MERGE
+    query_string = f'''
+    MATCH (A:{entity_A_type} {{{entity_A_param_str}}}), (B:{entity_B_type} {{{entity_B_param_str}}})
+    MERGE (A)-[r:{relation_type}]->(B)
+    '''
+
+    try:
+        result = conn.query(query_string)
+        return jsonify({'status': 'Success'}), 200
+    except Exception as e:
+        return jsonify({'status': 'Error', 'Error': f'Error while merging entities: {str(e)}', 'query': query_string}), 400
+
+
+
+@app.route('/api/create_appeal', methods=['POST'])
+def create_appeal():
+    data = request.json
+    appeal_date = data.get('appeal_date')
+    appeal_complaints = data.get('appeal_complaints')
+    patient = data.get('patient')
+    symptoms = data.get('symptoms')
+
+    if appeal_date and appeal_complaints and patient and symptoms:
+        response = requests.post("http://127.0.0.1:5000/api/create_entity", json={'entity_type': 'Appeal', 'params': {'appeal_date': appeal_date, 'appeal_complaints': appeal_complaints}})
+        status = response.json().get("status")
+
+        if status == "Success":
+            for symptom in symptoms:
+                response = requests.post("http://127.0.0.1:5000/api/merge_entities", json={
+                    'entity_A_type': 'Appeal',
+                    'entity_B_type': 'Symptom',
+                    'entity_A_params': {'param': 'appeal_date', 'value': appeal_date},
+                    'entity_B_params': {'param': 'symptom_name', 'value': symptom},
+                    'relation_type': 'contain'
+                })
+
+                status = response.json().get('status')
+                if status == 'Error':
+                    return jsonify({'status': 'Error', 'Error': f"Error while merging symptom: {symptom} - {response.json().get('Error')}", 'query': response.json().get('query')})
+
+            response1 = requests.post("http://127.0.0.1:5000/api/merge_entities", json={
+                'entity_A_type': 'Appeal',
+                'entity_B_type': 'Patient',
+                'entity_A_params': {'param': 'appeal_date', 'value': appeal_date},
+                'entity_B_params': {'param': 'mail', 'value': patient},
+                'relation_type': 'belong'
+            })
+
+            response2 = requests.post("http://127.0.0.1:5000/api/merge_entities", json={
+                'entity_A_type': 'Patient',
+                'entity_B_type': 'Appeal',
+                'entity_B_params': {'param': 'appeal_date', 'value': appeal_date},
+                'entity_A_params': {'param': 'mail', 'value': patient},
+                'relation_type': 'create'
+            })
+
+            if response1.json().get('status') == 'Error' or response2.json().get('status') == 'Error':
+                return jsonify({'status': 'Error', 'Error': f'Error while merging patient: {patient}'})
+
+            return jsonify({'status': 'Success'})
+        else:
+            return jsonify({'status': 'Error', 'Error': f"Error while creating appeal: {response.json().get('Error')}"})
+    else:
+        return jsonify({'status': 'Error', 'Error': 'Error while merging patient: empty data'})
+
+    
