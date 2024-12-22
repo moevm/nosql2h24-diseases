@@ -23,6 +23,7 @@ export class DbasesComponent {
   items: any = [];
   idx: number = 0;
   req: any;
+  symptoms: string = '';
 
   page: number = 1;
   currect_enters: any = [];
@@ -38,7 +39,9 @@ export class DbasesComponent {
   appeal_filter: any = {
     from_appeal_datetime: '',
     to_appeal_datetime: '',
-    complaints: ''
+    complaints: '',
+    fullname: '',
+    symptoms: ''
   }
 
   patient_filter: any = {
@@ -158,6 +161,7 @@ export class DbasesComponent {
   }
 
   MakePostReq(type: string){
+    console.log(this.appeal_filter)
     if(type == 'diseases'){
       this.data = {"entity_type": "Disease", "filter_params": {}}
       this.idx = 1
@@ -299,7 +303,7 @@ export class DbasesComponent {
       }
 
     } else{
-      this.data = {"entity_type": "Appeal", "filter_params": {}}
+      this.data = {"entity_type": "Appeal", "filter_params": {}, "patient_filter_params": {}}
       this.idx = 1
 
       if(this.appeal_filter['from_appeal_datetime']){
@@ -322,6 +326,27 @@ export class DbasesComponent {
         this.data['filter_params'][`filter${this.idx}-value`] = this.appeal_filter['complaints']
         this.idx += 1
       }
+
+      if(this.appeal_filter['fullname']){
+        this.data['patient_filter_params'][`filter1-field`] = 'fullname'
+        this.data['patient_filter_params'][`filter1-action`] = 'CONTAINS'
+        this.data['patient_filter_params'][`filter1-value`] = this.appeal_filter['fullname']
+      }
+
+      this.http.post('http://127.0.0.1:5000/api/appeal_database', this.data).subscribe({
+        next: (response: any) => {
+          this.items = (response['ans'])
+          this.currect_enters = this.items.slice(0, 10)
+          this.page = Math.min(1, this.totalPages)
+        },
+        error: error => {
+          console.error('Error:', error);
+        },
+        complete: () => {
+          console.log('Request complete');
+        }
+      });
+      return;
     }
 
     this.http.post('http://127.0.0.1:5000/api/entities', this.data).subscribe({
@@ -423,6 +448,30 @@ export class DbasesComponent {
     }
     else{
       checkbox.checked = !checkbox.checked
+    }
+  }
+
+  PrepareSymptoms(symptoms: any){
+    return symptoms.map((obj : { "symptom_name": String, "symptom_description" : String}) => obj['symptom_name']).join("; ");
+  }
+
+  IsSymptomSubstring(symptoms: any){
+    if(this.appeal_filter['symptoms'] == ''){
+      return true;
+    }
+
+    this.symptoms = symptoms.map((obj: { symptom_name: string, symptom_description: string }) => obj.symptom_name);
+
+    if (!Array.isArray(this.symptoms)) {
+      throw new Error('this.symptoms должен быть массивом строк');
+    }
+
+    const containsSubstring = this.symptoms.some((symptom: string) => symptom.includes(this.appeal_filter['symptoms']));
+
+    if (containsSubstring) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

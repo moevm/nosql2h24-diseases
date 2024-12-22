@@ -149,6 +149,8 @@ def readEntities() -> json:
     entity_type : str = data.get('entity_type')
     filter_params : str = data.get('filter_params', {})
     relation_type : str = data.get('relation_type')
+    patient_filter_params: str = data.get('patient_filter_params', {})
+
     date_list = ['birthday', 'last_update', 'registration_date', 'appeal_date']
     compare_operations = [">", "<", ">=", "<="]
 
@@ -185,6 +187,19 @@ def readEntities() -> json:
             filter_idx += 1
             if filter_params.get(f'filter{filter_idx}-field'):
                 query_string += " AND\n"
+    if patient_filter_params:
+        if not filter_params:
+            query_string += "WHERE "
+        else:
+            query_string += " AND\n"
+
+        field = patient_filter_params[f'filter1-field']
+        action = patient_filter_params[f'filter1-action']
+        value = patient_filter_params[f'filter1-value']
+
+        value = value.lower()
+        query_string += f'lower(b.{field}) {action} "{value}"'
+
 
     if relation_type:
         query_string += '\nRETURN p,r,b'
@@ -217,23 +232,26 @@ def readEntities() -> json:
 def appeal_database():
     data : dict = request.json
     filter_params : str = data.get('filter_params', {})
+    patient_filter_params : str = data.get('patient_filter_params', {})
 
-    response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'belong'})
+    response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'belong', 'patient_filter_params': patient_filter_params})
     patients = response.json()["ans"]
+    patients_log = response.json()["req"]
 
     response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'contain'})
     symptoms = response.json()["ans"]
+    symptoms_log = response.json()["req"]
 
     appeal_database = []
 
     for i in range(0, len(patients), 2):
         row = {}
         row["appeal"] = patients[i]
-        row["patient"] = patients[i+1]
+        row["patient"] = patients[i+1][0]
         row["related"] = symptoms[symptoms.index(row["appeal"]) + 1]
         appeal_database.append(row)
 
-    return jsonify({"ans": appeal_database})
+    return jsonify({"ans": appeal_database, "patients": patients_log, "symptoms": symptoms_log})
     
 
 @app.route('/api/create_entity', methods=['POST'])

@@ -59,9 +59,23 @@
 
           <br>
 
+          <label for="name">ФИО</label>
+          <br>
+          <input id="name" [(ngModel)]="appeal_filter['fullname']" (ngModelChange)="MakePostReq('appeals')">
+
+          <br>
+
           <label for="complaints">Жалобы</label>
           <br>
           <input id="complaints" [(ngModel)]="appeal_filter['complaints']" (ngModelChange)="MakePostReq('appeals')">
+
+          <br>
+        
+          <label for="symptoms">Симптом</label>
+          <br>
+          <input id="symptoms" [(ngModel)]="appeal_filter['symptoms']" (ngModelChange)="MakePostReq('appeals')">
+
+
       </div>
       <div *ngIf = "type === 'sympts'">
           <label for="name">Наименование</label>
@@ -204,14 +218,18 @@
             <thead>
                 <tr>
                     <th>Дата</th>
+                    <th>Пользователь</th>
                     <th>Жалобы</th>
+                    <th>Симптомы</th>
                 </tr>
             </thead>
             <tbody>
                 <ng-container *ngFor="let item of currect_enters">
-                    <tr>
-                        <td>{{item['appeal_date']}}</td>
-                        <td>{{item['appeal_complaints']}}</td>
+                    <tr *ngIf="IsSymptomSubstring(item['related'])">
+                        <td>{{item['appeal']['appeal_date']}}</td>
+                        <td>{{item['patient']['fullname']}}</td>
+                        <td>{{item['appeal']['appeal_complaints']}}</td>
+                        <td>{{PrepareSymptoms(item['related'])}}</td>
                     </tr>
                 </ng-container>
             </tbody>
