@@ -69,12 +69,17 @@ def register() -> str:
 
         else:
             query_string = '''
-            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
+            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, last_update: $lu, admin: $admin})
             '''
 
             print(fullname, password, mail, sex, birthday, height, weight, admin)
+
+            current_datetime = datetime.now()
+            # Форматируем дату и время в формате "yyyy-mm-dd hh:mm:ss"
+            formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
             conn.query(query_string, {"fullname": fullname, "password": password, "mail": mail,
-                                    "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
+                                    "sex": sex, "birthday": birthday, "rd": formatted_datetime, "lu": formatted_datetime, "height": height, "weight": weight, "admin": admin})
 
     elif request.method == 'POST':
         msg = "Пожалуйста, заполните форму!"
