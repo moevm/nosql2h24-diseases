@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { AddDialogComponent } from '../add-dialog/add-dialog.component';
 import { FileDownloadService } from '../file-download.service';
 import {saveAs} from 'file-saver'
+import { DataService } from '../data.service';
 
 @Component({
   selector: 'app-dbases',
@@ -24,6 +25,7 @@ export class DbasesComponent {
   idx: number = 0;
   req: any;
   symptoms: string = '';
+  userData: any = null;
 
   page: number = 1;
   currect_enters: any = [];
@@ -63,7 +65,7 @@ export class DbasesComponent {
     description: ''
   }
 
-  constructor(private http: HttpClient, private router: Router, private dialog: MatDialog, private fileDownloadService: FileDownloadService){}
+  constructor(private http: HttpClient, private router: Router, private dialog: MatDialog, private fileDownloadService: FileDownloadService, private dataService: DataService){}
 
   openAddDialog(): void {
     const dialogRef = this.dialog.open(AddDialogComponent, {
@@ -390,8 +392,14 @@ export class DbasesComponent {
   }
 
   ngOnInit(){
-    this.MakePostReq(this.type)
-    console.log(this.items)
+    this.userData = this.dataService.getUserData();
+
+    if (!this.userData) {
+      this.router.navigate(['/login']);
+    }
+    else{
+      this.MakePostReq(this.type)
+    }
   }
 
   triggerFileInput() {

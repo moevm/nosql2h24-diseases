@@ -73,4 +73,8 @@ export class ProfileComponent {
   GoToDBases(){
     this.router.navigate(['/dbases'])
   }
+
+  GoToStat(){
+    this.router.navigate(['/stat'])
+  }
 }

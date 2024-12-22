@@ -46,4 +46,8 @@ export class HeaderComponent {
   GoToProfile() {
     this.router.navigate(['/profile']);
   }
+
+  GoToHome(){
+    this.router.navigate(['/'])
+  }
 }

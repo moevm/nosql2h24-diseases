@@ -5,6 +5,7 @@ import { RegComponent } from './reg/reg.component';
 import { SearchComponent } from './search/search.component';
 import { ProfileComponent } from './profile/profile.component';
 import { DbasesComponent } from './dbases/dbases.component';
+import { StatComponent } from './stat/stat.component';
 
 export const routes: Routes = [
     {path: "", component: HomeComponent},
@@ -12,5 +13,6 @@ export const routes: Routes = [
     {path: "reg", component: RegComponent},
     {path: "search", component: SearchComponent},
     {path: "profile", component: ProfileComponent},
-    {path: "dbases", component: DbasesComponent}
+    {path: "dbases", component: DbasesComponent},
+    {path: "stat", component: StatComponent}
 ];

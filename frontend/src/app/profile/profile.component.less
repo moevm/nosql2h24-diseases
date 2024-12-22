@@ -134,6 +134,39 @@
       margin-top: 50px;
       margin-bottom: 0px;
     }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+
+      div{
+        display: flex;
+        justify-content: space-between;
+        margin-top: 50px;
+        width: 150px;
+
+        button {
+          width: 60px;
+          height: 60px;
+          background: #21D9D9;
+          border-color: #21D9D9;
+          border-width: 1px;
+          border-style: solid;
+          border-radius: 50px;
+          color: #fff;
+        
+          &:hover {
+            cursor: pointer;
+          }
+        
+          &:active {
+            background-color: lighten(#21D9D9, 30%);
+          }
+        }
+      }
+
+
+    }
   
     label {
       color: #000;
@@ -224,26 +257,14 @@
     height: 40px;
     font-size: 40px;
   }
-  
-  button {
-    width: 70px;
-    height: 70px;
-    background: #21D9D9;
-    border-color: #21D9D9;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 50px;
-    color: #fff;
-    position: fixed;
-    right: 140px;
-    top: 130px;
-  
-    &:hover {
-      cursor: pointer;
-    }
-  
-    &:active {
-      background-color: lighten(#21D9D9, 30%);
-    }
+
+  #assessment_icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
   }
+  
+
+  
+  
   
