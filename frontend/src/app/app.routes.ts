@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { LoginComponent } from './login/login.component';
 import { RegComponent } from './reg/reg.component';
@@ -6,6 +6,8 @@ import { SearchComponent } from './search/search.component';
 import { ProfileComponent } from './profile/profile.component';
 import { DbasesComponent } from './dbases/dbases.component';
 import { StatComponent } from './stat/stat.component';
+import { NgModel } from '@angular/forms';
+
 
 export const routes: Routes = [
     {path: "", component: HomeComponent},

@@ -21,8 +21,7 @@ export class ProfileComponent {
   constructor(private router: Router, private dataService: DataService, private http: HttpClient) {}
 
   MakePostReq() {
-    this.http.post('http://127.0.0.1:5000/api/entities', {
-      "entity_type": "Appeal",
+    this.http.post('http://127.0.0.1:5000/api/appeal_database', {
       "filter_params": {
         "filter1-field": "appeal_date",
         "filter1-action": "<>",
@@ -33,11 +32,16 @@ export class ProfileComponent {
         "filter3-field": "appeal_date",
         "filter3-action": "<=",
         "filter3-value": "'" + (this.to ? this.to.split(' ')[0] : '2200-01-01') + "T23:59:59" + "'"
+      },
+      "patient_filter_params": {
+        "filter1-field": "fullname",
+        "filter1-action": "CONTAINS",
+        "filter1-value": this.userData['fullname']
       }
     }).subscribe({
       next: (response: any) => {
         this.data = response['ans'];
-        console.log(response['req']);
+        console.log(response);
       },
       error: error => {
         console.error('Error:', error);
@@ -52,8 +56,8 @@ export class ProfileComponent {
     this.userData = this.dataService.getUserData();
     console.log(this.userData);
 
-    if (!this.userData) {
-      this.router.navigate(['/login']);
+    if(!this.userData){
+      this.router.navigate(['/login'])
     }
 
     this.MakePostReq();
