@@ -448,11 +448,9 @@ def merge_entities():
     entity_B_params = data['entity_B_params']
     relation_type = data['relation_type']
 
-    # Формирование параметров для запроса
     entity_A_param_str = f"{entity_A_params['param']}: '{entity_A_params['value']}'"
     entity_B_param_str = f"{entity_B_params['param']}: '{entity_B_params['value']}'"
 
-    # Проверка существования сущностей
     check_query_A = f'''
     MATCH (A:{entity_A_type} {{{entity_A_param_str}}})
     RETURN A
@@ -468,7 +466,6 @@ def merge_entities():
     if not result_A or not result_B:
         return jsonify({'status': 'Error', 'Error': f'Entity A or Entity B not found', 'query': check_query_A + "\n" + check_query_B}), 400
 
-    # Выполнение MERGE
     query_string = f'''
     MATCH (A:{entity_A_type} {{{entity_A_param_str}}}), (B:{entity_B_type} {{{entity_B_param_str}}})
     MERGE (A)-[r:{relation_type}]->(B)
@@ -533,4 +530,76 @@ def create_appeal():
     else:
         return jsonify({'status': 'Error', 'Error': 'Error while merging patient: empty data'})
 
+
+@app.route('/api/predict_disease', methods=['POST'])
+def predict_disease():
+    data = request.json
+    appeal_date = data.get('appeal_date')
+
+    response = requests.post("http://127.0.0.1:5000/api/appeal_database", json={"filter_params": 
+                                                                        {                                                                                                      
+                                                                            "filter1-field": "appeal_date",
+                                                                            "filter1-action": "CONTAINS",
+                                                                            "filter1-value": appeal_date
+                                                                        }})
+
+    appeal_symptoms = response.json()["ans"][0]["related"]
     
+
+    possible_diseases = []
+
+    for appeal_symptom in appeal_symptoms:
+        response = requests.post("http://127.0.0.1:5000/api/entities", json={"entity_type": "Symptom", "filter_params": 
+                                                                        {                                                                                                      
+                                                                            "filter1-field": "symptom_name",
+                                                                            "filter1-action": "CONTAINS",
+                                                                            "filter1-value": appeal_symptom["symptom_name"]
+                                                                        }, "relation_type": "describe"})
+
+        answer = response.json()["ans"]
+
+        for i in range(1, len(answer), 2):
+            for disease in answer[i]:
+                if disease not in possible_diseases:
+                    possible_diseases.append(disease)
+        
+    appeal_symptoms_names = []
+    
+    for symptom in appeal_symptoms:
+        appeal_symptoms_names.append(symptom["symptom_name"])
+    
+    predicted_results = []
+    
+    for disease in possible_diseases:
+
+        query_string = f'''
+        MATCH (d:Disease {{disease_name: '{disease["disease_name"]}'}})-[r:cause]->(s:Symptom)
+        RETURN SUM(r.symptom_weight)
+        '''
+
+        total_weight = conn.query(query_string)
+
+        query_string = f'''
+        MATCH (d:Disease {{disease_name: '{disease["disease_name"]}'}})-[r:cause]->(s:Symptom)
+        WHERE s.symptom_name in {appeal_symptoms_names}
+        RETURN SUM(r.symptom_weight)
+        '''
+
+        appeal_weight = conn.query(query_string)
+
+        if total_weight and appeal_weight:
+            result = {"disease": disease["disease_name"]}
+            result["percent"] = round(appeal_weight[0][0] / total_weight[0][0] * 100, 2)
+            predicted_results.append(result)
+
+    return jsonify({"ans": predicted_results})
+            
+
+
+
+
+            
+                                                       
+    
+    
+
