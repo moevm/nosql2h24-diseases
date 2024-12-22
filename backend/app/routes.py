@@ -588,12 +588,14 @@ def predict_disease():
         appeal_weight = conn.query(query_string)
 
         if total_weight and appeal_weight:
-            result = {"disease": disease["disease_name"]}
+            result = {"disease": disease}
             result["percent"] = round(appeal_weight[0][0] / total_weight[0][0] * 100, 2)
             predicted_results.append(result)
 
     return jsonify({"ans": predicted_results})
-            
+
+
+
 
 
 
