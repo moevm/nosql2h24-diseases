@@ -11,7 +11,6 @@ import requests
 import os
 import csv
 
-# Initialize CORS
 CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:8080"}})
 
 @app.route('/api/')
@@ -257,7 +256,7 @@ def createEntities():
 
     data : json = request.json
     entity_type : str = data.get('entity_type')
-    entity_parametrs : dict = data.get('parametrs', {})
+    entity_parametrs : dict = data.get('params', {})
 
     if entity_type and entity_parametrs:
 
@@ -281,7 +280,7 @@ def createEntities():
         return jsonify({"status": "Success"}), 200
 
     else:
-        return jsonify({"Error": "Invalid format of form"}), 400
+        return jsonify({"status": "Error", "Error": "Invalid format of form"}), 400
 
 
 @app.route('/api/set_admin', methods=['POST'])
@@ -445,3 +444,189 @@ def export_dump():
                     writer.writerow(row_dict)
 
     return send_file(file_path, as_attachment=True, mimetype='text/csv')
+
+@app.route('/api/merge_entities', methods=['POST'])
+def merge_entities():
+    data = request.json
+    entity_A_type = data['entity_A_type']
+    entity_B_type = data['entity_B_type']
+    entity_A_params = data['entity_A_params']
+    entity_B_params = data['entity_B_params']
+    relation_type = data['relation_type']
+
+    entity_A_param_str = f"{entity_A_params['param']}: '{entity_A_params['value']}'"
+    entity_B_param_str = f"{entity_B_params['param']}: '{entity_B_params['value']}'"
+
+    check_query_A = f'''
+    MATCH (A:{entity_A_type} {{{entity_A_param_str}}})
+    RETURN A
+    '''
+    check_query_B = f'''
+    MATCH (B:{entity_B_type} {{{entity_B_param_str}}})
+    RETURN B
+    '''
+
+    result_A = conn.query(check_query_A)
+    result_B = conn.query(check_query_B)
+
+    if not result_A or not result_B:
+        return jsonify({'status': 'Error', 'Error': f'Entity A or Entity B not found', 'query': check_query_A + "\n" + check_query_B}), 400
+
+    query_string = f'''
+    MATCH (A:{entity_A_type} {{{entity_A_param_str}}}), (B:{entity_B_type} {{{entity_B_param_str}}})
+    MERGE (A)-[r:{relation_type}]->(B)
+    '''
+
+    try:
+        result = conn.query(query_string)
+        return jsonify({'status': 'Success'}), 200
+    except Exception as e:
+        return jsonify({'status': 'Error', 'Error': f'Error while merging entities: {str(e)}', 'query': query_string}), 400
+
+
+
+@app.route('/api/create_appeal', methods=['POST'])
+def create_appeal():
+    data = request.json
+    appeal_date = data.get('appeal_date')
+    appeal_complaints = data.get('appeal_complaints')
+    patient = data.get('patient')
+    symptoms = data.get('symptoms')
+
+    if appeal_date and appeal_complaints and patient and symptoms:
+        response = requests.post("http://127.0.0.1:5000/api/create_entity", json={'entity_type': 'Appeal', 'params': {'appeal_date': appeal_date, 'appeal_complaints': appeal_complaints}})
+        status = response.json().get("status")
+
+        if status == "Success":
+            for symptom in symptoms:
+                response = requests.post("http://127.0.0.1:5000/api/merge_entities", json={
+                    'entity_A_type': 'Appeal',
+                    'entity_B_type': 'Symptom',
+                    'entity_A_params': {'param': 'appeal_date', 'value': appeal_date},
+                    'entity_B_params': {'param': 'symptom_name', 'value': symptom},
+                    'relation_type': 'contain'
+                })
+
+                status = response.json().get('status')
+                if status == 'Error':
+                    return jsonify({'status': 'Error', 'Error': f"Error while merging symptom: {symptom} - {response.json().get('Error')}", 'query': response.json().get('query')})
+
+            response1 = requests.post("http://127.0.0.1:5000/api/merge_entities", json={
+                'entity_A_type': 'Appeal',
+                'entity_B_type': 'Patient',
+                'entity_A_params': {'param': 'appeal_date', 'value': appeal_date},
+                'entity_B_params': {'param': 'mail', 'value': patient},
+                'relation_type': 'belong'
+            })
+
+            response2 = requests.post("http://127.0.0.1:5000/api/merge_entities", json={
+                'entity_A_type': 'Patient',
+                'entity_B_type': 'Appeal',
+                'entity_B_params': {'param': 'appeal_date', 'value': appeal_date},
+                'entity_A_params': {'param': 'mail', 'value': patient},
+                'relation_type': 'create'
+            })
+
+            if response1.json().get('status') == 'Error' or response2.json().get('status') == 'Error':
+                return jsonify({'status': 'Error', 'Error': f'Error while merging patient: {patient}'})
+
+            return jsonify({'status': 'Success'})
+        else:
+            return jsonify({'status': 'Error', 'Error': f"Error while creating appeal: {response.json().get('Error')}"})
+    else:
+        return jsonify({'status': 'Error', 'Error': 'Error while merging patient: empty data'})
+
+
+@app.route('/api/predict_disease', methods=['POST'])
+def predict_disease():
+    data = request.json
+    appeal_date = data.get('appeal_date')
+
+    response = requests.post("http://127.0.0.1:5000/api/appeal_database", json={"filter_params": 
+                                                                        {                                                                                                      
+                                                                            "filter1-field": "appeal_date",
+                                                                            "filter1-action": "CONTAINS",
+                                                                            "filter1-value": appeal_date
+                                                                        }})
+
+    appeal_symptoms = response.json()["ans"][0]["related"]
+    
+
+    possible_diseases = []
+
+    for appeal_symptom in appeal_symptoms:
+        response = requests.post("http://127.0.0.1:5000/api/entities", json={"entity_type": "Symptom", "filter_params": 
+                                                                        {                                                                                                      
+                                                                            "filter1-field": "symptom_name",
+                                                                            "filter1-action": "CONTAINS",
+                                                                            "filter1-value": appeal_symptom["symptom_name"]
+                                                                        }, "relation_type": "describe"})
+
+        answer = response.json()["ans"]
+
+        for i in range(1, len(answer), 2):
+            for disease in answer[i]:
+                if disease not in possible_diseases:
+                    possible_diseases.append(disease)
+        
+    appeal_symptoms_names = []
+    
+    for symptom in appeal_symptoms:
+        appeal_symptoms_names.append(symptom["symptom_name"])
+    
+    predicted_results = []
+    
+    for disease in possible_diseases:
+
+        query_string = f'''
+        MATCH (d:Disease {{disease_name: '{disease["disease_name"]}'}})-[r:cause]->(s:Symptom)
+        RETURN SUM(r.symptom_weight)
+        '''
+
+        total_weight = conn.query(query_string)
+
+        query_string = f'''
+        MATCH (d:Disease {{disease_name: '{disease["disease_name"]}'}})-[r:cause]->(s:Symptom)
+        WHERE s.symptom_name in {appeal_symptoms_names}
+        RETURN SUM(r.symptom_weight)
+        '''
+
+        appeal_weight = conn.query(query_string)
+
+        if total_weight and appeal_weight:
+            result = {"disease": disease}
+            result["percent"] = round(appeal_weight[0][0] / total_weight[0][0] * 100, 2)
+            predicted_results.append(result)
+
+    return jsonify({"ans": predicted_results})
+
+
+@app.route('/api/update_entity', methods=['POST'])
+def update_patient():
+    data : dict = request.json
+    entity_id : str = data.get('entity_id')
+    entity_id_value : str = data.get('entity_id_value')
+    entity_type : str = data.get('entity_type')
+    new_values : dict = data.get('new_values')
+
+    if entity_id and new_values and entity_id_value and entity_type:
+
+        set_clause = ', '.join([f'{key} : \'{value}\'' for key, value in new_values.items()])
+
+        query_string : str = f'''
+        MATCH(p:{entity_type} {{{entity_id}: '{entity_id_value}'}})
+        SET p += {{{set_clause}}}
+        RETURN p 
+        '''
+
+        result = conn.query(query_string)
+
+        if result:
+            return jsonify({'status': 'Success'}), 200
+        else:
+            return jsonify({'status': 'Error', 'Error': 'Entity not found', 'query': query_string}), 404
+                                          
+   
+    return jsonify({'status': 'Error', 'Error': 'Empty data'}), 404
+    
+
