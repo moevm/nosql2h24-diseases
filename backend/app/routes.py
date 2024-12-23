@@ -11,6 +11,8 @@ import requests
 import os
 import csv
 
+# Initialize CORS
+CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:8080"}})
 
 @app.route('/api/')
 @app.route('/index')

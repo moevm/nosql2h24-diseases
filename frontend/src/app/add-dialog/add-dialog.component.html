@@ -1,4 +1,4 @@
-<div mat-dialog-content>
+<div mat-dialog-content #dialogContent>
   <h1>Добавление {{ dict[data.type] }}</h1>
   <form #addForm="ngForm">
     <div *ngIf="data.type === 'patients'">
@@ -53,8 +53,38 @@
         </div>
       </div>
       <div class="form-group">
+        <label for="appeal_mail">Почта пациента</label>
+        <input id="appeal_mail" [(ngModel)]="data.fields.appeal_mail" name="appeal_mail" required>
+        <div *ngIf="addForm.controls['appeal_mail']?.invalid">
+          <p>*Обязательно к заполнению</p>
+        </div>
+      </div>
+      <div class="form-group">
         <label for="appeal_complaints">Жалобы</label>
         <input id="appeal_complaints" [(ngModel)]="data.fields.appeal_complaints" name="appeal_complaints">
+      </div>
+      <div class="form-group">
+        <label for="appeal_symptoms">Симптомы</label>
+        <input id="appeal_symptoms" [(ngModel)]="data.fields.appeal_symptoms" name="appeal_symptoms" [ngClass]="{'activate': data.fields.appeal_symptoms}" (input)="OnInputChange($event)" (focus)="OnInputFocus()" (blur)="OnInputBlur()">
+        <div *ngIf="data.fields.chosen_symptoms && data.fields.chosen_symptoms.length == 0">
+          <p>*Обязательно к заполнению</p>
+        </div> 
+        <div id="labelsaver">
+            <div *ngFor="let sympt of data.fields.chosen_symptoms" class="label">
+                <p>{{ sympt }}</p>
+                <mat-icon id="close_icon" (click)="RemoveItem(sympt)">close</mat-icon>
+            </div>
+          </div>
+          <div class="list-container" *ngIf="IsEmpty()">
+            <ul class="list">
+                <li id="header">Симптомы по запросу <i>{{data.fields.appeal_symptoms}}</i></li>
+                <ng-container *ngFor="let item of symptoms">
+                    <li *ngIf="!IsTaken(item['symptom_name'])" (mousedown)="OnItemMouseDown()" (click)="ChooseTheSympt(item['symptom_name'])">
+                        {{ item['symptom_name'] }}
+                    </li>
+                </ng-container>
+            </ul>
+          </div>
       </div>
     </div>
     <div *ngIf="data.type === 'sympts'">
@@ -103,5 +133,6 @@
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()">Выйти</button>
-  <button mat-button (click)="onAddClick(addForm)" [disabled]="addForm.invalid">Добавить</button>
+  <button mat-button (click)="onAddClick(addForm)" [disabled]="addForm.invalid || data.fields.chosen_symptoms.length == 0">Добавить</button>
 </div>
+

@@ -68,8 +68,7 @@ export class DbasesComponent {
   constructor(private http: HttpClient, private router: Router, private dialog: MatDialog, private fileDownloadService: FileDownloadService, private dataService: DataService){}
 
   openAddDialog(): void {
-    const dialogRef = this.dialog.open(AddDialogComponent, {
-      width: '600px',
+    const dialogRef = this.dialog.open(AddDialogComponent, { 
       data: { type: this.type, fields: {} }
     });
 
@@ -112,12 +111,34 @@ export class DbasesComponent {
     }
     else if(this.type == 'appeals'){
       this.req = {
-        "entity_type": "Appeal",
-        "parametrs": {
             "appeal_date": data.appeal_date ? data.appeal_date.replace('T', ' ') : "",
-            "appeal_complaints": data.appeal_complaints ? data.appeal_complaints : ""
-        }
+            "appeal_complaints": data.appeal_complaints ? data.appeal_complaints : "",
+            "symptoms": data.chosen_symptoms.length != 0 ? data.chosen_symptoms : [],
+            "patient": data.appeal_mail ? data.appeal_mail : ""
       }
+  
+
+      console.log(this.req)
+
+
+      this.http.post('http://127.0.0.1:5000/api/create_appeal', this.req).subscribe({
+        next: (response: any) => {
+          console.log(response)
+  
+        },
+        error: error => {
+          console.error('Error:', error);
+        },
+        complete: () => {
+          console.log('here')
+            this.MakePostReq(this.type)
+        }
+      });
+
+      this.MakePostReq(this.type)
+
+      return;
+
     }
     else if(this.type == 'sympts'){
       this.req = {
