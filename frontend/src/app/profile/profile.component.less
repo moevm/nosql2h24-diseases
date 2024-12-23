@@ -167,7 +167,100 @@
 
 
     }
+    
+    .field-container{
+      display: flex;
+      align-items: center; /* Выравнивание по вертикали */
+      gap: 10px; /* Расстояние между элементами */
+
+    
+      p {
+        color: #000;
+        font-family: "Comfortaa";
+        font-weight: 400;
+        font-size: 26px;
+        text-align: left;
+        margin-top: 5px;
+      }
+    
+      input {
+        width: 100%;
+        height: 43px;
+        padding: 4px 8px;
+        background: #FFFFFF;
+        color: #C0C0C0;
+        border-color: #21D9D9;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 3px;
+        font-family: "Comfortaa";
+        font-weight: 400;
+        font-size: 24px;
+        text-align: left;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        outline: none;
+        
+        &:hover{
+          cursor: text;
+        }
+      }
+
+      .activate{
+        color: #000;
+      }
+
+      #birthday{
+        width: 81%;
+      }
+
   
+      select{
+        width: 100%;
+        height: 55px;
+        padding: 4px 8px;
+        background: #FFFFFF;
+        color: #C0C0C0;
+        border-color: #21D9D9;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 3px;
+        font-family: "Comfortaa";
+        font-weight: 400;
+        font-size: 24px;
+        text-align: left;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        color: #000;
+      }
+  
+      .done{
+        height: 53px;
+        width: 53px;
+        background-color: #21D9D9;
+        
+        position: relative;
+        right: 61px;
+        bottom: 8px;
+  
+        mat-icon{
+          font-size: 32px;
+          width: 50px;
+          height: 50px;
+          color: #fff;
+  
+          position: relative;
+          left: 10px;
+          top: 8px;
+        }
+      }
+
+
+      .birthday{
+        right: 11px;
+      }
+    }
+
     label {
       color: #000;
       font-family: "Comfortaa";
@@ -185,33 +278,8 @@
         }
       }
     }
-  
-    p {
-      color: #000;
-      font-family: "Comfortaa";
-      font-weight: 400;
-      font-size: 26px;
-      text-align: left;
-      margin-top: 5px;
-    }
-  
-    input {
-      width: 100%;
-      height: 43px;
-      padding: 4px 8px;
-      background: #FFFFFF;
-      color: #C0C0C0;
-      border-color: #21D9D9;
-      border-width: 1px;
-      border-style: solid;
-      border-radius: 3px;
-      font-family: "Comfortaa";
-      font-weight: 400;
-      font-size: 24px;
-      text-align: left;
-      margin-top: 5px;
-      margin-bottom: 20px;
-    }
+
+    
   
     .subtitle {
       color: #C0C0C0;

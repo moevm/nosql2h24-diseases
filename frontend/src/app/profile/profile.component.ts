@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-profile',
@@ -20,7 +21,55 @@ export class ProfileComponent {
 
   constructor(private router: Router, private dataService: DataService, private http: HttpClient) {}
 
-  MakePostReq() {
+  isEditing: any = {
+    sex: false,
+    birthday: false,
+    height: false,
+    weight: false
+  };
+
+  tempUser: any = {
+    sex : '',
+    birthday : '',
+    height : '',
+    weght : ''
+  }
+
+  toggleEdit(field: string) {
+    this.isEditing[field] = true;
+  }
+
+  saveEdit(field: string) {
+    this.isEditing[field] = false;
+    this.userData[field] = this.tempUser[field]
+    console.log(this.userData)
+    this.MakePostPatientUpdateReq(field);
+  }
+
+  MakePostPatientUpdateReq(field: string){
+    this.http.post('http://127.0.0.1:5000/api/update_entity', {
+           "entity_id": "mail",
+           "entity_id_value": this.userData.mail,
+           "entity_type": "Patient",
+           "new_values": {
+               [field]: this.userData[field]
+            }
+    }).subscribe({
+      next: (response: any) => {
+        console.log(response)
+        this.dataService.setUserData(this.userData)
+        
+      },
+      error: error => {
+        console.error('Error:', error);
+      },
+      complete: () => {
+        console.log('Request complete');
+      }
+    });
+  }
+
+  MakePostAppealReq() {
     this.http.post('http://127.0.0.1:5000/api/appeal_database', {
       "filter_params": {
         "filter1-field": "appeal_date",
@@ -54,13 +103,18 @@ export class ProfileComponent {
 
   ngOnInit() {
     this.userData = this.dataService.getUserData();
+    this.tempUser['sex'] = this.userData['sex']
+    this.tempUser['birthday'] = this.userData['birthday']
+    this.tempUser['height'] = this.userData['height']
+    this.tempUser['weight'] = this.userData['weight']
+    
     console.log(this.userData);
 
     if(!this.userData){
       this.router.navigate(['/login'])
     }
 
-    this.MakePostReq();
+    this.MakePostAppealReq();
   }
 
   onDateChange(event: any, type: string) {
@@ -71,7 +125,7 @@ export class ProfileComponent {
       this.to = event.target.value;
       console.log('To:', this.to);
     }
-    this.MakePostReq()
+    this.MakePostAppealReq()
   }
 
   GoToDBases(){
