@@ -11,7 +11,6 @@ import requests
 import os
 import csv
 
-# Initialize CORS
 CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:8080"}})
 
 @app.route('/api/')
@@ -602,13 +601,32 @@ def predict_disease():
     return jsonify({"ans": predicted_results})
 
 
+@app.route('/api/update_entity', methods=['POST'])
+def update_patient():
+    data : dict = request.json
+    entity_id : str = data.get('entity_id')
+    entity_id_value : str = data.get('entity_id_value')
+    entity_type : str = data.get('entity_type')
+    new_values : dict = data.get('new_values')
 
+    if entity_id and new_values and entity_id_value and entity_type:
 
+        set_clause = ', '.join([f'{key} : \'{value}\'' for key, value in new_values.items()])
 
+        query_string : str = f'''
+        MATCH(p:{entity_type} {{{entity_id}: '{entity_id_value}'}})
+        SET p += {{{set_clause}}}
+        RETURN p 
+        '''
 
+        result = conn.query(query_string)
 
-            
-                                                       
-    
+        if result:
+            return jsonify({'status': 'Success'}), 200
+        else:
+            return jsonify({'status': 'Error', 'Error': 'Entity not found', 'query': query_string}), 404
+                                          
+   
+    return jsonify({'status': 'Error', 'Error': 'Empty data'}), 404
     
 
