@@ -317,6 +317,11 @@ def import_dump():
         file_path = os.path.join('/backend/app/models/dumps', file.filename)
         file.save(file_path)
 
+        with open(file_path, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            row_count = sum(1 for row in reader) - 1
+
+
     query_string = "MATCH(p) DETACH DELETE p"
     conn.query(query_string)
 
@@ -406,7 +411,7 @@ def import_dump():
         if result is None:
             return jsonify({"Error": f"error loading the database dump: {query_string}"}), 400
         
-    return jsonify({"Success": f"File uploaded successfully"}), 200
+    return jsonify({"Success": f"File uploaded successfully", "total_enters": row_count}), 200
 
 @app.route('/api/export_dump', methods=['POST'])
 def export_dump():

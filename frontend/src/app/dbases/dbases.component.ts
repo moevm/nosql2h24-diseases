@@ -23,6 +23,7 @@ export class DbasesComponent {
   items: any = [];
   idx: number = 0;
   req: any;
+  temp: any;
 
   page: number = 1;
   currect_enters: any = [];
@@ -381,15 +382,16 @@ export class DbasesComponent {
       const formData = new FormData();
       formData.append('file', file);
 
-      this.http.post('http://127.0.0.1:5000/api/import_dump', formData).subscribe(
-        response => {
+      this.http.post('http://127.0.0.1:5000/api/import_dump', formData).subscribe({
+        next: (response: any) => {
           console.log('File uploaded successfully', response);
+          alert(`Импорт успешно произведён!\nКоличество произведённых записей: ${response['total_enters']}`)
           this.MakePostReq(this.type);
         },
-        error => {
+        error: error => {
           console.error('Error uploading file', error);
         }
-      );
+     });
     }
   }
 
