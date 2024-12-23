@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Высота viewport */
+    margin: 0;
+    padding: 0;
+
+
+    .menu {
+        flex: 0 0 auto; /* Фиксированная высота */
+    }
+
+    .plot {
+        flex: 1 1 auto; /* Занимает всё доступное пространство */
+        margin: 50px 10px 30px 10px; /* Отступы сверху и снизу */
+        max-height: calc(100vh - 350px); /* Максимальная высота минус отступы */
+        width: auto;
+        padding: 0;
+        display: flex; /* Устанавливает .plot как flex-контейнер */
+        justify-content: center; /* Центрирует содержимое по горизонтали */
+        align-items: center; /* Центрирует содержимое по вертикали */
+    }
+}

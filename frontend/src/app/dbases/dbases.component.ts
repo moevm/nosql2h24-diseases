@@ -101,7 +101,7 @@ export class DbasesComponent {
     if(this.type == 'diseases'){
         this.req = {
           "entity_type": "Disease",
-          "parametrs": {
+          "params": {
               "disease_name": data.disease_name ? data.disease_name : "",
               "disease_description": data.disease_description ? data.disease_description : "",
               "disease_recommendations": data.disease_recommendations ? data.disease_recommendations : "",
@@ -144,7 +144,7 @@ export class DbasesComponent {
     else if(this.type == 'sympts'){
       this.req = {
         "entity_type": "Symptom",
-        "parametrs": {
+        "params": {
             "symptom_name": data.symptom_name ? data.symptom_name : "",
             "symptom_description": data.symptom_description ? data.symptom_description : "" 
         }
@@ -153,7 +153,7 @@ export class DbasesComponent {
     else{
       this.req = {
         "entity_type": "Patient",
-        "parametrs": {
+        "params": {
             "fullname": data.fullname ? data.fullname : "",
             "mail": data.mail ? data.mail : "",
             "password": data.password ? data.password : "",

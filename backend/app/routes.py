@@ -285,7 +285,7 @@ def createEntities():
     if entity_type and entity_parametrs:
 
         if entity_type not in allowed_entity_parameters:
-            return jsonify({"Error": "Invalid type of entity"}), 400
+            return jsonify({"Error": "Invalid type of entity", "incorrect_entity_type": entity_type}), 400
 
         for parametr in entity_parametrs:
             if parametr not in allowed_entity_parameters[entity_type]:

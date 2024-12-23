@@ -133,6 +133,6 @@
 </div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()">Выйти</button>
-  <button mat-button (click)="onAddClick(addForm)" [disabled]="addForm.invalid || data.fields.chosen_symptoms.length == 0">Добавить</button>
+  <button mat-button (click)="onAddClick(addForm)" [disabled]="addForm.invalid || (data.type === 'appeals' && data.fields.chosen_symptoms.length == 0)">Добавить</button>
 </div>
 
