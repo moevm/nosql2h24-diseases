@@ -330,6 +330,7 @@ export class DbasesComponent {
         this.currect_enters = this.items.slice(0, 10)
         this.page = Math.min(1, this.totalPages)
         console.log(response['ans'])
+
       },
       error: error => {
         console.error('Error:', error);
