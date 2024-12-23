@@ -26,6 +26,7 @@ export class DbasesComponent {
   req: any;
   symptoms: string = '';
   userData: any = null;
+  temp: any;
 
   page: number = 1;
   currect_enters: any = [];
@@ -378,6 +379,7 @@ export class DbasesComponent {
         this.currect_enters = this.items.slice(0, 10)
         this.page = Math.min(1, this.totalPages)
         console.log(response['ans'])
+
       },
       error: error => {
         console.error('Error:', error);
@@ -434,15 +436,16 @@ export class DbasesComponent {
       const formData = new FormData();
       formData.append('file', file);
 
-      this.http.post('http://127.0.0.1:5000/api/import_dump', formData).subscribe(
-        response => {
+      this.http.post('http://127.0.0.1:5000/api/import_dump', formData).subscribe({
+        next: (response: any) => {
           console.log('File uploaded successfully', response);
+          alert(`Импорт успешно произведён!\nКоличество произведённых записей: ${response['total_enters']}`)
           this.MakePostReq(this.type);
         },
-        error => {
+        error: error => {
           console.error('Error uploading file', error);
         }
-      );
+     });
     }
   }
 
