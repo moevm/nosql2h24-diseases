@@ -41,7 +41,7 @@ services:
       - neo4j-network
 
 networks:
-  neo4j-network:
+  neo4j-network: 
     driver: bridge
 
 volumes:
