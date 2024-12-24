@@ -1,0 +1,31 @@
+<h2>{{disease_name}}</h2>
+
+<div class="container">
+    <div class="left_block">
+        <p class="discription"><strong>{{disease_description}}</strong></p>
+    
+        <h3>Рекомендации</h3>
+        <ul>
+            <li *ngFor="let item of disease_recommendations">{{item}}</li>
+        </ul>
+    </div>
+    
+    <div class="right_block">
+        <table>
+            <tr>
+                <th>Рекомендуемые анализы</th>
+                <th>Медицинские направления</th>
+            </tr>
+            <tr *ngFor="let item of analysis">
+                <td>{{item['analysis_name']}}</td>
+                <td>{{item['analysis_source']}}</td>
+            </tr>
+            
+        </table>
+    </div>
+    
+</div>
+
+<button (click)="GoToDisease()">
+    <mat-icon id="search_icon">keyboard_return</mat-icon>
+</button>

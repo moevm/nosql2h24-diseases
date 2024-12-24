@@ -40,4 +40,8 @@ export class PredictorComponent {
       );
     }
   }
+
+  GoToDisease(item: any){
+    this.router.navigate([`/disease/${item.disease.disease_name}`])
+  }
 }
