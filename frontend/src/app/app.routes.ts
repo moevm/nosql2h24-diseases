@@ -7,6 +7,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { DbasesComponent } from './dbases/dbases.component';
 import { StatComponent } from './stat/stat.component';
 import { NgModel } from '@angular/forms';
+import { PredictorComponent } from './predictor/predictor.component';
 
 
 export const routes: Routes = [
@@ -16,5 +17,6 @@ export const routes: Routes = [
     {path: "search", component: SearchComponent},
     {path: "profile", component: ProfileComponent},
     {path: "dbases", component: DbasesComponent},
-    {path: "stat", component: StatComponent}
+    {path: "stat", component: StatComponent},
+    {path: "predict", component: PredictorComponent}
 ];
