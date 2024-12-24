@@ -16,7 +16,7 @@
                 <th>Рекомендуемые анализы</th>
                 <th>Медицинские направления</th>
             </tr>
-            <tr *ngFor="let item of analysis">
+            <tr *ngFor="let item of getAnalysis()">
                 <td>{{item['analysis_name']}}</td>
                 <td>{{item['analysis_source']}}</td>
             </tr>

@@ -70,7 +70,7 @@
         <h3>Ранее Вас беспокоило:</h3>
         <ul class="list">
           <ng-container *ngFor="let item of data">
-            <li>
+            <li (click)="GoToPredict(item)">
               {{ item['appeal']['appeal_complaints'] }}
               <div>
                 {{ item['appeal']['appeal_date'] }}

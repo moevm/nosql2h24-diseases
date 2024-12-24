@@ -1,4 +1,4 @@
-<textarea #textareaElement [(ngModel)]="complaints" placeholder="Как Вы себя чувствуете?"></textarea>
+<textarea #textareaElement [(ngModel)]="complaints" placeholder="Опишите своё самочувствие"></textarea>
 
 <input #inputElement placeholder="Что Вас беспокоит?" [ngClass]="{'activate': input}" [(ngModel)]="input" (input)="OnInputChange($event)" (focus)="OnInputFocus()" (blur)="OnInputBlur()">
 

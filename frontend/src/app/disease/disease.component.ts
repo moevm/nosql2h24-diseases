@@ -88,6 +88,10 @@ export class DiseaseComponent implements OnInit {
     }
   }
 
+  getAnalysis() {
+    return this.analysis.slice(0, 12);
+  }
+
   GoToDisease(){
     this.router.navigate(['/predict'])
   }

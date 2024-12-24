@@ -135,4 +135,20 @@ export class ProfileComponent {
   GoToStat(){
     this.router.navigate(['/stat'])
   }
+
+  GoToPredict(item: any){
+    this.http.post('http://127.0.0.1:5000/api/predict_disease', {"appeal_date": item.appeal.appeal_date}).subscribe({
+      next: (response: any) => {
+        this.dataService.setPredictData(response['ans'])
+        this.router.navigate(['/predict'])
+      },
+      error: error => {
+        console.error('Error:', error);
+      },
+      complete: () => {
+        console.log('here')
+      }
+    });
+
+  }
 }
