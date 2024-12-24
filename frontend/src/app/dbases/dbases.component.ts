@@ -36,7 +36,7 @@ export class DbasesComponent {
     description: '',
     recommendation: '', 
     type: '',
-    cource: null
+    cource: "0"
   }
 
   appeal_filter: any = {
@@ -218,7 +218,7 @@ export class DbasesComponent {
         this.idx += 1
       }
 
-      if(this.disease_filter['cource']){
+      if(this.disease_filter['cource'] != "0"){
         this.data['filter_params'][`filter${this.idx}-field`] = 'disease_course'
         this.data['filter_params'][`filter${this.idx}-action`] = 'CONTAINS'
         this.data['filter_params'][`filter${this.idx}-value`] = (this.disease_filter['cource'] == -1 ? "Острое течение" : "Хроническое течение")
