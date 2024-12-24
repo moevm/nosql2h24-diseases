@@ -3,6 +3,9 @@ import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './header/header.component';
 import { CommonModule } from '@angular/common';
 import { DataService } from './data.service'; // Убедитесь, что путь правильный
+import {Chart, registerables} from "chart.js"
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-root',

@@ -1,4 +1,9 @@
 mat-dialog-container {
+    max-height: 500px;
+    overflow-y: auto;
+    position: relative;
+    width: auto;
+
     h1{
       font-family: 'Comfortaa';
       color: #000;
@@ -25,8 +30,6 @@ mat-dialog-container {
             margin: 0;
         }
 
-
-
         input{
           padding: 4px 8px 4px 8px;
           background: #FFFFFF;
@@ -52,20 +55,111 @@ mat-dialog-container {
           accent-color: #21D9D9;
           background-color: #fff;
         }
+        
+        .list-container {
+          position: fixed; /* Позиционирование относительно окна браузера */
+          top: 200px; /* Позиционируем ниже верхнего края окна браузера */
+          left: 15%;
+          width: 10%;
+          max-height: 320px; /* Максимальная высота блока */
+          overflow-y: auto; /* Появление ползунка при превышении максимальной высоты */
+          box-sizing: border-box;
+          width: 280px;
+          margin-left: 15px;
+          border-radius: 20px;
+          background-color: #fff; /* Фон для контейнера */
+          border: 10px solid #fff; /* Граница для контейнера */
+          z-index: 1000; /* Убедитесь, что контейнер находится поверх других элементов */
+        
+        
+          .list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            }
+            
+            li {
+            height: auto;
+            padding: 8px 8px 8px 8px;
+            background: #FFFFFF;
+            color: #000000;
+            border-width: 1px;
+            border-style: solid;
+            font-family: "Comfortaa";
+            font-weight: 400;
+            font-size: 15px;
+            line-height: 1.3;
+            text-align: left;
+          
+            &:hover{
+              background-color: #f0f0f0;
+            }
+            }
+            
+            li:last-child {
+            border-bottom: none;
+            }
+
+            #header{
+              background-color: #21D9D9;
+              color: #fff;
+            }
+        }
+  
+          #labelsaver{
+            display: flex;
+              flex-wrap: wrap;
+              gap: 10px; /* Добавляет промежуток между элементами */
+          
+            padding: 0;
+            margin: 5px;
+            margin-bottom: 50px;
+          
+            .label{
+              display: flex;
+              background: #E6E6E6;
+              color: #000000;
+              height: 20px;
+              border-radius: 20px;
+              padding: 5px;
+              font-family: "Comfortaa";
+              font-size: 15px;
+              text-align: left;
+          
+              p{
+                width: auto;
+                margin-top: auto;
+                margin-bottom: auto;
+                margin-right: 5px;
+                margin-left: 2px;
+                color: #000;
+              }
+          
+              #close_icon{
+                color: #fff;
+          
+                margin-top: auto;
+                margin-bottom: auto;
+          
+                &:hover{
+                  color: #000;
+                }
+              }
+            }
+          }    
+        }
     }
 
-
-}
-
   /* Содержимое модального окна */
-.mat-dialog-content {
+mat-dialog-content {
     padding: 20px; /* Внутренний отступ */
     background-color: #fff;
     font-family: "Comfortaa";
+    width: 1000px;
   }
   
   /* Кнопки модального окна */
-  .mat-dialog-actions {
+  mat-dialog-actions {
     display: flex;
     justify-content: flex-end;
     padding: 20px; /* Внутренний отступ */
@@ -118,4 +212,7 @@ mat-dialog-container {
   margin: 0 10px;
 }
 
+
+
   
+ 

@@ -70,12 +70,17 @@ def register() -> str:
 
         else:
             query_string = '''
-            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, admin: $admin})
+            MERGE (p:Patient {fullname: $fullname, password: $password, mail: $mail, sex: $sex, birthday: $birthday, height: $height, weight: $weight, registration_date: $rd, last_update: $lu, admin: $admin})
             '''
 
             print(fullname, password, mail, sex, birthday, height, weight, admin)
+
+            current_datetime = datetime.now()
+            # Форматируем дату и время в формате "yyyy-mm-dd hh:mm:ss"
+            formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
             conn.query(query_string, {"fullname": fullname, "password": password, "mail": mail,
-                                    "sex": sex, "birthday": birthday, "rd": datetime.now().isoformat(), "height": height, "weight": weight, "admin": admin})
+                                    "sex": sex, "birthday": birthday, "rd": formatted_datetime, "lu": formatted_datetime, "height": height, "weight": weight, "admin": admin})
 
     elif request.method == 'POST':
         msg = "Пожалуйста, заполните форму!"
@@ -150,6 +155,8 @@ def readEntities() -> json:
     entity_type : str = data.get('entity_type')
     filter_params : str = data.get('filter_params', {})
     relation_type : str = data.get('relation_type')
+    patient_filter_params: str = data.get('patient_filter_params', {})
+
     date_list = ['birthday', 'last_update', 'registration_date', 'appeal_date']
     compare_operations = [">", "<", ">=", "<="]
 
@@ -186,6 +193,19 @@ def readEntities() -> json:
             filter_idx += 1
             if filter_params.get(f'filter{filter_idx}-field'):
                 query_string += " AND\n"
+    if patient_filter_params:
+        if not filter_params:
+            query_string += "WHERE "
+        else:
+            query_string += " AND\n"
+
+        field = patient_filter_params[f'filter1-field']
+        action = patient_filter_params[f'filter1-action']
+        value = patient_filter_params[f'filter1-value']
+
+        value = value.lower()
+        query_string += f'lower(b.{field}) {action} "{value}"'
+
 
     if relation_type:
         query_string += '\nRETURN p,r,b'
@@ -218,23 +238,26 @@ def readEntities() -> json:
 def appeal_database():
     data : dict = request.json
     filter_params : str = data.get('filter_params', {})
+    patient_filter_params : str = data.get('patient_filter_params', {})
 
-    response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'belong'})
+    response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'belong', 'patient_filter_params': patient_filter_params})
     patients = response.json()["ans"]
+    patients_log = response.json()["req"]
 
     response = requests.post("http://127.0.0.1:5000/api/entities", json={'entity_type': 'Appeal', 'filter_params': filter_params, 'relation_type': 'contain'})
     symptoms = response.json()["ans"]
+    symptoms_log = response.json()["req"]
 
     appeal_database = []
 
     for i in range(0, len(patients), 2):
         row = {}
         row["appeal"] = patients[i]
-        row["patient"] = patients[i+1]
+        row["patient"] = patients[i+1][0]
         row["related"] = symptoms[symptoms.index(row["appeal"]) + 1]
         appeal_database.append(row)
 
-    return jsonify({"ans": appeal_database})
+    return jsonify({"ans": appeal_database, "patients": patients_log, "symptoms": symptoms_log})
     
 
 @app.route('/api/create_entity', methods=['POST'])
@@ -261,7 +284,7 @@ def createEntities():
     if entity_type and entity_parametrs:
 
         if entity_type not in allowed_entity_parameters:
-            return jsonify({"Error": "Invalid type of entity"}), 400
+            return jsonify({"Error": "Invalid type of entity", "incorrect_entity_type": entity_type}), 400
 
         for parametr in entity_parametrs:
             if parametr not in allowed_entity_parameters[entity_type]:
@@ -287,16 +310,16 @@ def createEntities():
 def set_entity():
     data : json = request.json
     entity_mail : str = data.get('mail')
-    entity_admin : bool = data.get('flag')
+    entity_admin : str = data.get('flag')
 
     if entity_mail and entity_admin:
         query_string = f'''MATCH(p:Patient{{mail:'{entity_mail}'}})
-        SET p.admin = {entity_admin}
+        SET p.admin = '{entity_admin}'
         '''
 
         conn.query(query_string)
 
-        return("Success")
+        return jsonify({"status": "Success", "admin": entity_admin}), 200
     else:
         return jsonify({"error": "No mail or admin fields"}), 400
 

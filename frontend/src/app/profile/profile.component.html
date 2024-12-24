@@ -1,6 +1,13 @@
 <div id="container">
   <div id="leftBlock">
-    <h2>{{ userData['fullname'] }}</h2>
+    <div class="button-container">
+      <h2>{{ userData['fullname'] }}</h2>
+
+      <div>
+        <button *ngIf="userData['admin']=='TRUE'" (click)="GoToDBases()"><mat-icon id="list_icon">list</mat-icon></button>
+        <button *ngIf="userData['admin']=='TRUE'" (click)="GoToStat()"><mat-icon id="assessment_icon">assessment</mat-icon></button>
+      </div>
+    </div>
     <p class="subtitle">{{ userData['mail'] }}</p>
 
     <div class="content">
@@ -8,27 +15,42 @@
         <p>Профиль</p>
       </div>
 
-      <label for="sex">Пол <mat-icon *ngIf="userData['sex']">edit</mat-icon></label> <br>
-      <p *ngIf="userData['sex']">{{ userData['sex'] }}</p>
-      <input *ngIf="!userData['sex']" id="sex">
+      <label for="sex">Пол <mat-icon *ngIf="userData['sex'] != '' && !isEditing['sex']" (click)="toggleEdit('sex')">edit</mat-icon></label> <br>
+      <div class="field-container">
+        <p *ngIf="userData['sex'] != '' && !isEditing['sex']">{{ userData['sex'] }}</p>
+        <select *ngIf="userData['sex'] == '' || isEditing['sex']" id="sex" [(ngModel)]="tempUser['sex']">
+          <option value="male">Мужской</option>
+          <option value="female">Женский</option>
+        </select>
+        <div class="done sex" *ngIf="userData['sex'] == '' || isEditing['sex']" (click)="saveEdit('sex')"><mat-icon>done</mat-icon></div>
+      </div>
 
       <br>
 
-      <label for="birthday">Дата рождения <mat-icon *ngIf="userData['birthday']">edit</mat-icon></label> <br>
-      <p *ngIf="userData['birthday']">{{ userData['birthday'] }}</p>
-      <input type="date" *ngIf="!userData['birthday']" id="birthday">
+      <label for="birthday">Дата рождения <mat-icon *ngIf="userData['birthday'] != '' && !isEditing['birthday']" (click)="toggleEdit('birthday')">edit</mat-icon></label> <br>
+      <div class="field-container">
+        <p *ngIf="userData['birthday'] != '' && !isEditing['birthday']">{{ userData['birthday'] }}</p>
+        <input type="date" *ngIf="userData['birthday'] == '' || isEditing['birthday']" id="birthday" [(ngModel)]="tempUser['birthday']" [ngClass]="{'activate': tempUser['birthday'] != ''}">
+        <div class="done birthday" *ngIf="userData['birthday'] == '' || isEditing['birthday']" (click)="saveEdit('birthday')"><mat-icon>done</mat-icon></div>
+      </div>
 
       <br>
 
-      <label for="height">Рост <mat-icon *ngIf="userData['height']">edit</mat-icon></label> <br>
-      <p *ngIf="userData['height']">{{ userData['height'] }} см</p>
-      <input *ngIf="!userData['height']" id="height">
+      <label for="height">Рост <mat-icon *ngIf="userData['height'] != '' && !isEditing['height']" (click)="toggleEdit('height')">edit</mat-icon></label> <br>
+      <div class="field-container">
+        <p *ngIf="userData['height'] != '' && !isEditing['height']">{{ userData['height'] }} см</p>
+        <input type="number" *ngIf="userData['height'] == '' || isEditing['height']" id="height" [(ngModel)]="tempUser['height']" [ngClass]="{'activate': tempUser['height'] != ''}">
+        <div class="done height" *ngIf="userData['height'] == '' || isEditing['height']" (click)="saveEdit('height')"><mat-icon>done</mat-icon></div>
+      </div>
 
       <br>
 
-      <label for="weight">Вес <mat-icon *ngIf="userData['weight']">edit</mat-icon></label> <br>
-      <p *ngIf="userData['weight']">{{ userData['weight'] }} кг</p>
-      <input *ngIf="!userData['weight']" id="weight">
+      <label for="weight">Вес <mat-icon *ngIf="userData['weight'] != '' && !isEditing['weight']" (click)="toggleEdit('weight')">edit</mat-icon></label> <br>
+      <div class="field-container">
+        <p *ngIf="userData['weight'] != '' && !isEditing['weight']">{{ userData['weight'] }} кг</p>
+        <input type="number" *ngIf="userData['weight'] == '' || isEditing['weight']" id="weight" [(ngModel)]="tempUser['weight']" [ngClass]="{'activate': tempUser['weight'] != ''}">
+        <div class="done weight" *ngIf="userData['weight'] == '' || isEditing['weight']" (click)="saveEdit('weight')"><mat-icon>done</mat-icon></div>
+      </div>
     </div>
   </div>
 
@@ -48,10 +70,10 @@
         <h3>Ранее Вас беспокоило:</h3>
         <ul class="list">
           <ng-container *ngFor="let item of data">
-            <li>
-              {{ item['appeal_complaints'] }}
+            <li (click)="GoToPredict(item)">
+              {{ item['appeal']['appeal_complaints'] }}
               <div>
-                {{ item['appeal_date'] }}
+                {{ item['appeal']['appeal_date'] }}
               </div>
             </li>
           </ng-container>
@@ -62,5 +84,3 @@
 </div>
 
 <div id="seperator"></div>
-
-<button *ngIf="userData['admin']=='TRUE'" (click)="GoToDBases()"><mat-icon id="list_icon">list</mat-icon></button>

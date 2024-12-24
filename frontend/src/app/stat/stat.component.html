@@ -1,0 +1,39 @@
+<div class="container">
+    <div class="plot">
+        <app-chart [type]="selectedPatient" [symptom]="selectedSymptom" [from]="date_from" [to]="date_to"></app-chart>
+    </div>
+
+    <div class="menu">
+        <div><h3>Статистика обращений</h3></div>
+
+        <div>
+            <label for="patient">По каким пациентам?</label>
+            <select name="patient" [(ngModel)]="selectedPatient">
+                <option value="sex">По полу</option>
+                <option value="age">По возрасту</option>
+                <option value="height">По росту</option>
+                <option value="weight">По весу</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="symptom">По какому симптому?</label>
+            <input [ngClass]="{'activate': inputingSymptom}"  [(ngModel)]="inputingSymptom" (input)="OnInputChange($event)" (focus)="OnInputFocus()" (blur)="OnInputBlur()" placeholder="Введите симптом">
+
+            <div class="list-container" *ngIf="data">
+                <ul class="list">
+                    <ng-container *ngFor="let item of data">
+                        <li (mousedown)="OnItemMouseDown()" (click)="ChooseTheSympt(item['symptom_name'])">
+                            {{ item['symptom_name'] }}
+                        </li>
+                    </ng-container>
+                </ul>
+            </div>
+        </div>
+
+        <div>
+            <label for="date">За какой срок?</label>
+            <input type="datetime-local" step="1" [(ngModel)]="date_from"><p>-</p><input type="datetime-local" step="1" [(ngModel)]="date_to">
+        </div>
+    </div>
+</div>

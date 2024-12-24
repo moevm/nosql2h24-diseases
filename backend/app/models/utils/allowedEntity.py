@@ -27,8 +27,8 @@ allowed_entity_parameters = {
         "disease_course"
     ],
     "Analysis": [
-        "disease_name",
-        "disease_source"
+        "analysis_name",
+        "analysis_source"
     ]
 }
 

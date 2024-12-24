@@ -1,0 +1,101 @@
+h2 {
+    font-family: "Comfortaa";
+    color: #21D9D9;
+    font-size: 40px;
+    margin-left: 100px;
+    margin-top: 100px;
+    margin-bottom: 0;
+}
+
+.container{
+    margin-top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px; /* Расстояние между блоками */
+
+    .left_block {
+        flex: 1;
+        max-width: 50%;
+        margin-right: 20px; /* Дополнительное расстояние между блоками */
+        margin-left: 100px;
+
+        p{
+            font-family: "Comfortaa";
+            font-size: 20px;
+
+        }
+
+        h3{
+            font-family: "Comfortaa";
+            color: #21D9D9;
+            font-size: 35px;
+            font-weight: 10px;
+            margin-bottom: 0;
+        }
+
+        li{
+            font-family: "Comfortaa";
+            font-size: 20px;
+        }
+    }
+      
+    .right_block {
+        flex: 1;
+        max-width: 50%;
+        margin-left: 20px; /* Дополнительное расстояние между блоками */
+        overflow-y: auto; /* Добавляет вертикальную прокрутку */
+        max-height: 600px; /* Задает максимальную высоту блока */
+
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            font-family: 'Comfortaa';
+            margin-left: 30px;
+            font-size: 20px;
+
+            td{
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+
+            th{
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+                background-color: #21D9D9;
+                color: white;
+              }
+            
+        }
+              
+
+    }
+      
+
+}
+
+button{
+	width: 70px;
+	height: 70px;
+	background: #21D9D9;
+	border-color: #21D9D9;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 50px;
+	color: #fff;
+
+	position: fixed;
+	left: 50px;
+    bottom: 50px;
+    
+	&:hover{
+		cursor: pointer;
+	}
+
+	&:active{
+		background-color: lighten(#21D9D9, 30%);
+	}
+}

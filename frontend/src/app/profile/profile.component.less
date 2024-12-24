@@ -68,7 +68,7 @@
       box-sizing: border-box;
       border-bottom: 1px solid #21D9D9;
       padding-left: 0;
-      overflow-y: hidden;
+      overflow-y: auto;
   
       h3 {
         color: #000;
@@ -116,8 +116,14 @@
           list-style-type: none;
           margin-top: 20px;
           margin-bottom: 20px;
+
+          &:hover{
+            border: 2px solid #21D9D9;
+            cursor: pointer;
+          }
         }
       }
+
     }
   }
   
@@ -134,7 +140,133 @@
       margin-top: 50px;
       margin-bottom: 0px;
     }
+
+    .button-container {
+      display: flex;
+      justify-content: space-between;
+
+      div{
+        display: flex;
+        justify-content: space-between;
+        margin-top: 50px;
+        width: 150px;
+
+        button {
+          width: 60px;
+          height: 60px;
+          background: #21D9D9;
+          border-color: #21D9D9;
+          border-width: 1px;
+          border-style: solid;
+          border-radius: 50px;
+          color: #fff;
+        
+          &:hover {
+            cursor: pointer;
+          }
+        
+          &:active {
+            background-color: lighten(#21D9D9, 30%);
+          }
+        }
+      }
+
+
+    }
+    
+    .field-container{
+      display: flex;
+      align-items: center; /* Выравнивание по вертикали */
+      gap: 10px; /* Расстояние между элементами */
+
+    
+      p {
+        color: #000;
+        font-family: "Comfortaa";
+        font-weight: 400;
+        font-size: 26px;
+        text-align: left;
+        margin-top: 5px;
+      }
+    
+      input {
+        width: 100%;
+        height: 43px;
+        padding: 4px 8px;
+        background: #FFFFFF;
+        color: #C0C0C0;
+        border-color: #21D9D9;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 3px;
+        font-family: "Comfortaa";
+        font-weight: 400;
+        font-size: 24px;
+        text-align: left;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        outline: none;
+        
+        &:hover{
+          cursor: text;
+        }
+      }
+
+      .activate{
+        color: #000;
+      }
+
+      #birthday{
+        width: 81%;
+      }
+
   
+      select{
+        width: 100%;
+        height: 55px;
+        padding: 4px 8px;
+        background: #FFFFFF;
+        color: #C0C0C0;
+        border-color: #21D9D9;
+        border-width: 1px;
+        border-style: solid;
+        border-radius: 3px;
+        font-family: "Comfortaa";
+        font-weight: 400;
+        font-size: 24px;
+        text-align: left;
+        margin-top: 5px;
+        margin-bottom: 20px;
+        color: #000;
+      }
+  
+      .done{
+        height: 53px;
+        width: 53px;
+        background-color: #21D9D9;
+        
+        position: relative;
+        right: 61px;
+        bottom: 8px;
+  
+        mat-icon{
+          font-size: 32px;
+          width: 50px;
+          height: 50px;
+          color: #fff;
+  
+          position: relative;
+          left: 10px;
+          top: 8px;
+        }
+      }
+
+
+      .birthday{
+        right: 11px;
+      }
+    }
+
     label {
       color: #000;
       font-family: "Comfortaa";
@@ -152,33 +284,8 @@
         }
       }
     }
-  
-    p {
-      color: #000;
-      font-family: "Comfortaa";
-      font-weight: 400;
-      font-size: 26px;
-      text-align: left;
-      margin-top: 5px;
-    }
-  
-    input {
-      width: 100%;
-      height: 43px;
-      padding: 4px 8px;
-      background: #FFFFFF;
-      color: #C0C0C0;
-      border-color: #21D9D9;
-      border-width: 1px;
-      border-style: solid;
-      border-radius: 3px;
-      font-family: "Comfortaa";
-      font-weight: 400;
-      font-size: 24px;
-      text-align: left;
-      margin-top: 5px;
-      margin-bottom: 20px;
-    }
+
+    
   
     .subtitle {
       color: #C0C0C0;
@@ -224,26 +331,14 @@
     height: 40px;
     font-size: 40px;
   }
-  
-  button {
-    width: 70px;
-    height: 70px;
-    background: #21D9D9;
-    border-color: #21D9D9;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 50px;
-    color: #fff;
-    position: fixed;
-    right: 140px;
-    top: 130px;
-  
-    &:hover {
-      cursor: pointer;
-    }
-  
-    &:active {
-      background-color: lighten(#21D9D9, 30%);
-    }
+
+  #assessment_icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
   }
+  
+
+  
+  
   

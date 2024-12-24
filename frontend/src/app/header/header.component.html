@@ -3,7 +3,7 @@
         <button *ngIf="isCurtainPage" id="searching" (click)="GoToSearch()"> <mat-icon id="seach_icon">search</mat-icon> <span>Вернуться к поисковику</span> </button>
     </div>
 
-    <div class="header-section">
+    <div class="header-section" (click)="GoToHome()">
         <h1>На дому</h1>
         <p id="title">Твой медицинский помощник</p>
     </div>
