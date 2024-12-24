@@ -1,1 +1,18 @@
-<p>{{predict}}</p>
+<div class="menu">
+    <h2>Вероятные заболевания</h2>
+    <div class="filter">
+        <mat-icon [ngClass]="{'activate': search}">search</mat-icon>
+        <input placeholder="Найти заболевание" [(ngModel)]="search" [ngClass]="{'activate': search}" (input)="Search()">
+    </div>
+
+</div>
+
+<div class="list">
+    <div class="card" *ngFor="let item of predict">
+        <div class="header">
+            <h3>{{item['disease']['disease_name']}}</h3>
+            <p>{{item['percent']}}%</p>
+        </div>
+        <p>{{item['disease']['disease_description']}}</p>
+    </div>
+</div>
