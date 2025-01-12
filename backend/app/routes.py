@@ -621,7 +621,7 @@ def predict_disease():
             result["percent"] = round(appeal_weight[0][0] / total_weight[0][0] * 100, 2)
             predicted_results.append(result)
 
-    return jsonify({"ans": predicted_results})
+    return jsonify({"ans": predicted_results, "symptoms": appeal_symptoms})
 
 
 @app.route('/api/update_entity', methods=['POST'])

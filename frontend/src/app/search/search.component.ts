@@ -122,14 +122,14 @@ export class SearchComponent {
     }
 
     console.log(data)
-
+    this.dataService.setAppealData(data);
 
     this.http.post('http://127.0.0.1:5000/api/create_appeal', data).subscribe({
       next: (response: any) => {
         console.log(response)
         this.http.post('http://127.0.0.1:5000/api/predict_disease', {"appeal_date": data.appeal_date}).subscribe({
           next: (response: any) => {
-            this.dataService.setPredictData(response['ans'])
+            this.dataService.setPredictData(response)
             this.router.navigate(['/predict'])
           },
           error: error => {

@@ -7,6 +7,13 @@
 
 </div>
 
+<div class="medical_history">
+    <h3>Анамнез</h3>
+    <p><b>Дата обращения: </b> {{medical_history['appeal_date']}} </p> 
+    <p><b>Жалобы:</b> {{medical_history['appeal_complaints']}} </p>
+    <p><b>Симптомы:</b>  {{symptoms}}</p>
+</div>
+
 <div class="list">
     <div class="card" *ngFor="let item of predict" (click)="GoToDisease(item)">
         <div class="header">

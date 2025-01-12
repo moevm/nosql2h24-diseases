@@ -137,10 +137,41 @@ export class ProfileComponent {
   }
 
   GoToPredict(item: any){
-    this.http.post('http://127.0.0.1:5000/api/predict_disease', {"appeal_date": item.appeal.appeal_date}).subscribe({
-      next: (response: any) => {
-        this.dataService.setPredictData(response['ans'])
-        this.router.navigate(['/predict'])
+      this.http.post('http://127.0.0.1:5000/api/predict_disease', {"appeal_date": item.appeal.appeal_date}).subscribe({
+        next: (response: any) => {
+          this.dataService.setPredictData(response)
+
+          this.http.post('http://127.0.0.1:5000/api/appeal_database', {
+        "filter_params": {
+          "filter1-field": "appeal_date",
+          "filter1-action": "<>",
+          "filter1-value": "",
+          "filter2-field": "appeal_date",
+          "filter2-action": ">=",
+          "filter2-value": "'" + item.appeal.appeal_date.replace(" ", "T") + "'",
+          "filter3-field": "appeal_date",
+          "filter3-action": "<=",
+          "filter3-value": "'" + item.appeal.appeal_date.replace(" ", "T") + "'"
+        },
+        "patient_filter_params": {
+          "filter1-field": "fullname",
+          "filter1-action": "CONTAINS",
+          "filter1-value": this.userData['fullname']
+        }
+      }).subscribe({
+        next: (response: any) => {
+          this.dataService.setAppealData(response['ans'][0]['appeal'])
+          this.router.navigate(['/predict'])
+        },
+        error: error => {
+          console.error('Error:', error);
+        },
+        complete: () => {
+          console.log('Request complete');
+        }
+      });
+
+
       },
       error: error => {
         console.error('Error:', error);

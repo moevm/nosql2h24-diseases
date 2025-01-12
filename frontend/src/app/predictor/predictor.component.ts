@@ -15,13 +15,23 @@ import { config } from 'rxjs';
 })
 export class PredictorComponent {
   predict : any = null;
+  medical_history: any = null;
+  symptoms: any = null;
   search: string = '';
 
   constructor(private router: Router, private http: HttpClient, private dataService: DataService){}
 
   ngOnInit() {
-    this.predict = this.dataService.getPredictData();
+    this.predict = this.dataService.getPredictData()['ans'];
+    this.symptoms = this.dataService.getPredictData()['symptoms']
+    this.symptoms = this.symptoms.map((symptom: any) => symptom.symptom_name).join(', ');
+
+    console.log("here's :", this.symptoms)
+
     this.sortPredictByPercent();
+
+    this.medical_history = this.dataService.getAppealData();
+    console.log("Take it", this.medical_history)
   }
 
   sortPredictByPercent() {
