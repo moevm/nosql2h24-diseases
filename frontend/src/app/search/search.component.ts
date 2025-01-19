@@ -35,7 +35,16 @@ export class SearchComponent {
     }).subscribe({
       next: (response: any) => {
         this.data = response['ans'];
-        console.log(this.data);
+
+        this.data.sort((a: any, b: any) => {
+          if (a.symptom_name < b.symptom_name) {
+            return -1;
+          }
+          if (a.symptom_name > b.symptom_name) {
+            return 1;
+          }
+          return 0;
+        });
       },
       error: error => {
         console.error('Error:', error);

@@ -1,5 +1,5 @@
 input{
-	width: 1300px;
+	width: 800px;
 	height: 50px;
 	padding: 4px 8px 4px 8px;
 	background: #FFFFFF;
@@ -14,7 +14,7 @@ input{
 	text-align: left;
 
     position: fixed;
-    left: 250px;
+    right: 100px;
     top: 230px;
     &:focus{
         outline: none;
@@ -42,7 +42,7 @@ button{
 	color: #fff;
 
 	position: fixed;
-	left: 1525px;
+	right: 75px;
 	top: 230px;
 
 	&:hover{
@@ -54,26 +54,33 @@ button{
 	}
 }
 
+.activate_list{
+	border-bottom: 1px solid #21D9D9;
+}
+
 .list-container {
 	max-height: 220px; /* Максимальная высота блока */
+	width: 820px;
 	overflow-y: auto; /* Появление ползунка при превышении максимальной высоты */
 	box-sizing: border-box;
-	border-bottom: 1px solid #21D9D9;
 
 	position: fixed;
-    left: 255px;
+    right: 100px;
     top: 280px;
 	
   }
+
+  
   
   .list {
 	list-style: none;
 	padding: 0;
 	margin: 0;
+	
   }
   
   .list li {
-	width: 1290px;
+	width: 790px;
 	height: 40px;
 	padding: 8px 8px 8px 8px;
 	background: #FFFFFF;
@@ -115,14 +122,14 @@ button{
   }
 
 #labelsaver{
-	width: 1290px;
+	width: 780px;
 
 	display: flex;
     flex-wrap: wrap;
     gap: 10px; /* Добавляет промежуток между элементами */
 
 	position: fixed;
-    left: 255px;
+    right: 125px;
     top: 320px;
 	padding: 0;
 
@@ -161,24 +168,29 @@ button{
 
 
 textarea{
-	position: absolute;
-	top: 0px;
-
+	position: fixed;
+	left: 100px;
+	top: 215px;
+	
 	margin: 20px;
 
 	text-align: center;
 	padding-top: 10px;
 	
 
-	height: 50px;
+	max-height: 200px;
 	//z-index: -1;
-	width: 400px;
+	width: 650px;
 	border-radius: 10px;
 	border: 2px solid #21D9D9;
 	outline: none;
 
 	font-family: "Comfortaa";
 	font-size: 20px;
+
+	&:focus{
+		height: 200px;
+	}
 	
 }
 

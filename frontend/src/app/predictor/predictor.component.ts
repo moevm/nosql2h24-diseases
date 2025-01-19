@@ -43,9 +43,10 @@ export class PredictorComponent {
   Search() {
     console.log(this.search)
     if (this.search.trim() === '') {
-      this.predict = this.dataService.getPredictData(); 
+      this.predict = this.dataService.getPredictData()['ans']; 
     } else {
-      this.predict = this.dataService.getPredictData().filter((item: any) =>
+      console.log(this.dataService.getPredictData())
+      this.predict = this.dataService.getPredictData()['ans'].filter((item: any) =>
         item.disease.disease_name.toLowerCase().includes(this.search.toLowerCase())
       );
     }
