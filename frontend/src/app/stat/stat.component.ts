@@ -28,6 +28,9 @@ export class StatComponent {
     this.userData = this.dataService.getUserData();
     console.log(this.userData);
 
+    this.selectedSymptom = 'слабость в конечностях'
+    this.inputingSymptom = 'слабость в конечностях'
+
     if (!this.userData) {
       this.router.navigate(['/login']);
     }
@@ -37,7 +40,16 @@ export class StatComponent {
     this.http.post('http://127.0.0.1:5000/api/entities', {"entity_type": "Symptom", "filter_params": {"filter1-field": "symptom_name", "filter1-action": "CONTAINS", "filter1-value": this.inputingSymptom.toLowerCase()}}).subscribe({
       next: (response: any) => {
         this.data = response['ans']
-        console.log(this.data)
+        
+        this.data.sort((a: any, b: any) => {
+          if (a.symptom_name < b.symptom_name) {
+            return -1;
+          }
+          if (a.symptom_name > b.symptom_name) {
+            return 1;
+          }
+          return 0;
+        });
       },
       error: error => {
         console.error('Error:', error);

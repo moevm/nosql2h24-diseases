@@ -1,6 +1,8 @@
-<textarea #textareaElement [(ngModel)]="complaints" placeholder="Опишите своё самочувствие"></textarea>
+
 
 <input #inputElement placeholder="Что Вас беспокоит?" [ngClass]="{'activate': input}" [(ngModel)]="input" (input)="OnInputChange($event)" (focus)="OnInputFocus()" (blur)="OnInputBlur()">
+
+<textarea #textareaElement [(ngModel)]="complaints" placeholder="Опишите своё самочувствие"></textarea>
 
 <div id="labelsaver">
     <div *ngFor="let sympt of chosen_sympts" class="label">
@@ -9,7 +11,7 @@
     </div>
 </div>
 
-<div class="list-container">
+<div class="list-container" [ngClass]="{'activate_list': input}">
     <ul class="list">
         <ng-container *ngFor="let item of data">
             <li *ngIf="!IsTaken(item['symptom_name'])" (mousedown)="OnItemMouseDown()" (click)="ChooseTheSympt(item['symptom_name'])">
